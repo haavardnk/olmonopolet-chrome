@@ -66,27 +66,19 @@ function injectIBU(data) {
 
 function updateStyleInfo(data) {
   const category = getElement("product__category-name");
-  const tabElement = getElement("product__tab-list")
-    ?.getElementsByTagName("li")[0]
-    ?.getElementsByTagName("span")[1];
+  if (!category) return;
 
-  if (!category || !tabElement || tabElement.textContent.includes("(")) return;
+  if (category.textContent.includes("(")) return;
 
+  const categoryText = category.textContent;
   if (
-    category.textContent.includes("ØL") ||
-    category.textContent.includes("Øl")
+    categoryText.includes("ØL") ||
+    categoryText.includes("Øl")
   ) {
-    category.textContent = "Øl - " + data.style;
-  } else {
-    const stylePart = data.style.split("-")[1] || data.style;
-    if (category.textContent.includes(" - ")) {
-      const baseCategory = category.textContent.split(" - ")[0];
-      category.textContent = baseCategory + " - " + stylePart;
-    } else {
-      category.textContent += " - " + stylePart;
-    }
+    const styleSpan = document.createElement("span");
+    styleSpan.textContent = " (" + data.style + ")";
+    category.appendChild(styleSpan);
   }
-  tabElement.textContent += " (" + data.style + ")";
 }
 
 function addBadges(data) {
@@ -151,6 +143,18 @@ function setupWrongMatchHandler(wrongElement, beerId) {
 
 let observersInitialized = false;
 
+function getBeerId() {
+  const detailsList = document.querySelectorAll('[class^="product-details"] li');
+  for (const item of detailsList) {
+    const spans = item.getElementsByTagName('span');
+    if (spans.length >= 2 && spans[0].textContent === 'Varenummer') {
+      return spans[1].textContent;
+    }
+  }
+  const tabList = getElement("product__tab-list");
+  return tabList?.getElementsByTagName("li")[1]?.getElementsByTagName("span")[1]?.innerText;
+}
+
 function injectBeerInfo() {
   if (
     getElement("untappd") ||
@@ -160,9 +164,7 @@ function injectBeerInfo() {
     return;
   }
 
-  const beerId = getElement("product__tab-list")
-    ?.getElementsByTagName("li")[1]
-    ?.getElementsByTagName("span")[1]?.innerText;
+  const beerId = getBeerId();
 
   if (!beerId) return;
 
@@ -214,6 +216,9 @@ function initializeProductDetails() {
       setTimeout(injectBeerInfo, 100)
     );
     document.arrive(".product__category-name", () =>
+      setTimeout(injectBeerInfo, 100)
+    );
+    document.arrive('[class^="product-details"]', () =>
       setTimeout(injectBeerInfo, 100)
     );
   }

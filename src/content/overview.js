@@ -54,9 +54,10 @@ function addUserRating(elements, product, beerInfo) {
     beerInfo.user_checked_in[0].rating.toPrecision(3);
 
   elements.triangle.appendChild(elements.checkmark);
-  const srOnly = product.getElementsByClassName("sr-only")[0];
-  if (srOnly) {
-    product.insertBefore(elements.triangle, srOnly);
+  const imageContainer = product.getElementsByClassName("product__image-container")[0];
+  if (imageContainer) {
+    imageContainer.style.position = "relative";
+    imageContainer.insertBefore(elements.triangle, imageContainer.firstChild);
   }
 }
 
@@ -69,12 +70,12 @@ function createRatings(products, beer_info) {
     if (!id || !beer_info[id]) return;
 
     const elements = createProductElements();
-    const bottomContainer = product.getElementsByClassName(
-      "product-item__bottom-container"
+    const infoWrapper = product.getElementsByClassName(
+      "product-item__info-wrapper"
     )[0];
-    if (!bottomContainer) return;
+    if (!infoWrapper) return;
 
-    bottomContainer.appendChild(elements.container);
+    infoWrapper.appendChild(elements.container);
 
     const beerInfo = beer_info[id];
 

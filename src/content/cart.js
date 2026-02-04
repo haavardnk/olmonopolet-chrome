@@ -1,13 +1,23 @@
 const state = { processing: 0 };
 
+function findByClassPrefix(parent, prefix) {
+  return parent.querySelector(`[class*="${prefix}"]`);
+}
+
+function getCartProducts() {
+  return Array.from(document.querySelectorAll('li[id^="cartEntryCode"]'));
+}
+
 function createRatings(products, beer_info) {
   products.forEach((product) => {
     const id = product.id.split("cartEntryCode")[1];
     if (!beer_info[id]) return;
 
     const elements = createBaseElements();
-    const infoContainer = product.getElementsByClassName("info-container")[0];
+    const infoContainer = findByClassPrefix(product, "info-container");
     if (!infoContainer) return;
+
+    if (infoContainer.getElementsByClassName("untappd").length > 0) return;
 
     infoContainer.appendChild(elements.container);
 
@@ -23,7 +33,7 @@ function createRatings(products, beer_info) {
 }
 
 async function processCart() {
-  const products = Array.from(document.getElementsByClassName("product-item"));
+  const products = getCartProducts();
   const ids = products.map((product) => product.id.split("cartEntryCode")[1]);
 
   if (ids.length === 0) {
@@ -46,7 +56,7 @@ async function processCart() {
   }
 }
 
-document.arrive(".product-item__image", () => {
+document.arrive('[class*="product-item__image"]', () => {
   const untappd = document.getElementsByClassName("untappd");
   if (untappd.length === 0 && state.processing === 0) {
     state.processing = 1;
