@@ -1,6 +1,6 @@
 {
   "name": "olmonopolet-chrome",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Legger til Untappd informasjon på Vinmonopolet.no",
   "private": true,
   "type": "module",

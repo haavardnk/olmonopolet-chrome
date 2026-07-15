@@ -3,7 +3,7 @@ import { defineManifest } from "@crxjs/vite-plugin";
 export default defineManifest({
   manifest_version: 3,
   name: "Ølmonopolet",
-  version: "0.3.1",
+  version: "0.3.2",
   description: "Legger til Untappd informasjon på Vinmonopolet.no",
   icons: {
     "16": "assets/img/icon16.png",
