@@ -54,3 +54,9 @@ export function getInfoContainer(product: Element): Element {
 
   return product;
 }
+
+export function appendStyleToCategory(product: Element, style: string): void {
+  const cat = queryFirst(product, SELECTORS.categoryName);
+  if (!cat || cat.textContent?.includes(" - ")) return;
+  cat.append(` - ${style}`);
+}

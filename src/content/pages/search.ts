@@ -1,0 +1,17 @@
+import {
+  findProductCards,
+  appendStyleToCategory,
+} from "../dom/product";
+import { processCards } from "./shared";
+
+const LIST_FIELDS = "vmp_id,style,rating,untpd_url,badges";
+
+export async function handleSearch(): Promise<void> {
+  await processCards(findProductCards(), {
+    requireBeer: true,
+    fields: LIST_FIELDS,
+    onRendered: (card, beer) => {
+      if (beer.style) appendStyleToCategory(card, beer.style);
+    },
+  });
+}
