@@ -17,7 +17,6 @@ export default defineManifest({
     {
       matches: ["https://*.vinmonopolet.no/*"],
       js: ["src/content/index.ts"],
-      css: ["src/styles/content.css"],
       run_at: "document_end",
     },
   ],

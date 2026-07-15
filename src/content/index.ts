@@ -1,4 +1,5 @@
 import type { PageType } from "../shared/types";
+import "../styles/content.css";
 import { detectPage } from "./router";
 import { handleSearch } from "./pages/search";
 import { handleDetails } from "./pages/details";
