@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "zip": "npm run build && cd dist && zip -r -FS ../olmonopolet-chrome.zip . -x '.vite/*'"
   },
   "license": "GPL-3.0",
   "devDependencies": {
