@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { kFormatter, ratingToStars, formatUpdated } from "../../src/shared/format";
+import {
+  kFormatter,
+  ratingToStars,
+  formatUpdated,
+} from "../../src/shared/format";
 
 describe("kFormatter", () => {
   it("formats thousands with k", () => {

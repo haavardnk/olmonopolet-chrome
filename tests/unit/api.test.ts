@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getBeers, getBeer, clearBeerCache } from "../../src/content/api/client";
+import {
+  getBeers,
+  getBeer,
+  clearBeerCache,
+} from "../../src/content/api/client";
 
 beforeEach(() => {
   clearBeerCache();

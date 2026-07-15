@@ -5,14 +5,21 @@ import { handleDetails } from "../../src/content/pages/details";
 import { clearBeerCache } from "../../src/content/api/client";
 
 function fixture(name: string): string {
-  return readFileSync(resolve(import.meta.dirname, "../fixtures", name), "utf-8");
+  return readFileSync(
+    resolve(import.meta.dirname, "../fixtures", name),
+    "utf-8",
+  );
 }
 
 beforeEach(() => {
   clearBeerCache();
   vi.restoreAllMocks();
   document.body.innerHTML = fixture("details.html");
-  history.replaceState({}, "", "/Land/Norge/Buskerud/Lier/Disko-Agent/p/15616302");
+  history.replaceState(
+    {},
+    "",
+    "/Land/Norge/Buskerud/Lier/Disko-Agent/p/15616302",
+  );
 });
 
 describe("handleDetails", () => {
@@ -65,8 +72,8 @@ describe("handleDetails", () => {
       (li) => li.querySelector("span")?.textContent === "Ibu",
     );
     expect(ibuInjected).toBe(true);
-    expect(document.querySelector(".product__category-name")?.textContent).toContain(
-      "(IPA - American)",
-    );
+    expect(
+      document.querySelector(".product__category-name")?.textContent,
+    ).toContain("(IPA - American)");
   });
 });

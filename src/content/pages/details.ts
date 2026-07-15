@@ -5,7 +5,11 @@ import { getBeer } from "../api/client";
 import { getProductIdFromUrl } from "../dom/product";
 import { queryFirst, SELECTORS } from "../dom/selectors";
 import { ratingToStars, kFormatter, formatUpdated } from "../../shared/format";
-import { productUrl, API_BASE_URL, BEER_CATEGORIES } from "../../shared/constants";
+import {
+  productUrl,
+  API_BASE_URL,
+  BEER_CATEGORIES,
+} from "../../shared/constants";
 import { retryUntil } from "../core/observer";
 
 interface Block {
@@ -88,7 +92,10 @@ function updateStyle(beer: Beer, category: Element): void {
 
 function injectExtraInfo(beer: Beer, category: Element): void {
   updateStyle(beer, category);
-  void retryUntil(() => injectIBU(beer, category), { attempts: 20, delay: 300 });
+  void retryUntil(() => injectIBU(beer, category), {
+    attempts: 20,
+    delay: 300,
+  });
 }
 
 function addBadges(beer: Beer, layout: Element): void {

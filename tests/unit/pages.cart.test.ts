@@ -5,7 +5,10 @@ import { handleCart } from "../../src/content/pages/cart";
 import { clearBeerCache } from "../../src/content/api/client";
 
 function fixture(name: string): string {
-  return readFileSync(resolve(import.meta.dirname, "../fixtures", name), "utf-8");
+  return readFileSync(
+    resolve(import.meta.dirname, "../fixtures", name),
+    "utf-8",
+  );
 }
 
 beforeEach(() => {

@@ -1,7 +1,4 @@
-import {
-  findProductCards,
-  appendStyleToCategory,
-} from "../dom/product";
+import { findProductCards, appendStyleToCategory } from "../dom/product";
 import { processCards } from "./shared";
 
 const LIST_FIELDS = "vmp_id,style,rating,untpd_url,badges";

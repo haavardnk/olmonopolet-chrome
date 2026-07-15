@@ -25,7 +25,9 @@ export function renderRating(beer: Beer): HTMLDivElement {
   return container;
 }
 
-export function renderBadges(badges: Badge[] | undefined): HTMLDivElement | null {
+export function renderBadges(
+  badges: Badge[] | undefined,
+): HTMLDivElement | null {
   if (!badges?.length) return null;
 
   const wrap = document.createElement("div");

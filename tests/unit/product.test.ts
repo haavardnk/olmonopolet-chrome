@@ -10,7 +10,10 @@ import {
 } from "../../src/content/dom/product";
 
 function fixture(name: string): string {
-  return readFileSync(resolve(import.meta.dirname, "../fixtures", name), "utf-8");
+  return readFileSync(
+    resolve(import.meta.dirname, "../fixtures", name),
+    "utf-8",
+  );
 }
 
 describe("product (search fixture)", () => {
@@ -53,7 +56,9 @@ describe("product (cart fixture)", () => {
 
 describe("getProductIdFromUrl", () => {
   it("parses /p/{id}", () => {
-    expect(getProductIdFromUrl("/Land/Norge/Disko/p/15616302")).toBe("15616302");
+    expect(getProductIdFromUrl("/Land/Norge/Disko/p/15616302")).toBe(
+      "15616302",
+    );
   });
 
   it("returns null when absent", () => {

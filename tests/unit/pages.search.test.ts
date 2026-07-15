@@ -5,7 +5,10 @@ import { handleSearch } from "../../src/content/pages/search";
 import { clearBeerCache } from "../../src/content/api/client";
 
 function fixture(name: string): string {
-  return readFileSync(resolve(import.meta.dirname, "../fixtures", name), "utf-8");
+  return readFileSync(
+    resolve(import.meta.dirname, "../fixtures", name),
+    "utf-8",
+  );
 }
 
 function mockBeers(results: unknown[]): void {
@@ -23,7 +26,9 @@ beforeEach(() => {
 
 describe("handleSearch", () => {
   it("injects a rating with stars and an olmonopolet link", async () => {
-    mockBeers([{ vmp_id: 15616302, rating: 3.6, style: "IPA - American", badges: [] }]);
+    mockBeers([
+      { vmp_id: 15616302, rating: 3.6, style: "IPA - American", badges: [] },
+    ]);
 
     await handleSearch();
 
@@ -40,9 +45,9 @@ describe("handleSearch", () => {
 
     await handleSearch();
 
-    expect(document.querySelector(".product__category-name")?.textContent).toContain(
-      "IPA - American",
-    );
+    expect(
+      document.querySelector(".product__category-name")?.textContent,
+    ).toContain("IPA - American");
   });
 
   it("does not double-inject on repeated runs", async () => {
