@@ -1,4 +1,4 @@
-const state = { processing: 0, observersInitialized: 0 };
+const state = { processing: 0 };
 
 function createProductElements() {
   const elements = createBaseElements();
@@ -25,16 +25,10 @@ function createProductElements() {
 }
 
 function updateCategoryStyle(product, beerInfo) {
-  const categoryElement = product.getElementsByClassName(
-    "product__category-name"
-  )[0];
-  if (!categoryElement) return;
-
-  const stylePart = categoryElement.innerText.includes("ØL")
-    ? beerInfo.style
-    : beerInfo.style.split("-")[1] || beerInfo.style;
-
-  categoryElement.textContent += " - " + stylePart;
+  const categoryElement = product.querySelector(".product__category-name");
+  if (!categoryElement || !beerInfo.style) return;
+  if (categoryElement.textContent.includes(" - ")) return;
+  categoryElement.textContent += " - " + beerInfo.style;
 }
 
 function addUserRating(elements, product, beerInfo) {
@@ -49,15 +43,15 @@ function addUserRating(elements, product, beerInfo) {
   elements.userRating.appendChild(elements.linkCheckin);
   elements.userRating.appendChild(elements.star2);
 
-  elements.linkCheckin.href = beerInfo.untpd_url + "?filter=you";
+  elements.linkCheckin.href = productUrl(beerInfo.vmp_id);
   elements.linkCheckin.innerText =
     beerInfo.user_checked_in[0].rating.toPrecision(3);
 
   elements.triangle.appendChild(elements.checkmark);
-  const imageContainer = product.getElementsByClassName("product__image-container")[0];
-  if (imageContainer) {
-    imageContainer.style.position = "relative";
-    imageContainer.insertBefore(elements.triangle, imageContainer.firstChild);
+  const imgLink = product.querySelector("a[aria-label]");
+  if (imgLink) {
+    imgLink.style.position = "relative";
+    imgLink.insertBefore(elements.triangle, imgLink.firstChild);
   }
 }
 
@@ -66,37 +60,37 @@ function createRatings(products, beer_info) {
     if (!isProductSupported(product)) return;
     if (hasExistingUntappd(product)) return;
 
-    const id = product.getElementsByClassName("product__code")[0]?.innerText;
+    const id = getProductId(product);
     if (!id || !beer_info[id]) return;
 
     const elements = createProductElements();
-    const infoWrapper = product.getElementsByClassName(
-      "product-item__info-wrapper"
-    )[0];
-    if (!infoWrapper) return;
+    const infoContainer = getProductInfoContainer(product);
+    if (!infoContainer) return;
 
-    infoWrapper.appendChild(elements.container);
+    infoContainer.appendChild(elements.container);
 
     const beerInfo = beer_info[id];
 
     if (setRatingInfo(elements, beerInfo)) {
+      elements.rating.insertBefore(
+        ratingToStars(beerInfo.rating.toPrecision(3)),
+        elements.link
+      );
       updateCategoryStyle(product, beerInfo);
       addUserRating(elements, product, beerInfo);
     }
 
-    if (beerInfo) {
+    if (beerInfo?.badges?.length > 0) {
       const badgeContainer = document.createElement("div");
       badgeContainer.classList.add("badges");
 
-      beerInfo.badges?.forEach((badge) => {
+      beerInfo.badges.forEach((badge) => {
         const badgeSpan = document.createElement("span");
         badgeSpan.innerText = badge.text;
         badgeContainer.appendChild(badgeSpan);
       });
 
-      if (beerInfo.badges?.length > 0) {
-        elements.container.appendChild(badgeContainer);
-      }
+      elements.container.appendChild(badgeContainer);
     }
   });
 
@@ -104,8 +98,11 @@ function createRatings(products, beer_info) {
 }
 
 async function processProductOverview() {
-  const products = Array.from(document.getElementsByClassName("product-item"));
-  const ids = getBeerIds(products.filter(isProductSupported));
+  const products = Array.from(
+    document.querySelectorAll("ul.product-list > li")
+  );
+  const supportedProducts = products.filter(isProductSupported);
+  const ids = getBeerIds(supportedProducts);
 
   if (ids.length === 0) {
     state.processing = 0;
@@ -130,32 +127,8 @@ async function processProductOverview() {
 function resultsChanged() {
   if (state.processing === 0) {
     state.processing = 1;
-    setTimeout(processProductOverview, 100);
-    setTimeout(() => {
-      const products = document.getElementsByClassName(
-        "product__category-name"
-      );
-      for (let product of products) {
-        if (BEER_CATEGORIES.includes(product.innerText)) {
-          processProductOverview();
-          break;
-        }
-      }
-    }, 1000);
+    setTimeout(processProductOverview, 200);
   }
 }
 
-document.arrive(".product__image-container", () => {
-  const untappd = document.getElementsByClassName("untappd");
-  if (untappd.length === 0 && state.processing === 0) {
-    state.processing = 1;
-    processProductOverview();
-  }
-
-  if (state.observersInitialized === 0) {
-    document.arrive(".facet-value--selected", resultsChanged);
-    document.leave(".facet-value--selected", resultsChanged);
-    document.leave(".search-results__sort__list", resultsChanged);
-    state.observersInitialized = 1;
-  }
-});
+document.arrive(".product__name", resultsChanged);

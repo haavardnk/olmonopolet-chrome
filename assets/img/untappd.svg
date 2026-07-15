@@ -3,9 +3,14 @@
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 24 24" style="enable-background:new 0 0 24 24;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#334D51;}
+	.st0{fill:#092529;}
 </style>
-<g id="Layer_1_00000106854445060162221620000010828520370435069331_">
+<defs>
+	<filter id="thin" x="-30%" y="-30%" width="160%" height="160%">
+		<feMorphology operator="erode" radius="0.5"/>
+	</filter>
+</defs>
+<g id="Layer_1_00000106854445060162221620000010828520370435069331_" filter="url(#thin)">
 	<g>
 		<g>
 			<path class="st0" d="M18.6,23c-1,0-2-0.5-2.6-1.4l-4-5.9l-3.9,5.9C7.5,22.4,6.5,23,5.4,23c-0.1,0-0.3,0-0.4,0

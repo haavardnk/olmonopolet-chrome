@@ -1,14 +1,9 @@
 const state = { processing: 0 };
 
 function addStyleToCategory(product, style) {
-  const categoryElement = product.getElementsByClassName(
-    "product__category-name"
-  )[0];
+  const categoryElement = product.querySelector(".product__category-name");
   if (!categoryElement || categoryElement.textContent.includes(" - ")) return;
-
-  const categoryText = categoryElement.innerText;
-  const styleText = categoryText.includes("ØL") ? style : style.split("-")[1];
-  categoryElement.textContent += ` - ${styleText}`;
+  categoryElement.textContent += ` - ${style}`;
 }
 
 function createRatings(products, beer_info) {
@@ -16,19 +11,25 @@ function createRatings(products, beer_info) {
     if (!isProductSupported(product)) return;
     if (hasExistingUntappd(product)) return;
 
-    const id = product.getElementsByClassName("product__code")[0]?.innerText;
+    const id = getProductId(product);
     if (!id) return;
 
     const elements = createBaseElements();
-    const infoContainer = product.getElementsByClassName("info-container")[0];
+    const infoContainer = getProductInfoContainer(product);
     if (!infoContainer) return;
 
     infoContainer.appendChild(elements.container);
 
     const beerInfo = beer_info[id];
 
-    if (setRatingInfo(elements, beerInfo) && beerInfo.style) {
-      addStyleToCategory(product, beerInfo.style);
+    if (setRatingInfo(elements, beerInfo)) {
+      elements.rating.insertBefore(
+        ratingToStars(beerInfo.rating.toPrecision(3)),
+        elements.link
+      );
+      if (beerInfo.style) {
+        addStyleToCategory(product, beerInfo.style);
+      }
     }
 
     if (beerInfo) {
@@ -40,7 +41,9 @@ function createRatings(products, beer_info) {
 }
 
 async function initializeWishlistPage() {
-  const products = Array.from(document.getElementsByClassName("product-item"));
+  const products = Array.from(
+    document.querySelectorAll("ul.product-list > li")
+  );
   const supportedProducts = products.filter(isProductSupported);
   const ids = getBeerIds(supportedProducts);
 
@@ -64,10 +67,9 @@ async function initializeWishlistPage() {
   }
 }
 
-document.arrive(".product__image-container", () => {
-  const untappd = document.getElementsByClassName("untappd");
-  if (untappd.length === 0 && state.processing === 0) {
+document.arrive(".product__name", () => {
+  if (state.processing === 0) {
     state.processing = 1;
-    initializeWishlistPage();
+    setTimeout(initializeWishlistPage, 200);
   }
 });

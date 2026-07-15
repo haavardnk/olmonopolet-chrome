@@ -20,10 +20,18 @@ async function getBeerById(
   return await response.json();
 }
 
-function getBeerIds(products, selector = "product__code") {
-  return products
-    .map((product) => product.getElementsByClassName(selector)[0]?.innerText)
-    .filter((id) => id);
+function getProductId(product) {
+  const link =
+    product.querySelector(".product__name") ||
+    product.querySelector("a[aria-label]") ||
+    product.querySelector('a[href*="/p/"]');
+  if (!link) return null;
+  const match = link.href?.match(/\/p\/(\d+)/);
+  return match ? match[1] : null;
+}
+
+function getBeerIds(products) {
+  return products.map(getProductId).filter((id) => id);
 }
 
 function addBadges(container, badges) {
@@ -39,44 +47,46 @@ function addBadges(container, badges) {
   });
 }
 
-function createBaseElements(
-  logoClass = "logo-overview",
-  starClass = "star-overview"
-) {
+function createBaseElements() {
   const elements = {};
 
   elements.container = document.createElement("div");
   elements.rating = document.createElement("div");
   elements.link = document.createElement("a");
-  elements.logo = document.createElement("img");
-  elements.star = document.createElement("img");
 
   elements.container.classList.add("untappd");
-  elements.logo.classList.add(logoClass);
-  elements.star.classList.add(starClass);
-
-  elements.logo.src = chrome.runtime.getURL("assets/img/untappd.svg");
-  elements.star.src = chrome.runtime.getURL("assets/img/star-solid.svg");
 
   elements.link.target = "_blank";
   elements.link.rel = "noopener noreferrer";
 
   elements.container.appendChild(elements.rating);
-  elements.rating.appendChild(elements.logo);
   elements.rating.appendChild(elements.link);
-  elements.rating.appendChild(elements.star);
 
   return elements;
 }
 
 function isProductSupported(product) {
-  const categoryElement = product.getElementsByClassName(
-    "product__category-name"
-  )[0];
-  return (
-    categoryElement &&
-    BEER_CATEGORIES.some((cat) => categoryElement.innerText.includes(cat))
-  );
+  const productLink = product.querySelector("a[aria-label]");
+  if (productLink) {
+    const label = (productLink.getAttribute("aria-label") || "").toUpperCase();
+    if (BEER_CATEGORIES.some((cat) => label.includes(cat))) return true;
+  }
+  const categoryElement = product.querySelector(".product__category-name");
+  if (categoryElement) {
+    return BEER_CATEGORIES.some((cat) =>
+      categoryElement.textContent.toUpperCase().includes(cat)
+    );
+  }
+  return false;
+}
+
+function getProductInfoContainer(product) {
+  const nameEl = product.querySelector(".product__name");
+  return nameEl?.parentElement;
+}
+
+function productUrl(vmpId) {
+  return `https://olmonopolet.app/products/${vmpId}`;
 }
 
 function hasExistingUntappd(product) {
@@ -86,7 +96,7 @@ function hasExistingUntappd(product) {
 function setRatingInfo(elements, beerInfo) {
   if (beerInfo && beerInfo.rating !== null) {
     elements.link.innerText = beerInfo.rating.toPrecision(3);
-    elements.link.href = beerInfo.untpd_url;
+    elements.link.href = productUrl(beerInfo.vmp_id);
     return true;
   } else {
     elements.link.innerText = "Ingen match";

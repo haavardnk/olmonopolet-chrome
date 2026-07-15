@@ -5,7 +5,10 @@ function getElement(className, index = 0) {
 function isProductSupported() {
   const category = getElement("product__category-name");
   return (
-    category && BEER_CATEGORIES.some((cat) => category.innerText.includes(cat))
+    category &&
+    BEER_CATEGORIES.some((cat) =>
+      category.textContent.toUpperCase().includes(cat)
+    )
   );
 }
 
@@ -17,17 +20,13 @@ function createUntappdElements() {
   elements.link = document.createElement("a");
   elements.updated = document.createElement("p");
   elements.wrong = document.createElement("a");
-  elements.logo = document.createElement("img");
 
   elements.container.classList.add("untappd");
   elements.wrong.classList.add("suggest");
-  elements.logo.classList.add("logo-detail");
 
-  elements.logo.src = chrome.runtime.getURL("assets/img/untappd.svg");
   elements.link.target = "_blank";
   elements.link.rel = "noopener noreferrer";
 
-  elements.rating.appendChild(elements.logo);
   elements.rating.appendChild(elements.link);
   elements.container.appendChild(elements.rating);
   elements.container.appendChild(elements.updated);
@@ -36,45 +35,62 @@ function createUntappdElements() {
   return elements;
 }
 
+function findDetailsList() {
+  const allLis = document.querySelectorAll("main li");
+  for (const li of allLis) {
+    const spans = li.querySelectorAll(":scope > span");
+    if (spans.length >= 2 && spans[0].textContent.trim() === "Varenummer") {
+      return li.parentElement;
+    }
+  }
+  return null;
+}
+
 function injectIBU(data) {
+  if (!data.ibu) return true;
+
   const category = getElement("product__category-name");
-  if (
-    !category?.textContent.includes("ØL") &&
-    !category?.textContent.includes("Øl")
-  )
-    return;
+  if (!category?.textContent.toUpperCase().includes("ØL")) return true;
 
-  const ibuContainers = document.querySelectorAll('[class^="properties-list"]');
-  if (ibuContainers.length === 0) return;
+  const detailsList = findDetailsList();
+  if (!detailsList) return false;
 
-  const ibuHolder = ibuContainers[ibuContainers.length - 1];
-
-  const listItems = Array.from(ibuHolder.getElementsByTagName("li"));
-  const hasIBU = listItems.some((item) => {
-    const strong = item.getElementsByTagName("strong")[0];
-    return strong?.innerText === "Ibu";
+  const hasIBU = Array.from(detailsList.querySelectorAll("li")).some((item) => {
+    const s = item.querySelectorAll(":scope > span");
+    return s.length >= 1 && s[0].textContent.trim() === "Ibu";
   });
 
-  if (!hasIBU && listItems.length > 0) {
-    const ibuItem = listItems[0].cloneNode(true);
-    ibuItem.getElementsByTagName("strong")[0].innerText = "Ibu";
-    ibuItem.getElementsByTagName("span")[0].innerText = data.ibu || "N/A";
-    ibuItem.getElementsByTagName("span")[0].ariaLabel = data.ibu || "N/A";
-    ibuHolder.appendChild(ibuItem);
+  if (hasIBU) return true;
+
+  const templateLi = detailsList.querySelector("li");
+  if (!templateLi) return false;
+
+  const ibuItem = templateLi.cloneNode(true);
+  const spans = ibuItem.querySelectorAll("span");
+  if (spans.length >= 2) {
+    spans[0].textContent = "Ibu";
+    spans[1].textContent = data.ibu;
+    spans[1].removeAttribute("aria-label");
+    const innerLink = spans[1].querySelector("a");
+    if (innerLink) spans[1].innerHTML = data.ibu;
+  }
+  detailsList.appendChild(ibuItem);
+  return true;
+}
+
+function injectExtraInfo(data, attempt = 0) {
+  updateStyleInfo(data);
+  if (!injectIBU(data) && attempt < 20) {
+    setTimeout(() => injectExtraInfo(data, attempt + 1), 300);
   }
 }
 
 function updateStyleInfo(data) {
   const category = getElement("product__category-name");
-  if (!category) return;
-
+  if (!category || !data.style) return;
   if (category.textContent.includes("(")) return;
 
-  const categoryText = category.textContent;
-  if (
-    categoryText.includes("ØL") ||
-    categoryText.includes("Øl")
-  ) {
+  if (category.textContent.toUpperCase().includes("ØL")) {
     const styleSpan = document.createElement("span");
     styleSpan.textContent = " (" + data.style + ")";
     category.appendChild(styleSpan);
@@ -144,15 +160,17 @@ function setupWrongMatchHandler(wrongElement, beerId) {
 let observersInitialized = false;
 
 function getBeerId() {
-  const detailsList = document.querySelectorAll('[class^="product-details"] li');
-  for (const item of detailsList) {
-    const spans = item.getElementsByTagName('span');
-    if (spans.length >= 2 && spans[0].textContent === 'Varenummer') {
-      return spans[1].textContent;
+  const match = window.location.pathname.match(/\/p\/(\d+)/);
+  if (match) return match[1];
+
+  const allLis = document.querySelectorAll("main li");
+  for (const li of allLis) {
+    const spans = li.querySelectorAll(":scope > span");
+    if (spans.length >= 2 && spans[0].textContent.trim() === "Varenummer") {
+      return spans[1].textContent.trim();
     }
   }
-  const tabList = getElement("product__tab-list");
-  return tabList?.getElementsByTagName("li")[1]?.getElementsByTagName("span")[1]?.innerText;
+  return null;
 }
 
 function injectBeerInfo() {
@@ -169,16 +187,16 @@ function injectBeerInfo() {
   if (!beerId) return;
 
   const elements = createUntappdElements();
-  getElement("product__layout-wrapper").appendChild(elements.container);
+  getElement("product-details-main").appendChild(elements.container);
 
   getBeerById(beerId)
     .then((data) => {
       if (data?.rating !== undefined && data.rating !== null) {
         elements.rating.insertBefore(
           ratingToStars(data.rating.toPrecision(3)),
-          elements.rating.childNodes[1]
+          elements.link
         );
-        elements.link.href = data.untpd_url;
+        elements.link.href = productUrl(beerId);
         elements.link.innerText = `${data.rating.toPrecision(3)} (${kFormatter(
           data.checkins
         )})`;
@@ -189,8 +207,7 @@ function injectBeerInfo() {
         )} ${date.toLocaleTimeString("en-GB")}`;
         elements.wrong.innerText = "Feil øl?";
 
-        injectIBU(data);
-        updateStyleInfo(data);
+        injectExtraInfo(data);
       } else if (data?.detail === "Not found.") {
         elements.link.innerText = "Ny, oppdateres ved neste kjøring";
       } else {
@@ -218,7 +235,7 @@ function initializeProductDetails() {
     document.arrive(".product__category-name", () =>
       setTimeout(injectBeerInfo, 100)
     );
-    document.arrive('[class^="product-details"]', () =>
+    document.arrive(".product-details-main", () =>
       setTimeout(injectBeerInfo, 100)
     );
   }

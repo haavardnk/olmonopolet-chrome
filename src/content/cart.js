@@ -1,28 +1,39 @@
 const state = { processing: 0 };
 
-function findByClassPrefix(parent, prefix) {
-  return parent.querySelector(`[class*="${prefix}"]`);
+function getCartProducts() {
+  return Array.from(document.querySelectorAll("ul.product-list > li"));
 }
 
-function getCartProducts() {
-  return Array.from(document.querySelectorAll('li[id^="cartEntryCode"]'));
+function getCartInfoContainer(product) {
+  const nameEl = product.querySelector("h3, .product__name");
+  if (nameEl) {
+    let el = nameEl;
+    while (el.parentElement && el.parentElement !== product) el = el.parentElement;
+    return el;
+  }
+  return product;
 }
 
 function createRatings(products, beer_info) {
   products.forEach((product) => {
-    const id = product.id.split("cartEntryCode")[1];
-    if (!beer_info[id]) return;
+    const id = getProductId(product);
+    if (!id || !beer_info[id]) return;
+
+    if (product.querySelector(".untappd")) return;
 
     const elements = createBaseElements();
-    const infoContainer = findByClassPrefix(product, "info-container");
-    if (!infoContainer) return;
-
-    if (infoContainer.getElementsByClassName("untappd").length > 0) return;
+    const infoContainer = getCartInfoContainer(product);
 
     infoContainer.appendChild(elements.container);
 
     const beerInfo = beer_info[id];
-    setRatingInfo(elements, beerInfo);
+
+    if (setRatingInfo(elements, beerInfo)) {
+      elements.rating.insertBefore(
+        ratingToStars(beerInfo.rating.toPrecision(3)),
+        elements.link
+      );
+    }
 
     if (beerInfo) {
       addBadges(infoContainer, beerInfo.badges);
@@ -34,7 +45,7 @@ function createRatings(products, beer_info) {
 
 async function processCart() {
   const products = getCartProducts();
-  const ids = products.map((product) => product.id.split("cartEntryCode")[1]);
+  const ids = products.map(getProductId).filter(Boolean);
 
   if (ids.length === 0) {
     state.processing = 0;
@@ -56,10 +67,12 @@ async function processCart() {
   }
 }
 
-document.arrive('[class*="product-item__image"]', () => {
-  const untappd = document.getElementsByClassName("untappd");
-  if (untappd.length === 0 && state.processing === 0) {
+function triggerCart() {
+  if (state.processing === 0) {
     state.processing = 1;
-    processCart();
+    setTimeout(processCart, 300);
   }
-});
+}
+
+triggerCart();
+document.arrive("ul.product-list", triggerCart);
