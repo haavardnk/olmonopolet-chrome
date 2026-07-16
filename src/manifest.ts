@@ -1,11 +1,14 @@
 import { defineManifest } from "@crxjs/vite-plugin";
 
-export default defineManifest({
+const DEV_KEY =
+  "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArlBWrtzi4evkyDj0dOc8VIsTJTwu1zZpoHfpyQYNwQjV9bzw3m7i/gX2iheYvf1DZNAxYkQ9YDh9nMUM8brTJFQbVR2bqlqCnu4W4MUf0cnQ+9r0AQihsfRuBYLR0g98Jtor8Kev/Qtk9qYosfYPaNH4tXwIwZFKr/OH2ycsC2nUPhLACoe7JkUquXBgVmMb5JZyVdUJfjUC3Zk6OIJFl3e4XJJNwoYIRCVeThdLo5QBx5Q9eiekpnf9tLq5qJC5MtVKvQ48tIB1WNkDPWmwdPMYLXqMjSIqpXPEgs9mML7M02gZr70PK/eJVQsNtaZQ3cEOnoSwYS82VbTdn+kb5wIDAQAB";
+
+export default defineManifest((env) => ({
   manifest_version: 3,
   name: "Ølmonopolet",
   version: "0.4.0",
   description: "Legger til Untappd informasjon på Vinmonopolet.no",
-  key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArlBWrtzi4evkyDj0dOc8VIsTJTwu1zZpoHfpyQYNwQjV9bzw3m7i/gX2iheYvf1DZNAxYkQ9YDh9nMUM8brTJFQbVR2bqlqCnu4W4MUf0cnQ+9r0AQihsfRuBYLR0g98Jtor8Kev/Qtk9qYosfYPaNH4tXwIwZFKr/OH2ycsC2nUPhLACoe7JkUquXBgVmMb5JZyVdUJfjUC3Zk6OIJFl3e4XJJNwoYIRCVeThdLo5QBx5Q9eiekpnf9tLq5qJC5MtVKvQ48tIB1WNkDPWmwdPMYLXqMjSIqpXPEgs9mML7M02gZr70PK/eJVQsNtaZQ3cEOnoSwYS82VbTdn+kb5wIDAQAB",
+  ...(env.command === "serve" ? { key: DEV_KEY } : {}),
   icons: {
     "16": "assets/img/icon16.png",
     "48": "assets/img/icon48.png",
@@ -30,4 +33,4 @@ export default defineManifest({
       run_at: "document_end",
     },
   ],
-});
+}));
