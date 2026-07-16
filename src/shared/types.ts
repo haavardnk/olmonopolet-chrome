@@ -29,4 +29,11 @@ export interface BeerListResponse {
   results?: Beer[];
 }
 
+export interface UserList {
+  id: number;
+  name: string;
+  list_type: string;
+  product_ids: string[];
+}
+
 export type PageType = "search" | "details" | "cart" | "wishlist" | "unknown";

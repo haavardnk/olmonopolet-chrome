@@ -1,7 +1,7 @@
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import type { Beer } from "../../shared/types";
-import { getBeer } from "../api/client";
+import { getBeer, getLists } from "../api/client";
 import { getProductIdFromUrl } from "../dom/product";
 import { queryFirst, SELECTORS } from "../dom/selectors";
 import { ratingToStars, kFormatter, formatUpdated } from "../../shared/format";
@@ -15,6 +15,7 @@ import { getSettings } from "../../shared/settings";
 import { isConnected } from "../../shared/auth";
 import { renderValueScore, applyLabelImage } from "../core/render";
 import { injectTastedButton } from "../core/tasted";
+import { injectListButton } from "../core/lists";
 
 interface Block {
   container: HTMLDivElement;
@@ -278,6 +279,7 @@ export async function handleDetails(): Promise<void> {
   applyLabelImage(document, beer, settings.labelImage);
 
   if (await isConnected()) {
+    const lists = await getLists();
     void retryUntil(
       () => injectTastedButton(document, id, beer.user_tasted ?? false),
       {
@@ -285,6 +287,10 @@ export async function handleDetails(): Promise<void> {
         delay: 300,
       },
     );
+    void retryUntil(() => injectListButton(document, id, lists), {
+      attempts: 20,
+      delay: 300,
+    });
   }
 
   addBadges(beer, layout);

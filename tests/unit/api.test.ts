@@ -3,11 +3,16 @@ import {
   getBeers,
   getBeer,
   markTasted,
+  getLists,
+  addToList,
+  removeFromList,
   clearBeerCache,
+  clearListsCache,
 } from "../../src/content/api/client";
 
 beforeEach(() => {
   clearBeerCache();
+  clearListsCache();
   vi.restoreAllMocks();
 });
 
@@ -104,5 +109,47 @@ describe("markTasted", () => {
       vi.fn().mockResolvedValue({ ok: false, status: 500 }),
     );
     expect(await markTasted(111, true)).toBe(false);
+  });
+});
+
+describe("lists", () => {
+  it("fetches and caches lists", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [
+        { id: 1, name: "Handleliste", list_type: "shopping", product_ids: [] },
+      ],
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const lists = await getLists();
+    await getLists();
+
+    expect(lists[0].name).toBe("Handleliste");
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it("adds a product via POST items", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 201 });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const ok = await addToList(1, "111");
+
+    expect(ok).toBe(true);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/lists/1/items/");
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual({ product_id: "111" });
+  });
+
+  it("removes a product via DELETE products", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 204 });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await removeFromList(1, "111");
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/lists/1/products/111/");
+    expect(init.method).toBe("DELETE");
   });
 });
