@@ -8,8 +8,10 @@ export function renderRating(beer: Beer): HTMLDivElement {
   const container = document.createElement("div");
   container.classList.add("untappd");
 
-  const rating = document.createElement("div");
+  const rating = document.createElement("a");
   rating.classList.add("olmono-rating");
+  rating.target = "_blank";
+  rating.rel = "noopener noreferrer";
   container.appendChild(rating);
 
   const value = document.createElement("span");
@@ -22,14 +24,8 @@ export function renderRating(beer: Beer): HTMLDivElement {
         ? `${beer.rating.toFixed(2)} (${kFormatter(beer.checkins)})`
         : beer.rating.toFixed(2);
     rating.appendChild(value);
-
-    const link = document.createElement("a");
-    link.classList.add("olmono-link");
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.href = productUrl(beer.vmp_id);
-    link.textContent = "Ølmonopolet";
-    container.appendChild(link);
+    rating.href = productUrl(beer.vmp_id);
+    rating.title = "Åpne på Ølmonopolet";
   } else {
     value.textContent = "Ingen match";
     rating.appendChild(value);

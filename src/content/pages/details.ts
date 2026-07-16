@@ -1,15 +1,9 @@
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
 import type { Beer } from "../../shared/types";
 import { getBeer, getLists } from "../api/client";
 import { getProductIdFromUrl } from "../dom/product";
 import { queryFirst, SELECTORS } from "../dom/selectors";
 import { ratingToStars, kFormatter, formatUpdated } from "../../shared/format";
-import {
-  productUrl,
-  API_BASE_URL,
-  BEER_CATEGORIES,
-} from "../../shared/constants";
+import { productUrl, BEER_CATEGORIES } from "../../shared/constants";
 import { retryUntil } from "../core/observer";
 import { getSettings } from "../../shared/settings";
 import { isConnected } from "../../shared/auth";
@@ -19,11 +13,8 @@ import { injectListButton } from "../core/lists";
 
 interface Block {
   container: HTMLDivElement;
-  rating: HTMLDivElement;
+  rating: HTMLAnchorElement;
   value: HTMLSpanElement;
-  link: HTMLAnchorElement;
-  updated: HTMLParagraphElement;
-  wrong: HTMLAnchorElement;
 }
 
 function isBeerCategory(text: string | null | undefined): boolean {
@@ -36,23 +27,16 @@ function buildBlock(): Block {
   const container = document.createElement("div");
   container.classList.add("untappd");
 
-  const rating = document.createElement("div");
+  const rating = document.createElement("a");
   rating.classList.add("olmono-rating");
+  rating.target = "_blank";
+  rating.rel = "noopener noreferrer";
   const value = document.createElement("span");
   value.classList.add("olmono-rating-value");
   rating.appendChild(value);
 
-  const link = document.createElement("a");
-  link.classList.add("olmono-link");
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-
-  const updated = document.createElement("p");
-  const wrong = document.createElement("a");
-  wrong.classList.add("suggest");
-
-  container.append(rating, link, updated, wrong);
-  return { container, rating, value, link, updated, wrong };
+  container.append(rating);
+  return { container, rating, value };
 }
 
 function findDetailsList(): Element | null {
@@ -193,48 +177,6 @@ function addBadges(beer: Beer, layout: Element): void {
   }
 }
 
-function setupWrongMatch(wrong: HTMLAnchorElement, id: string): void {
-  wrong.addEventListener("click", (e) => {
-    e.preventDefault();
-    void Swal.fire({
-      title: "Rapporter feil Untappd match",
-      text: "Legg inn riktig Untappd link. Eksempel: https://untappd.com/b/nogne-o-porter/27638",
-      input: "text",
-      inputAttributes: { autocapitalize: "off" },
-      showCancelButton: false,
-      confirmButtonText: "Send",
-      confirmButtonColor: "#002025",
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        void fetch(`${API_BASE_URL}/wrongmatch/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ beer: id, suggested_url: result.value }),
-        }).then((response) => {
-          const success = response.status === 201;
-          void Swal.fire({
-            title: success
-              ? "Feil registrert!"
-              : "Det oppsto en feil ved sending av forslaget...",
-            text: success
-              ? "Ditt endringsforslag vil bli evaluert. Takk for hjelpen!"
-              : "Sjekk at du har tastet inn en gyldig URL!",
-            icon: success ? "success" : "error",
-            confirmButtonColor: "#002025",
-          });
-        });
-      } else if (result.isConfirmed && !result.value) {
-        void Swal.fire({
-          title: "Du må oppgi en gyldig Untappd link!",
-          text: "Eksempel: https://untappd.com/b/nogne-o-porter/27638",
-          icon: "error",
-          confirmButtonColor: "#002025",
-        });
-      }
-    });
-  });
-}
-
 export async function handleDetails(): Promise<void> {
   const detailsMain = queryFirst(document, SELECTORS.productDetailsMain);
   const layout = queryFirst(document, SELECTORS.productLayoutWrapper);
@@ -263,18 +205,15 @@ export async function handleDetails(): Promise<void> {
     block.value.textContent = `${beer.rating.toFixed(2)} (${kFormatter(
       beer.checkins ?? 0,
     )})`;
-    block.link.href = productUrl(id);
-    block.link.textContent = "Ølmonopolet";
-    if (beer.untpd_updated) {
-      block.updated.textContent = formatUpdated(beer.untpd_updated);
-    }
-    block.wrong.textContent = "Feil øl?";
+    block.rating.href = productUrl(id);
+    block.rating.title = beer.untpd_updated
+      ? `Åpne på Ølmonopolet · ${formatUpdated(beer.untpd_updated)}`
+      : "Åpne på Ølmonopolet";
     injectExtraInfo(beer, category);
   } else if (beer.detail === "Not found.") {
     block.value.textContent = "Ny, oppdateres ved neste kjøring";
   } else {
     block.value.textContent = "Ingen match";
-    block.wrong.textContent = "Foreslå Untappd match";
   }
 
   const valueScore = renderValueScore(beer);
@@ -301,5 +240,4 @@ export async function handleDetails(): Promise<void> {
   }
 
   addBadges(beer, layout);
-  setupWrongMatch(block.wrong, id);
 }

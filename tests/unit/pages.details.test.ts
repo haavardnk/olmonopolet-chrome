@@ -46,9 +46,12 @@ describe("handleDetails", () => {
     const block = document.querySelector(".product-details-main .untappd");
     expect(block).not.toBeNull();
     expect(block?.querySelector(".stars")).not.toBeNull();
-    expect(block?.querySelector("a")?.getAttribute("href")).toContain(
+
+    const link = block?.querySelector("a.olmono-rating");
+    expect(link?.getAttribute("href")).toContain(
       "olmonopolet.app/products/15616302",
     );
+    expect(link?.getAttribute("title")).toContain("Oppdatert:");
   });
 
   it("injects IBU into the details list and style into the category", async () => {

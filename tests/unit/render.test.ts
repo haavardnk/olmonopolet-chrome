@@ -7,17 +7,14 @@ import {
 } from "../../src/content/core/render";
 
 describe("renderRating", () => {
-  it("renders stars, a value and an olmonopolet link for a rated beer", () => {
+  it("renders stars, a value and links to olmonopolet for a rated beer", () => {
     const el = renderRating({ vmp_id: 15616302, rating: 3.606 });
     expect(el.classList.contains("untappd")).toBe(true);
     expect(el.querySelector(".stars")).not.toBeNull();
     expect(el.querySelector(".olmono-rating-value")?.textContent).toBe("3.61");
-
-    const link = el.querySelector("a.olmono-link");
-    expect(link?.getAttribute("href")).toContain(
+    expect(el.querySelector("a.olmono-rating")?.getAttribute("href")).toContain(
       "olmonopolet.app/products/15616302",
     );
-    expect(link?.textContent).toBe("Ølmonopolet");
   });
 
   it("includes checkins in the value when present", () => {
@@ -33,7 +30,9 @@ describe("renderRating", () => {
       "Ingen match",
     );
     expect(el.querySelector(".stars")).toBeNull();
-    expect(el.querySelector("a.olmono-link")).toBeNull();
+    expect(
+      el.querySelector("a.olmono-rating")?.getAttribute("href"),
+    ).toBeNull();
   });
 });
 

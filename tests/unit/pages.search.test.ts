@@ -36,9 +36,9 @@ describe("handleSearch", () => {
     const card = document.querySelector("ul.product-list > li")!;
     expect(card.querySelector(".untappd")).not.toBeNull();
     expect(card.querySelector(".stars")).not.toBeNull();
-    expect(card.querySelector(".untappd a")?.getAttribute("href")).toContain(
-      "olmonopolet.app/products/15616302",
-    );
+    expect(
+      card.querySelector("a.olmono-rating")?.getAttribute("href"),
+    ).toContain("olmonopolet.app/products/15616302");
   });
 
   it("appends the beer style to the category name", async () => {
