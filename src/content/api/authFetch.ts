@@ -1,0 +1,14 @@
+import { getToken, clearToken } from "../../shared/auth";
+
+export async function authFetch(
+  url: string,
+  init: RequestInit = {},
+): Promise<Response> {
+  const token = await getToken();
+  const headers = new Headers(init.headers);
+  if (token) headers.set("Authorization", `Token ${token}`);
+
+  const res = await fetch(url, { ...init, headers });
+  if (res.status === 401 && token) await clearToken();
+  return res;
+}

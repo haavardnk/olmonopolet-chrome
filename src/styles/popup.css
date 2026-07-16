@@ -19,6 +19,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;
@@ -51,6 +55,27 @@ body {
   font-size: 20px;
   font-weight: 700;
   color: var(--base-content);
+}
+
+.auth {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-field);
+  background-color: var(--base-200);
+}
+
+.auth-status {
+  font-size: 12px;
+  color: color-mix(in srgb, var(--base-content) 80%, transparent);
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
 }
 
 .section-label {

@@ -3,8 +3,32 @@ import {
   setSettings,
   type LabelImageMode,
 } from "../shared/settings";
+import { isConnected, clearToken, onTokenChange } from "../shared/auth";
 
-async function init(): Promise<void> {
+function initAuth(): void {
+  const status = document.querySelector<HTMLElement>("#auth-status");
+  const login = document.querySelector<HTMLAnchorElement>("#auth-login");
+  const logout = document.querySelector<HTMLButtonElement>("#auth-logout");
+
+  function render(connected: boolean): void {
+    if (status) {
+      status.textContent = connected
+        ? "Tilkoblet olmonopolet.app"
+        : "Ikke tilkoblet";
+    }
+    if (login) login.hidden = connected;
+    if (logout) logout.hidden = !connected;
+  }
+
+  void isConnected().then(render);
+  onTokenChange((token) => render(token !== null));
+
+  logout?.addEventListener("click", () => {
+    void clearToken();
+  });
+}
+
+async function initSettings(): Promise<void> {
   const settings = await getSettings();
 
   const label = document.querySelector<HTMLSelectElement>("#select-label");
@@ -17,4 +41,5 @@ async function init(): Promise<void> {
   }
 }
 
-void init();
+initAuth();
+void initSettings();
