@@ -9,7 +9,6 @@ export interface UserCheckin {
 export interface Beer {
   vmp_id: number;
   rating: number | null;
-  untpd_url?: string;
   untpd_updated?: string;
   checkins?: number;
   ibu?: number | null;

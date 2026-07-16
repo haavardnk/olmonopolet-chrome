@@ -2,7 +2,7 @@ import { findProductCards, appendStyleToCategory } from "../dom/product";
 import { processCards } from "./shared";
 
 const LIST_FIELDS =
-  "vmp_id,style,rating,untpd_url,badges,value_score,label_hd_url,user_tasted";
+  "vmp_id,style,rating,badges,value_score,label_hd_url,user_tasted";
 
 export async function handleSearch(): Promise<void> {
   await processCards(findProductCards(), {
