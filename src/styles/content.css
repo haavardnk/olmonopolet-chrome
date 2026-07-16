@@ -38,6 +38,39 @@ a.olmono-rating[href]:hover .olmono-rating-value {
   vertical-align: middle;
 }
 
+.olmono-skeleton-bar {
+  display: inline-block;
+  height: 20px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #e7eaeb 25%, #f2f4f5 37%, #e7eaeb 63%);
+  background-size: 400% 100%;
+  animation: olmono-shimmer 1.4s ease infinite;
+}
+
+.olmono-skeleton-stars {
+  width: 104px;
+}
+
+.olmono-skeleton-text {
+  width: 30px;
+}
+
+.olmono-skeleton-value {
+  width: 72px;
+  height: 6px;
+  margin-left: 10px;
+  border-radius: 999px;
+}
+
+@keyframes olmono-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
 .stars svg {
   display: block;
 }

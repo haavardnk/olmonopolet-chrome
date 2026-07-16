@@ -34,6 +34,28 @@ export function renderRating(beer: Beer): HTMLDivElement {
   return container;
 }
 
+export function appendSkeletonBars(target: Element): void {
+  const stars = document.createElement("span");
+  stars.classList.add("olmono-skeleton-bar", "olmono-skeleton-stars");
+  const value = document.createElement("span");
+  value.classList.add("olmono-skeleton-bar", "olmono-skeleton-text");
+  const bar = document.createElement("span");
+  bar.classList.add("olmono-skeleton-bar", "olmono-skeleton-value");
+  target.append(stars, value, bar);
+}
+
+export function renderSkeleton(): HTMLDivElement {
+  const container = document.createElement("div");
+  container.classList.add("untappd", "olmono-skeleton");
+
+  const rating = document.createElement("div");
+  rating.classList.add("olmono-rating");
+  appendSkeletonBars(rating);
+  container.appendChild(rating);
+
+  return container;
+}
+
 export function renderBadges(
   badges: Badge[] | undefined,
 ): HTMLDivElement | null {

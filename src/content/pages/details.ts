@@ -7,7 +7,11 @@ import { productUrl, BEER_CATEGORIES } from "../../shared/constants";
 import { retryUntil } from "../core/observer";
 import { getSettings } from "../../shared/settings";
 import { isConnected } from "../../shared/auth";
-import { renderValueScore, applyLabelImage } from "../core/render";
+import {
+  renderValueScore,
+  applyLabelImage,
+  appendSkeletonBars,
+} from "../core/render";
 import { injectTastedButton } from "../core/tasted";
 import { injectListButton } from "../core/lists";
 
@@ -25,15 +29,16 @@ function isBeerCategory(text: string | null | undefined): boolean {
 
 function buildBlock(): Block {
   const container = document.createElement("div");
-  container.classList.add("untappd");
+  container.classList.add("untappd", "olmono-skeleton");
 
   const rating = document.createElement("a");
   rating.classList.add("olmono-rating");
   rating.target = "_blank";
   rating.rel = "noopener noreferrer";
+  appendSkeletonBars(rating);
+
   const value = document.createElement("span");
   value.classList.add("olmono-rating-value");
-  rating.appendChild(value);
 
   container.append(rating);
   return { container, rating, value };
@@ -189,13 +194,20 @@ export async function handleDetails(): Promise<void> {
   const block = buildBlock();
   detailsMain.appendChild(block.container);
 
+  const revealBlock = (): void => {
+    block.container.classList.remove("olmono-skeleton");
+    block.rating.replaceChildren(block.value);
+  };
+
   let beer: Beer;
   try {
     beer = await getBeer(id);
   } catch {
+    revealBlock();
     block.value.textContent = "Feil ved lasting";
     return;
   }
+  revealBlock();
 
   if (beer.rating !== null && beer.rating !== undefined) {
     block.rating.insertBefore(ratingToStars(beer.rating), block.value);

@@ -60,6 +60,16 @@ describe("handleSearch", () => {
     expect(document.querySelectorAll(".untappd")).toHaveLength(1);
   });
 
+  it("removes the skeleton when no beer matches", async () => {
+    mockBeers([]);
+
+    await handleSearch();
+
+    const card = document.querySelector("ul.product-list > li")!;
+    expect(card.querySelector(".untappd")).toBeNull();
+    expect(card.querySelector(".olmono-skeleton")).toBeNull();
+  });
+
   it("injects a tasted button into the card tools when connected", async () => {
     vi.stubGlobal("chrome", {
       storage: {

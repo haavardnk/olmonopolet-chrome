@@ -3,11 +3,12 @@ import { getSettings } from "../../shared/settings";
 import { isConnected } from "../../shared/auth";
 import { getBeers, getLists } from "../api/client";
 import { getProductId, getInfoContainer, isBeer } from "../dom/product";
-import { injectRating } from "../core/inject";
+import { injectRating, injectSkeleton, removeSkeleton } from "../core/inject";
 import { injectTastedButton } from "../core/tasted";
 import { injectListButton } from "../core/lists";
 import {
   renderRating,
+  renderSkeleton,
   renderBadges,
   renderValueScore,
   applyLabelImage,
@@ -34,16 +35,28 @@ export async function processCards(
   const ids = [...idByCard.values()];
   if (ids.length === 0) return;
 
+  const entries = [...idByCard].map(([card, id]) => ({
+    card,
+    id,
+    container: getInfoContainer(card),
+  }));
+
+  for (const { id, container } of entries) {
+    injectSkeleton(container, id, renderSkeleton());
+  }
+
   const beers = await getBeers(ids, opts.fields);
   const settings = await getSettings();
   const connected = await isConnected();
   const lists = connected ? await getLists() : [];
 
-  for (const [card, id] of idByCard) {
+  for (const { card, id, container } of entries) {
     const beer = beers.get(id);
-    if (!beer) continue;
+    if (!beer) {
+      removeSkeleton(container, id);
+      continue;
+    }
 
-    const container = getInfoContainer(card);
     const node = renderRating(beer);
     const valueScore = renderValueScore(beer);
     const ratingRow = node.firstElementChild;

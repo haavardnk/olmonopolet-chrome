@@ -1,10 +1,22 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   renderRating,
+  renderSkeleton,
   renderBadges,
   renderValueScore,
   applyLabelImage,
 } from "../../src/content/core/render";
+
+describe("renderSkeleton", () => {
+  it("renders a marked skeleton with shimmer bars", () => {
+    const el = renderSkeleton();
+    expect(el.classList.contains("untappd")).toBe(true);
+    expect(el.classList.contains("olmono-skeleton")).toBe(true);
+    expect(el.querySelector(".olmono-skeleton-stars")).not.toBeNull();
+    expect(el.querySelector(".olmono-skeleton-text")).not.toBeNull();
+    expect(el.querySelector(".olmono-skeleton-value")).not.toBeNull();
+  });
+});
 
 describe("renderRating", () => {
   it("renders stars, a value and links to olmonopolet for a rated beer", () => {

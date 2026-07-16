@@ -24,6 +24,33 @@ beforeEach(() => {
 });
 
 describe("handleDetails", () => {
+  it("shows a skeleton while loading, then reveals the rating", async () => {
+    let resolveBeer!: (value: unknown) => void;
+    const pending = new Promise((r) => {
+      resolveBeer = r;
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => pending),
+    );
+
+    const done = handleDetails();
+    await new Promise((r) => setTimeout(r, 0));
+
+    const block = document.querySelector(".product-details-main .untappd");
+    expect(block?.classList.contains("olmono-skeleton")).toBe(true);
+    expect(block?.querySelector(".olmono-skeleton-stars")).not.toBeNull();
+
+    resolveBeer({
+      ok: true,
+      json: async () => ({ vmp_id: 15616302, rating: 3.6 }),
+    });
+    await done;
+
+    expect(block?.classList.contains("olmono-skeleton")).toBe(false);
+    expect(block?.querySelector(".stars")).not.toBeNull();
+  });
+
   it("injects the rating block into product-details-main", async () => {
     vi.stubGlobal(
       "fetch",
