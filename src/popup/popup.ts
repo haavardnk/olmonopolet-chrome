@@ -32,11 +32,18 @@ async function initSettings(): Promise<void> {
   const settings = await getSettings();
 
   const label = document.querySelector<HTMLSelectElement>("#select-label");
-
   if (label) {
     label.value = settings.labelImage;
     label.addEventListener("change", () => {
       void setSettings({ labelImage: label.value as LabelImageMode });
+    });
+  }
+
+  const dim = document.querySelector<HTMLInputElement>("#toggle-tasted-dim");
+  if (dim) {
+    dim.checked = settings.tastedDim;
+    dim.addEventListener("change", () => {
+      void setSettings({ tastedDim: dim.checked });
     });
   }
 }

@@ -79,6 +79,7 @@ describe("handleSearch", () => {
     const btn = card.querySelector(".product-tools .olmono-tasted-btn");
     expect(btn).not.toBeNull();
     expect(btn?.getAttribute("aria-label")).toBe("Smakt");
+    expect(card.classList.contains("olmono-tasted-card")).toBe(true);
   });
 
   it("does not inject a tasted button when not connected", async () => {

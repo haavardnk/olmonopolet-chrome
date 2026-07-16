@@ -56,6 +56,9 @@ export async function processCards(
       if (connected) {
         injectTastedButton(card, id, beer.user_tasted ?? false);
         injectListButton(card, id, lists);
+        if (beer.user_tasted && settings.tastedDim) {
+          card.classList.add("olmono-tasted-card");
+        }
       }
       opts.onRendered?.(card, beer);
     }

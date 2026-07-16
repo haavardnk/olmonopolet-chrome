@@ -98,6 +98,15 @@ a.olmono-rating[href]:hover .olmono-rating-value {
   background-color: #cf3a2e;
 }
 
+.olmono-tasted-card {
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
+}
+
+.olmono-tasted-card:hover {
+  opacity: 1;
+}
+
 .olmono-tasted-btn {
   color: #1c1c1c;
 }
