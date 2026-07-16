@@ -10,6 +10,7 @@ export default defineManifest({
     "48": "assets/img/icon48.png",
     "128": "assets/img/icon128.png",
   },
+  permissions: ["storage"],
   action: {
     default_popup: "src/popup/popup.html",
   },
