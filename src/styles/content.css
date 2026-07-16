@@ -10,8 +10,29 @@
 
 .olmono-rating {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
+}
+
+.olmono-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.olmono-badge {
+  font-family: Roboto, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.3px;
+  color: #4a5c5f;
+  background-color: #eef0f1;
+  border-radius: 4px;
+  padding: 3px 6px;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 a.olmono-rating {

@@ -62,7 +62,7 @@ export async function processCards(
     const ratingRow = node.firstElementChild;
     if (valueScore && ratingRow) ratingRow.appendChild(valueScore);
     const badges = renderBadges(beer.badges);
-    if (badges) node.appendChild(badges);
+    if (badges && ratingRow) ratingRow.appendChild(badges);
 
     if (injectRating(container, id, node)) {
       applyLabelImage(card, beer, settings.labelImage);

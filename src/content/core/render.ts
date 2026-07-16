@@ -58,15 +58,16 @@ export function renderSkeleton(): HTMLDivElement {
 
 export function renderBadges(
   badges: Badge[] | undefined,
-): HTMLDivElement | null {
+): HTMLSpanElement | null {
   if (!badges?.length) return null;
 
-  const wrap = document.createElement("div");
-  wrap.classList.add("badges");
+  const wrap = document.createElement("span");
+  wrap.classList.add("olmono-badges");
   badges.forEach((badge) => {
-    const span = document.createElement("span");
-    span.textContent = badge.text;
-    wrap.appendChild(span);
+    const chip = document.createElement("span");
+    chip.classList.add("olmono-badge");
+    chip.textContent = badge.text;
+    wrap.appendChild(chip);
   });
   return wrap;
 }
