@@ -11,6 +11,8 @@ import {
   BEER_CATEGORIES,
 } from "../../shared/constants";
 import { retryUntil } from "../core/observer";
+import { getSettings } from "../../shared/settings";
+import { renderValueScore, applyLabelImage } from "../core/render";
 
 interface Block {
   container: HTMLDivElement;
@@ -90,9 +92,80 @@ function updateStyle(beer: Beer, category: Element): void {
   category.appendChild(span);
 }
 
+function injectStyleToVaretype(beer: Beer): boolean {
+  if (!beer.style) return true;
+
+  const list = findDetailsList();
+  if (!list) return false;
+
+  const row = [...list.querySelectorAll("li")].find((li) => {
+    const spans = li.querySelectorAll(":scope > span");
+    return spans.length >= 2 && spans[0].textContent?.trim() === "Varetype";
+  });
+  if (!row) return true;
+
+  const value = row.querySelectorAll<HTMLElement>(":scope > span")[1];
+  if (!value || value.dataset.olmonoStyle) return true;
+
+  value.textContent = `${value.textContent} (${beer.style})`;
+  value.dataset.olmonoStyle = "1";
+  return true;
+}
+
+function findAlcoholRow(): HTMLElement | null {
+  for (const li of document.querySelectorAll<HTMLElement>("li")) {
+    const strong = li.querySelector(":scope > strong");
+    if (strong?.textContent?.trim() === "Alkohol") return li;
+  }
+  return null;
+}
+
+function injectAlcoholUnits(beer: Beer): boolean {
+  if (beer.alcohol_units === null || beer.alcohol_units === undefined)
+    return true;
+
+  const row = findAlcoholRow();
+  if (!row?.parentElement) return false;
+
+  const exists = [...row.parentElement.children].some((li) => {
+    const strong = li.querySelector(":scope > strong");
+    return strong?.textContent?.trim() === "Alkoholenheter";
+  });
+  if (exists) return true;
+
+  const clone = row.cloneNode(true) as HTMLElement;
+  const strong = clone.querySelector(":scope > strong");
+  const span = clone.querySelector(":scope > span");
+  if (!strong || !span) return true;
+  strong.textContent = "Alkoholenheter";
+  span.textContent = beer.alcohol_units.toFixed(1).replace(".", ",");
+  span.removeAttribute("aria-label");
+  row.insertAdjacentElement("afterend", clone);
+  return true;
+}
+
+function injectPpau(beer: Beer): boolean {
+  const value = beer.price_per_alcohol_unit;
+  if (value === null || value === undefined) return true;
+
+  const container = document.querySelector(".volume-and-cost_per_unit");
+  if (!container) return false;
+  if (container.querySelector(".olmono-ppau")) return true;
+
+  const span = document.createElement("span");
+  span.classList.add("olmono-ppau");
+  span.textContent = `${Math.round(value)} kr/alkoholenhet`;
+  container.appendChild(span);
+  return true;
+}
+
 function injectExtraInfo(beer: Beer, category: Element): void {
   updateStyle(beer, category);
   void retryUntil(() => injectIBU(beer, category), {
+    attempts: 20,
+    delay: 300,
+  });
+  void retryUntil(() => injectStyleToVaretype(beer), {
     attempts: 20,
     delay: 300,
   });
@@ -164,6 +237,7 @@ export async function handleDetails(): Promise<void> {
   const id = getProductIdFromUrl();
   if (!id) return;
 
+  const settings = await getSettings();
   const block = buildBlock();
   detailsMain.appendChild(block.container);
 
@@ -192,6 +266,14 @@ export async function handleDetails(): Promise<void> {
     block.link.textContent = "Ingen match";
     block.wrong.textContent = "Foreslå Untappd match";
   }
+
+  const valueScore = renderValueScore(beer);
+  if (valueScore) block.rating.appendChild(valueScore);
+
+  void retryUntil(() => injectAlcoholUnits(beer), { attempts: 20, delay: 300 });
+  void retryUntil(() => injectPpau(beer), { attempts: 20, delay: 300 });
+
+  applyLabelImage(document, beer, settings.labelImage);
 
   addBadges(beer, layout);
   setupWrongMatch(block.wrong, id);

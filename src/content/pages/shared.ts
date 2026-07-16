@@ -1,8 +1,14 @@
 import type { Beer } from "../../shared/types";
+import { getSettings } from "../../shared/settings";
 import { getBeers } from "../api/client";
 import { getProductId, getInfoContainer, isBeer } from "../dom/product";
 import { injectRating } from "../core/inject";
-import { renderRating, renderBadges } from "../core/render";
+import {
+  renderRating,
+  renderBadges,
+  renderValueScore,
+  applyLabelImage,
+} from "../core/render";
 
 export interface ProcessOptions {
   fields?: string;
@@ -26,6 +32,7 @@ export async function processCards(
   if (ids.length === 0) return;
 
   const beers = await getBeers(ids, opts.fields);
+  const settings = await getSettings();
 
   for (const [card, id] of idByCard) {
     const beer = beers.get(id);
@@ -33,10 +40,14 @@ export async function processCards(
 
     const container = getInfoContainer(card);
     const node = renderRating(beer);
+    const valueScore = renderValueScore(beer);
+    const ratingRow = node.firstElementChild;
+    if (valueScore && ratingRow) ratingRow.appendChild(valueScore);
     const badges = renderBadges(beer.badges);
     if (badges) node.appendChild(badges);
 
     if (injectRating(container, id, node)) {
+      applyLabelImage(card, beer, settings.labelImage);
       opts.onRendered?.(card, beer);
     }
   }

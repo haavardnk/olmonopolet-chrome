@@ -2,9 +2,10 @@ import { API_BASE_URL } from "../../shared/constants";
 import type { Beer, BeerListResponse } from "../../shared/types";
 
 const DEFAULT_TIMEOUT = 8000;
-const DEFAULT_LIST_FIELDS = "vmp_id,rating,untpd_url,badges";
+const DEFAULT_LIST_FIELDS =
+  "vmp_id,rating,untpd_url,badges,value_score,label_hd_url";
 const DEFAULT_BEER_FIELDS =
-  "vmp_id,ibu,style,rating,checkins,untpd_url,untpd_updated,badges";
+  "vmp_id,ibu,style,rating,checkins,untpd_url,untpd_updated,badges,value_score,price_per_alcohol_unit,alcohol_units,label_sm_url,label_hd_url";
 
 const cache = new Map<string, Beer>();
 

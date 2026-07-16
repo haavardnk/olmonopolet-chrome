@@ -17,6 +17,11 @@ export interface Beer {
   badges?: Badge[];
   user_checked_in?: UserCheckin[];
   detail?: string;
+  value_score?: number | null;
+  price_per_alcohol_unit?: number | null;
+  alcohol_units?: number | null;
+  label_sm_url?: string | null;
+  label_hd_url?: string | null;
 }
 
 export interface BeerListResponse {

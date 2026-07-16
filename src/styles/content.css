@@ -63,3 +63,41 @@
   margin-top: 5px;
   margin-right: 10px;
 }
+
+.olmono-value {
+  display: inline-block;
+  vertical-align: middle;
+  width: 72px;
+  height: 6px;
+  margin-left: 10px;
+  background-color: #e9eaeb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.olmono-value-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.olmono-value--success .olmono-value-fill {
+  background-color: #3f9142;
+}
+
+.olmono-value--info .olmono-value-fill {
+  background-color: #3a7ca5;
+}
+
+.olmono-value--warning .olmono-value-fill {
+  background-color: #d9a300;
+}
+
+.olmono-value--error .olmono-value-fill {
+  background-color: #cf3a2e;
+}
+
+.olmono-ppau {
+  margin-left: 8px;
+  color: #66797c;
+}

@@ -58,4 +58,36 @@ describe("handleSearch", () => {
 
     expect(document.querySelectorAll(".untappd")).toHaveLength(1);
   });
+
+  it("renders value score and fills the missing label image", async () => {
+    class FakeImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      naturalWidth = 154;
+      naturalHeight = 377;
+      set src(_value: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+    vi.stubGlobal("Image", FakeImage);
+    mockBeers([
+      {
+        vmp_id: 15616302,
+        rating: 3.6,
+        value_score: 8.0,
+        label_hd_url: "https://untappd.example/label.jpg",
+      },
+    ]);
+
+    await handleSearch();
+    await new Promise((r) => setTimeout(r, 0));
+
+    const card = document.querySelector("ul.product-list > li")!;
+    const value = card.querySelector(".olmono-value");
+    expect(value?.classList.contains("olmono-value--warning")).toBe(true);
+    expect(value?.querySelector(".olmono-value-fill")).not.toBeNull();
+    expect(card.querySelector("img")?.src).toContain(
+      "untappd.example/label.jpg",
+    );
+  });
 });

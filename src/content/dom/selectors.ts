@@ -5,6 +5,12 @@ export const SELECTORS = {
   categoryName: [".product__category-name"],
   productLayoutWrapper: [".product__layout-wrapper"],
   productDetailsMain: [".product-details-main"],
+  productImage: [
+    'img[alt^="Bilde"]',
+    'a[href*="/p/"] img',
+    ".product__image img",
+    "picture img",
+  ],
 } as const;
 
 export function queryFirst<E extends Element = Element>(

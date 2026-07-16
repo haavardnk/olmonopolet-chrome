@@ -1,16 +1,12 @@
 export type LabelImageMode = "off" | "fill-if-missing" | "override";
 
 export interface Settings {
-  valueScore: boolean;
   labelImage: LabelImageMode;
-  pricePerAlcoholUnit: boolean;
   tastedDim: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  valueScore: true,
   labelImage: "fill-if-missing",
-  pricePerAlcoholUnit: true,
   tastedDim: true,
 };
 

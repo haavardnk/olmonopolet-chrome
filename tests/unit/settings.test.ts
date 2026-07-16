@@ -46,13 +46,10 @@ describe("settings", () => {
 
   it("merges stored values over defaults", async () => {
     vi.stubGlobal("chrome", fakeChrome());
-    await setSettings({ valueScore: false, labelImage: "override" });
+    await setSettings({ labelImage: "override" });
     const settings = await getSettings();
-    expect(settings.valueScore).toBe(false);
     expect(settings.labelImage).toBe("override");
-    expect(settings.pricePerAlcoholUnit).toBe(
-      DEFAULT_SETTINGS.pricePerAlcoholUnit,
-    );
+    expect(settings.tastedDim).toBe(DEFAULT_SETTINGS.tastedDim);
   });
 
   it("notifies subscribers on local change", () => {
@@ -61,9 +58,9 @@ describe("settings", () => {
     const cb = vi.fn();
     onSettingsChange(cb);
     chrome.listeners.forEach((l) =>
-      l({ "olmono:settings": { newValue: { valueScore: false } } }, "local"),
+      l({ "olmono:settings": { newValue: { labelImage: "off" } } }, "local"),
     );
-    expect(cb).toHaveBeenCalledWith({ ...DEFAULT_SETTINGS, valueScore: false });
+    expect(cb).toHaveBeenCalledWith({ ...DEFAULT_SETTINGS, labelImage: "off" });
   });
 
   it("ignores changes in other storage areas", () => {
@@ -72,7 +69,7 @@ describe("settings", () => {
     const cb = vi.fn();
     onSettingsChange(cb);
     chrome.listeners.forEach((l) =>
-      l({ "olmono:settings": { newValue: { valueScore: false } } }, "sync"),
+      l({ "olmono:settings": { newValue: { labelImage: "off" } } }, "sync"),
     );
     expect(cb).not.toHaveBeenCalled();
   });

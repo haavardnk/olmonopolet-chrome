@@ -75,5 +75,71 @@ describe("handleDetails", () => {
     expect(
       document.querySelector(".product__category-name")?.textContent,
     ).toContain("(IPA - American)");
+
+    const varetype = [...document.querySelectorAll(".details-list li")].find(
+      (li) => li.querySelector("span")?.textContent === "Varetype",
+    );
+    expect(varetype?.querySelectorAll("span")[1]?.textContent).toBe(
+      "Øl - India pale ale (IPA - American)",
+    );
+  });
+
+  it("injects alcohol units next to Alkohol and price per unit after kr/l", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          vmp_id: 15616302,
+          rating: 3.6,
+          checkins: 1000,
+          alcohol_units: 2.75,
+          price_per_alcohol_unit: 38.96,
+        }),
+      }),
+    );
+
+    await handleDetails();
+
+    const units = [...document.querySelectorAll(".characteristics li")].find(
+      (li) => li.querySelector("strong")?.textContent === "Alkoholenheter",
+    );
+    expect(units?.querySelector("span")?.textContent).toBe("2,8");
+
+    const ppau = document.querySelector(
+      ".volume-and-cost_per_unit .olmono-ppau",
+    );
+    expect(ppau?.textContent).toBe("39 kr/alkoholenhet");
+  });
+
+  it("fills the empty product image with the HD label", async () => {
+    class FakeImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      naturalWidth = 154;
+      naturalHeight = 377;
+      set src(_value: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
+    vi.stubGlobal("Image", FakeImage);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          vmp_id: 15616302,
+          rating: 3.6,
+          label_sm_url: "https://untappd.example/sm.jpg",
+          label_hd_url: "https://untappd.example/hd.jpg",
+        }),
+      }),
+    );
+
+    await handleDetails();
+    await new Promise((r) => setTimeout(r, 0));
+
+    const img = document.querySelector<HTMLImageElement>('img[alt^="Bilde"]');
+    expect(img?.src).toContain("untappd.example/hd.jpg");
   });
 });
