@@ -9,6 +9,7 @@ function initAuth(): void {
   const status = document.querySelector<HTMLElement>("#auth-status");
   const login = document.querySelector<HTMLAnchorElement>("#auth-login");
   const logout = document.querySelector<HTMLButtonElement>("#auth-logout");
+  const hint = document.querySelector<HTMLElement>("#auth-hint");
 
   function render(connected: boolean): void {
     if (status) {
@@ -18,6 +19,7 @@ function initAuth(): void {
     }
     if (login) login.hidden = connected;
     if (logout) logout.hidden = !connected;
+    if (hint) hint.hidden = connected;
   }
 
   void isConnected().then(render);
@@ -26,6 +28,11 @@ function initAuth(): void {
   logout?.addEventListener("click", () => {
     void clearToken();
   });
+}
+
+function initVersion(): void {
+  const el = document.querySelector<HTMLElement>("#version");
+  if (el) el.textContent = `v${chrome.runtime.getManifest().version}`;
 }
 
 async function initSettings(): Promise<void> {
@@ -49,4 +56,5 @@ async function initSettings(): Promise<void> {
 }
 
 initAuth();
+initVersion();
 void initSettings();

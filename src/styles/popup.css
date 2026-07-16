@@ -73,6 +73,13 @@ body {
   color: color-mix(in srgb, var(--base-content) 80%, transparent);
 }
 
+.auth-hint {
+  margin: 8px 2px 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--base-content) 60%, transparent);
+}
+
 .btn-sm {
   padding: 4px 10px;
   font-size: 12px;
