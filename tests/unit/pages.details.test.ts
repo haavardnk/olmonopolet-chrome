@@ -158,6 +158,21 @@ describe("handleDetails", () => {
       }
     }
     vi.stubGlobal("Image", FakeImage);
+    vi.stubGlobal("chrome", {
+      storage: {
+        local: {
+          get: vi.fn(async (key: string) => ({
+            [key]:
+              key === "olmono:settings"
+                ? { labelImage: "fill-if-missing" }
+                : undefined,
+          })),
+          set: vi.fn(),
+          remove: vi.fn(),
+        },
+        onChanged: { addListener: vi.fn(), removeListener: vi.fn() },
+      },
+    });
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({

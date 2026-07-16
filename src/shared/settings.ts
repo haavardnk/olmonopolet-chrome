@@ -6,8 +6,8 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  labelImage: "fill-if-missing",
-  tastedDim: true,
+  labelImage: "off",
+  tastedDim: false,
 };
 
 const STORAGE_KEY = "olmono:settings";

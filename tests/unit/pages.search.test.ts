@@ -74,7 +74,9 @@ describe("handleSearch", () => {
     vi.stubGlobal("chrome", {
       storage: {
         local: {
-          get: vi.fn(async (key: string) => ({ [key]: "tok" })),
+          get: vi.fn(async (key: string) => ({
+            [key]: key === "olmono:settings" ? { tastedDim: true } : "tok",
+          })),
           set: vi.fn(),
           remove: vi.fn(),
         },
@@ -111,6 +113,21 @@ describe("handleSearch", () => {
       }
     }
     vi.stubGlobal("Image", FakeImage);
+    vi.stubGlobal("chrome", {
+      storage: {
+        local: {
+          get: vi.fn(async (key: string) => ({
+            [key]:
+              key === "olmono:settings"
+                ? { labelImage: "fill-if-missing" }
+                : undefined,
+          })),
+          set: vi.fn(),
+          remove: vi.fn(),
+        },
+        onChanged: { addListener: vi.fn(), removeListener: vi.fn() },
+      },
+    });
     mockBeers([
       {
         vmp_id: 15616302,
