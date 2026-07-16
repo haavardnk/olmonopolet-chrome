@@ -11,6 +11,7 @@ import {
 } from "../../src/content/api/client";
 
 beforeEach(() => {
+  vi.unstubAllGlobals();
   clearBeerCache();
   clearListsCache();
   vi.restoreAllMocks();
@@ -46,6 +47,32 @@ describe("getBeers", () => {
     await getBeers([111]);
     await getBeers([111]);
 
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it("persists to session storage and hydrates after a reload", async () => {
+    const store: Record<string, unknown> = {};
+    const session = {
+      get: vi.fn(async (keys: unknown) => (keys === null ? { ...store } : {})),
+      set: vi.fn(async (items: Record<string, unknown>) => {
+        Object.assign(store, items);
+      }),
+    };
+    vi.stubGlobal("chrome", { storage: { session } });
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ results: [{ vmp_id: 111, rating: 3.5 }] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await getBeers([111]);
+    expect(session.set).toHaveBeenCalled();
+
+    clearBeerCache();
+    const map = await getBeers([111]);
+
+    expect(map.get("111")?.rating).toBe(3.5);
     expect(fetchMock).toHaveBeenCalledOnce();
   });
 });

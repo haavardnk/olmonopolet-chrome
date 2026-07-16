@@ -39,3 +39,9 @@ if (typeof chrome !== "undefined" && chrome.runtime?.onMessageExternal) {
     },
   );
 }
+
+if (typeof chrome !== "undefined" && chrome.storage?.session?.setAccessLevel) {
+  void chrome.storage.session
+    .setAccessLevel({ accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS" })
+    .catch(() => {});
+}
