@@ -7,20 +7,33 @@ import {
 } from "../../src/content/core/render";
 
 describe("renderRating", () => {
-  it("renders stars and an olmonopolet link for a rated beer", () => {
+  it("renders stars, a value and an olmonopolet link for a rated beer", () => {
     const el = renderRating({ vmp_id: 15616302, rating: 3.606 });
     expect(el.classList.contains("untappd")).toBe(true);
     expect(el.querySelector(".stars")).not.toBeNull();
+    expect(el.querySelector(".olmono-rating-value")?.textContent).toBe("3.61");
 
-    const link = el.querySelector("a");
-    expect(link?.href).toContain("olmonopolet.app/products/15616302");
-    expect(link?.textContent).toBe("3.61");
+    const link = el.querySelector("a.olmono-link");
+    expect(link?.getAttribute("href")).toContain(
+      "olmonopolet.app/products/15616302",
+    );
+    expect(link?.textContent).toBe("Ølmonopolet");
   });
 
-  it("shows 'Ingen match' and no stars when rating is null", () => {
+  it("includes checkins in the value when present", () => {
+    const el = renderRating({ vmp_id: 1, rating: 3.6, checkins: 1693 });
+    expect(el.querySelector(".olmono-rating-value")?.textContent).toBe(
+      "3.60 (2k)",
+    );
+  });
+
+  it("shows 'Ingen match', no stars and no link when rating is null", () => {
     const el = renderRating({ vmp_id: 1, rating: null });
-    expect(el.querySelector("a")?.textContent).toBe("Ingen match");
+    expect(el.querySelector(".olmono-rating-value")?.textContent).toBe(
+      "Ingen match",
+    );
     expect(el.querySelector(".stars")).toBeNull();
+    expect(el.querySelector("a.olmono-link")).toBeNull();
   });
 });
 

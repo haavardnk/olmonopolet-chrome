@@ -1,5 +1,5 @@
 import { productUrl } from "../../shared/constants";
-import { ratingToStars } from "../../shared/format";
+import { ratingToStars, kFormatter } from "../../shared/format";
 import type { Beer, Badge } from "../../shared/types";
 import type { LabelImageMode } from "../../shared/settings";
 import { SELECTORS, queryFirst } from "../dom/selectors";
@@ -9,21 +9,32 @@ export function renderRating(beer: Beer): HTMLDivElement {
   container.classList.add("untappd");
 
   const rating = document.createElement("div");
-  const link = document.createElement("a");
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-
+  rating.classList.add("olmono-rating");
   container.appendChild(rating);
+
+  const value = document.createElement("span");
+  value.classList.add("olmono-rating-value");
 
   if (beer.rating !== null && beer.rating !== undefined) {
     rating.appendChild(ratingToStars(beer.rating));
+    value.textContent =
+      beer.checkins !== null && beer.checkins !== undefined
+        ? `${beer.rating.toFixed(2)} (${kFormatter(beer.checkins)})`
+        : beer.rating.toFixed(2);
+    rating.appendChild(value);
+
+    const link = document.createElement("a");
+    link.classList.add("olmono-link");
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
     link.href = productUrl(beer.vmp_id);
-    link.textContent = beer.rating.toPrecision(3);
+    link.textContent = "Ølmonopolet";
+    container.appendChild(link);
   } else {
-    link.textContent = "Ingen match";
+    value.textContent = "Ingen match";
+    rating.appendChild(value);
   }
 
-  rating.appendChild(link);
   return container;
 }
 

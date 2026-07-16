@@ -20,6 +20,7 @@ import { injectListButton } from "../core/lists";
 interface Block {
   container: HTMLDivElement;
   rating: HTMLDivElement;
+  value: HTMLSpanElement;
   link: HTMLAnchorElement;
   updated: HTMLParagraphElement;
   wrong: HTMLAnchorElement;
@@ -36,7 +37,13 @@ function buildBlock(): Block {
   container.classList.add("untappd");
 
   const rating = document.createElement("div");
+  rating.classList.add("olmono-rating");
+  const value = document.createElement("span");
+  value.classList.add("olmono-rating-value");
+  rating.appendChild(value);
+
   const link = document.createElement("a");
+  link.classList.add("olmono-link");
   link.target = "_blank";
   link.rel = "noopener noreferrer";
 
@@ -44,9 +51,8 @@ function buildBlock(): Block {
   const wrong = document.createElement("a");
   wrong.classList.add("suggest");
 
-  rating.appendChild(link);
-  container.append(rating, updated, wrong);
-  return { container, rating, link, updated, wrong };
+  container.append(rating, link, updated, wrong);
+  return { container, rating, value, link, updated, wrong };
 }
 
 function findDetailsList(): Element | null {
@@ -248,25 +254,26 @@ export async function handleDetails(): Promise<void> {
   try {
     beer = await getBeer(id);
   } catch {
-    block.link.textContent = "Feil ved lasting";
+    block.value.textContent = "Feil ved lasting";
     return;
   }
 
   if (beer.rating !== null && beer.rating !== undefined) {
-    block.rating.insertBefore(ratingToStars(beer.rating), block.link);
-    block.link.href = productUrl(id);
-    block.link.textContent = `${beer.rating.toPrecision(3)} (${kFormatter(
+    block.rating.insertBefore(ratingToStars(beer.rating), block.value);
+    block.value.textContent = `${beer.rating.toFixed(2)} (${kFormatter(
       beer.checkins ?? 0,
     )})`;
+    block.link.href = productUrl(id);
+    block.link.textContent = "Ølmonopolet";
     if (beer.untpd_updated) {
       block.updated.textContent = formatUpdated(beer.untpd_updated);
     }
     block.wrong.textContent = "Feil øl?";
     injectExtraInfo(beer, category);
   } else if (beer.detail === "Not found.") {
-    block.link.textContent = "Ny, oppdateres ved neste kjøring";
+    block.value.textContent = "Ny, oppdateres ved neste kjøring";
   } else {
-    block.link.textContent = "Ingen match";
+    block.value.textContent = "Ingen match";
     block.wrong.textContent = "Foreslå Untappd match";
   }
 

@@ -8,7 +8,19 @@
   margin-top: 16px;
 }
 
-.untappd a {
+.olmono-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.olmono-rating-value {
+  color: #092529;
+}
+
+.olmono-link {
+  display: inline-block;
+  margin-top: 2px;
   color: #092529;
   text-decoration: underline;
 }
@@ -32,13 +44,14 @@
 }
 
 .stars {
-  margin-right: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  vertical-align: middle;
 }
 
-.stars img {
-  height: 16px;
-  display: inline-block;
-  vertical-align: -3px;
+.stars svg {
+  display: block;
 }
 
 .badges {

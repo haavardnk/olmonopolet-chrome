@@ -30,10 +30,4 @@ export default defineManifest({
       run_at: "document_end",
     },
   ],
-  web_accessible_resources: [
-    {
-      resources: ["assets/img/*.svg"],
-      matches: ["https://*.vinmonopolet.no/*"],
-    },
-  ],
 });
