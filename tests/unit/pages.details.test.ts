@@ -14,6 +14,7 @@ function fixture(name: string): string {
 beforeEach(() => {
   clearBeerCache();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   document.body.innerHTML = fixture("details.html");
   history.replaceState(
     {},
@@ -141,5 +142,35 @@ describe("handleDetails", () => {
 
     const img = document.querySelector<HTMLImageElement>('img[alt^="Bilde"]');
     expect(img?.src).toContain("untappd.example/hd.jpg");
+  });
+
+  it("shows a tasted toggle when connected", async () => {
+    vi.stubGlobal("chrome", {
+      storage: {
+        local: {
+          get: vi.fn(async (key: string) => ({ [key]: "tok" })),
+          set: vi.fn(),
+          remove: vi.fn(),
+        },
+        onChanged: { addListener: vi.fn(), removeListener: vi.fn() },
+      },
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          vmp_id: 15616302,
+          rating: 3.6,
+          user_tasted: false,
+        }),
+      }),
+    );
+
+    await handleDetails();
+
+    const btn = document.querySelector(".product-tools .olmono-tasted-btn");
+    expect(btn).not.toBeNull();
+    expect(btn?.getAttribute("aria-label")).toBe("Marker som smakt");
   });
 });

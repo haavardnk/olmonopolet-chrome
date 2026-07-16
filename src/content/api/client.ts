@@ -1,11 +1,12 @@
 import { API_BASE_URL } from "../../shared/constants";
 import type { Beer, BeerListResponse } from "../../shared/types";
+import { authFetch } from "./authFetch";
 
 const DEFAULT_TIMEOUT = 8000;
 const DEFAULT_LIST_FIELDS =
-  "vmp_id,rating,untpd_url,badges,value_score,label_hd_url";
+  "vmp_id,rating,untpd_url,badges,value_score,label_hd_url,user_tasted";
 const DEFAULT_BEER_FIELDS =
-  "vmp_id,ibu,style,rating,checkins,untpd_url,untpd_updated,badges,value_score,price_per_alcohol_unit,alcohol_units,label_sm_url,label_hd_url";
+  "vmp_id,ibu,style,rating,checkins,untpd_url,untpd_updated,badges,value_score,price_per_alcohol_unit,alcohol_units,label_sm_url,label_hd_url,user_tasted";
 
 const cache = new Map<string, Beer>();
 
@@ -22,7 +23,7 @@ async function fetchJson<T>(
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeout);
     try {
-      const res = await fetch(url, { signal: controller.signal });
+      const res = await authFetch(url, { signal: controller.signal });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return (await res.json()) as T;
     } catch (err) {
@@ -71,4 +72,14 @@ export async function getBeer(
 
 export function clearBeerCache(): void {
   cache.clear();
+}
+
+export async function markTasted(
+  id: string | number,
+  tasted: boolean,
+): Promise<boolean> {
+  const res = await authFetch(`${API_BASE_URL}/beers/${id}/mark_tasted/`, {
+    method: tasted ? "POST" : "DELETE",
+  });
+  return res.ok;
 }

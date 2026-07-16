@@ -97,6 +97,20 @@
   background-color: #cf3a2e;
 }
 
+.olmono-tasted-btn {
+  color: #1c1c1c;
+}
+
+.olmono-tasted-btn svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.olmono-tasted-btn.is-tasted {
+  color: #3f9142;
+}
+
 .olmono-ppau {
   margin-left: 8px;
   color: #66797c;

@@ -1,8 +1,10 @@
 import type { Beer } from "../../shared/types";
 import { getSettings } from "../../shared/settings";
+import { isConnected } from "../../shared/auth";
 import { getBeers } from "../api/client";
 import { getProductId, getInfoContainer, isBeer } from "../dom/product";
 import { injectRating } from "../core/inject";
+import { injectTastedButton } from "../core/tasted";
 import {
   renderRating,
   renderBadges,
@@ -33,6 +35,7 @@ export async function processCards(
 
   const beers = await getBeers(ids, opts.fields);
   const settings = await getSettings();
+  const connected = await isConnected();
 
   for (const [card, id] of idByCard) {
     const beer = beers.get(id);
@@ -48,6 +51,7 @@ export async function processCards(
 
     if (injectRating(container, id, node)) {
       applyLabelImage(card, beer, settings.labelImage);
+      if (connected) injectTastedButton(card, id, beer.user_tasted ?? false);
       opts.onRendered?.(card, beer);
     }
   }

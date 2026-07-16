@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   getBeers,
   getBeer,
+  markTasted,
   clearBeerCache,
 } from "../../src/content/api/client";
 
@@ -72,5 +73,36 @@ describe("getBeer", () => {
 
     expect(beer.rating).toBe(3.6);
     expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("markTasted", () => {
+  it("POSTs when marking tasted", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 201 });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const ok = await markTasted(111, true);
+
+    expect(ok).toBe(true);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/beers/111/mark_tasted/");
+    expect(init.method).toBe("POST");
+  });
+
+  it("DELETEs when unmarking tasted", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 204 });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await markTasted(111, false);
+
+    expect(fetchMock.mock.calls[0][1].method).toBe("DELETE");
+  });
+
+  it("returns false on failure", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 500 }),
+    );
+    expect(await markTasted(111, true)).toBe(false);
   });
 });

@@ -16,6 +16,7 @@ export interface Beer {
   style?: string | null;
   badges?: Badge[];
   user_checked_in?: UserCheckin[];
+  user_tasted?: boolean;
   detail?: string;
   value_score?: number | null;
   price_per_alcohol_unit?: number | null;

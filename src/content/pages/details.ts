@@ -12,7 +12,9 @@ import {
 } from "../../shared/constants";
 import { retryUntil } from "../core/observer";
 import { getSettings } from "../../shared/settings";
+import { isConnected } from "../../shared/auth";
 import { renderValueScore, applyLabelImage } from "../core/render";
+import { injectTastedButton } from "../core/tasted";
 
 interface Block {
   container: HTMLDivElement;
@@ -274,6 +276,16 @@ export async function handleDetails(): Promise<void> {
   void retryUntil(() => injectPpau(beer), { attempts: 20, delay: 300 });
 
   applyLabelImage(document, beer, settings.labelImage);
+
+  if (await isConnected()) {
+    void retryUntil(
+      () => injectTastedButton(document, id, beer.user_tasted ?? false),
+      {
+        attempts: 20,
+        delay: 300,
+      },
+    );
+  }
 
   addBadges(beer, layout);
   setupWrongMatch(block.wrong, id);

@@ -21,6 +21,7 @@ function mockBeers(results: unknown[]): void {
 beforeEach(() => {
   clearBeerCache();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   document.body.innerHTML = fixture("search.html");
 });
 
@@ -57,6 +58,35 @@ describe("handleSearch", () => {
     await handleSearch();
 
     expect(document.querySelectorAll(".untappd")).toHaveLength(1);
+  });
+
+  it("injects a tasted button into the card tools when connected", async () => {
+    vi.stubGlobal("chrome", {
+      storage: {
+        local: {
+          get: vi.fn(async (key: string) => ({ [key]: "tok" })),
+          set: vi.fn(),
+          remove: vi.fn(),
+        },
+        onChanged: { addListener: vi.fn(), removeListener: vi.fn() },
+      },
+    });
+    mockBeers([{ vmp_id: 15616302, rating: 3.6, user_tasted: true }]);
+
+    await handleSearch();
+
+    const card = document.querySelector("ul.product-list > li")!;
+    const btn = card.querySelector(".product-tools .olmono-tasted-btn");
+    expect(btn).not.toBeNull();
+    expect(btn?.getAttribute("aria-label")).toBe("Smakt");
+  });
+
+  it("does not inject a tasted button when not connected", async () => {
+    mockBeers([{ vmp_id: 15616302, rating: 3.6, user_tasted: true }]);
+
+    await handleSearch();
+
+    expect(document.querySelector(".olmono-tasted-btn")).toBeNull();
   });
 
   it("renders value score and fills the missing label image", async () => {
