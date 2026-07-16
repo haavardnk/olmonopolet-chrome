@@ -22,6 +22,7 @@ function fakeChrome(token?: string) {
 
 beforeEach(() => {
   vi.unstubAllGlobals();
+  document.body.innerHTML = "";
 });
 
 describe("authFetch", () => {
@@ -62,5 +63,6 @@ describe("authFetch", () => {
     await authFetch("https://api.olmonopolet.app/lists/");
 
     expect(chrome.store["olmono:token"]).toBeUndefined();
+    expect(document.querySelector(".olmono-toast")).not.toBeNull();
   });
 });

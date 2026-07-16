@@ -224,3 +224,39 @@ a.olmono-rating[href]:hover .olmono-rating-value {
   margin-left: 8px;
   color: #66797c;
 }
+
+.olmono-toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 340px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background-color: #201d1a;
+  color: #eae1d9;
+  font-family: Roboto, sans-serif;
+  font-size: 13px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.28);
+}
+
+.olmono-toast-link {
+  color: #ffb951;
+  font-weight: 700;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.olmono-toast-close {
+  margin-left: auto;
+  padding: 0 4px;
+  border: none;
+  background: none;
+  color: #eae1d9;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}

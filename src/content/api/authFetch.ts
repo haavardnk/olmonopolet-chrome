@@ -1,4 +1,5 @@
 import { getToken, clearToken } from "../../shared/auth";
+import { notifySessionExpired } from "../core/notice";
 
 export async function authFetch(
   url: string,
@@ -9,6 +10,9 @@ export async function authFetch(
   if (token) headers.set("Authorization", `Token ${token}`);
 
   const res = await fetch(url, { ...init, headers });
-  if (res.status === 401 && token) await clearToken();
+  if (res.status === 401 && token) {
+    await clearToken();
+    notifySessionExpired();
+  }
   return res;
 }
