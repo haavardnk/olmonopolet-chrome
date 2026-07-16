@@ -72,8 +72,12 @@ describe("handleDetails", () => {
 
     await handleDetails();
 
-    const ibuInjected = [...document.querySelectorAll(".details-list li")].some(
-      (li) => li.querySelector("span")?.textContent === "Ibu",
+    const ibuInjected = [
+      ...document.querySelectorAll(".characteristics li"),
+    ].some(
+      (li) =>
+        li.querySelector("strong")?.textContent === "Ibu" &&
+        li.querySelector("span")?.textContent === "50",
     );
     expect(ibuInjected).toBe(true);
     expect(

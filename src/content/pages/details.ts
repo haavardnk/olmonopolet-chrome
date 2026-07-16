@@ -53,26 +53,23 @@ function injectIBU(beer: Beer, category: Element): boolean {
   if (!beer.ibu) return true;
   if (!isBeerCategory(category.textContent)) return true;
 
-  const list = findDetailsList();
-  if (!list) return false;
+  const row = findAlcoholRow();
+  if (!row?.parentElement) return false;
 
-  const hasIBU = [...list.querySelectorAll("li")].some((li) => {
-    const spans = li.querySelectorAll(":scope > span");
-    return spans.length >= 1 && spans[0].textContent?.trim() === "Ibu";
+  const exists = [...row.parentElement.children].some((li) => {
+    const strong = li.querySelector(":scope > strong");
+    return strong?.textContent?.trim() === "Ibu";
   });
-  if (hasIBU) return true;
+  if (exists) return true;
 
-  const template = list.querySelector("li");
-  if (!template) return false;
-
-  const item = template.cloneNode(true) as HTMLElement;
-  const spans = item.querySelectorAll("span");
-  if (spans.length >= 2) {
-    spans[0].textContent = "Ibu";
-    spans[1].textContent = String(beer.ibu);
-    spans[1].removeAttribute("aria-label");
-  }
-  list.appendChild(item);
+  const clone = row.cloneNode(true) as HTMLElement;
+  const strong = clone.querySelector(":scope > strong");
+  const span = clone.querySelector(":scope > span");
+  if (!strong || !span) return true;
+  strong.textContent = "Ibu";
+  span.textContent = String(beer.ibu);
+  span.removeAttribute("aria-label");
+  row.parentElement.appendChild(clone);
   return true;
 }
 
