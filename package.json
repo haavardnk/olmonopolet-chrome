@@ -15,7 +15,7 @@
     "format:check": "prettier --check .",
     "zip": "npm run build && cd dist && zip -r -FS ../olmonopolet-chrome.zip . -x '.vite/*'"
   },
-  "license": "GPL-3.0",
+  "license": "LGPL-3.0",
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.33",
     "@eslint/js": "^10.0.1",
