@@ -22,6 +22,7 @@ function fakeChrome(token?: string) {
 
 beforeEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   document.body.innerHTML = "";
 });
 
@@ -37,6 +38,20 @@ describe("authFetch", () => {
 
     const headers = fetchMock.mock.calls[0][1].headers as Headers;
     expect(headers.get("Authorization")).toBe("Token tok");
+  });
+
+  it("adds the X-Api-Key header when a key is configured", async () => {
+    vi.stubEnv("VITE_API_KEY", "secret");
+    vi.stubGlobal("chrome", fakeChrome("tok"));
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({ status: 200, ok: true } as Response);
+    vi.stubGlobal("fetch", fetchMock);
+
+    await authFetch("https://api.olmonopolet.app/lists/");
+
+    const headers = fetchMock.mock.calls[0][1].headers as Headers;
+    expect(headers.get("X-Api-Key")).toBe("secret");
   });
 
   it("omits the header when no token exists", async () => {

@@ -6,7 +6,9 @@ export async function authFetch(
   init: RequestInit = {},
 ): Promise<Response> {
   const token = await getToken();
+  const apiKey = import.meta.env.VITE_API_KEY;
   const headers = new Headers(init.headers);
+  if (apiKey) headers.set("X-Api-Key", apiKey);
   if (token) headers.set("Authorization", `Token ${token}`);
 
   const res = await fetch(url, { ...init, headers });
