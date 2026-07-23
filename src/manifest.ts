@@ -6,7 +6,7 @@ const DEV_KEY =
 export default defineManifest((env) => ({
   manifest_version: 3,
   name: "Ølmonopolet",
-  version: "0.4.0",
+  version: "0.4.1",
   description: "Legger til Untappd informasjon på Vinmonopolet.no",
   ...(env.command === "serve" ? { key: DEV_KEY } : {}),
   icons: {
