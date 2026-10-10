@@ -1,11 +1,15 @@
-import type { SearchReply, SearchRequest, SearchResult } from "./protocol";
+import {
+  READY_ATTR,
+  READY_EVENT,
+  REPLY_EVENT,
+  REQUEST_EVENT,
+  type SearchReply,
+  type SearchRequest,
+  type SearchResult,
+} from "./protocol";
 import { rewriteSearch, type VmpSearch } from "./vmpProduct";
 
 const SEARCH_PATH = "/vmpws/v2/vmp/search";
-const REQUEST_EVENT = "olmono:search-request";
-const REPLY_EVENT = "olmono:search-reply";
-const READY_EVENT = "olmono:bridge-ready";
-const READY_ATTR = "data-olmono-bridge";
 const READY_TIMEOUT = 10_000;
 const REPLY_TIMEOUT = 20_000;
 
@@ -77,18 +81,20 @@ async function sorted(response: Response, url: URL): Promise<Response> {
   });
 }
 
-const nativeFetch = window.fetch;
+export function hookSearchFetch(): void {
+  const nativeFetch = window.fetch;
 
-window.fetch = async (input, init) => {
-  const response = await nativeFetch(input, init);
-  const url = new URL(
-    input instanceof Request ? input.url : String(input),
-    location.href,
-  );
-  if (!url.pathname.endsWith(SEARCH_PATH)) return response;
-  try {
-    return await sorted(response, url);
-  } catch {
-    return response;
-  }
-};
+  window.fetch = async (input, init) => {
+    const response = await nativeFetch(input, init);
+    const url = new URL(
+      input instanceof Request ? input.url : String(input),
+      location.href,
+    );
+    if (!url.pathname.endsWith(SEARCH_PATH)) return response;
+    try {
+      return await sorted(response, url);
+    } catch {
+      return response;
+    }
+  };
+}

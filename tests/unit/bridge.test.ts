@@ -109,7 +109,8 @@ beforeAll(async () => {
       return apiResponse();
     }),
   );
-  await import("../../src/content/main/index");
+  const { hookSearchFetch } = await import("../../src/content/main/searchHook");
+  hookSearchFetch();
   const { listenForSearch } = await import("../../src/content/core/bridge");
   listenForSearch();
 });

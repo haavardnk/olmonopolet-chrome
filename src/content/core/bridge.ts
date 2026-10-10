@@ -1,18 +1,17 @@
-import type {
-  SearchReply,
-  SearchRequest,
-  SearchResult,
+import {
+  READY_ATTR,
+  READY_EVENT,
+  REPLY_EVENT,
+  REQUEST_EVENT,
+  type SearchReply,
+  type SearchRequest,
+  type SearchResult,
 } from "../main/protocol";
 import { getSettings, setSettings, type SortMode } from "../../shared/settings";
 import { isConnected } from "../../shared/auth";
 import { searchBeers } from "../api/client";
 import { isSearchPath } from "../router";
 import { isBeerCategory, isBeerSearch, vmpSort } from "./beerQuery";
-
-const REQUEST_EVENT = "olmono:search-request";
-const REPLY_EVENT = "olmono:search-reply";
-const READY_EVENT = "olmono:bridge-ready";
-const READY_ATTR = "data-olmono-bridge";
 
 export interface AppliedSort {
   sort: SortMode;

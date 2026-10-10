@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { handleExternalMessage } from "../../src/background/index";
+import { handleExternalMessage } from "../../src/background/externalAuth";
 
 function fakeChrome(token?: string) {
   const store: Record<string, unknown> = token ? { "olmono:token": token } : {};

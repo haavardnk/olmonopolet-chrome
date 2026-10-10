@@ -28,20 +28,3 @@ export async function handleExternalMessage(
       return { ok: false };
   }
 }
-
-if (typeof chrome !== "undefined" && chrome.runtime?.onMessageExternal) {
-  chrome.runtime.onMessageExternal.addListener(
-    (message, sender, sendResponse) => {
-      void handleExternalMessage(message as AuthMessage, sender.origin).then(
-        sendResponse,
-      );
-      return true;
-    },
-  );
-}
-
-if (typeof chrome !== "undefined" && chrome.storage?.session?.setAccessLevel) {
-  void chrome.storage.session
-    .setAccessLevel({ accessLevel: "TRUSTED_AND_UNTRUSTED_CONTEXTS" })
-    .catch(() => {});
-}

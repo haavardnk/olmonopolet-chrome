@@ -2,10 +2,10 @@ import {
   getSettings,
   setSettings,
   type LabelImageMode,
-} from "../shared/settings";
-import { isConnected, clearToken, onTokenChange } from "../shared/auth";
-import { extensionVersion } from "../shared/constants";
-import { getHealth, type HealthPage } from "../shared/health";
+} from "../../shared/settings";
+import { isConnected, clearToken, onTokenChange } from "../../shared/auth";
+import { extensionVersion } from "../../shared/constants";
+import { getHealth, type HealthPage } from "../../shared/health";
 
 const PAGE_LABELS: Record<HealthPage, string> = {
   search: "søkesider",
