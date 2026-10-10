@@ -1,4 +1,5 @@
-import { describe, it, expect, beforeEach, vi, type Mock } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { fakeBrowser } from "wxt/testing/fake-browser";
 import { renderToolbar } from "../../src/content/ui/toolbar";
 import {
   DEFAULT_SETTINGS,
@@ -6,17 +7,9 @@ import {
   type SortMode,
 } from "../../src/shared/settings";
 
-function stubChrome(stored: Partial<Settings>): Mock {
-  const set = vi.fn();
-  vi.stubGlobal("chrome", {
-    storage: {
-      local: {
-        get: vi.fn(async (key: string) => ({ [key]: stored })),
-        set,
-      },
-    },
-  });
-  return set;
+async function stored(): Promise<Partial<Settings> | undefined> {
+  const data = await fakeBrowser.storage.local.get("olmono:settings");
+  return data["olmono:settings"] as Partial<Settings> | undefined;
 }
 
 function mount(settings: Settings): HTMLSelectElement {
@@ -46,7 +39,6 @@ function openDialog(): Promise<HTMLDialogElement> {
 }
 
 beforeEach(() => {
-  vi.unstubAllGlobals();
   document.body.innerHTML = "";
 });
 
@@ -55,17 +47,15 @@ describe("sort select", () => {
     ["vinmonopolet order", {}, "vmp"],
     ["intro already seen", { sortIntroSeen: true }, "-rating"],
     ["already sorting with olmonopolet", { sort: "-rating" }, "-value_score"],
-  ])("saves without asking for %s", async (_, stored, sort) => {
-    const set = stubChrome(stored);
-    choose(mount({ ...DEFAULT_SETTINGS, ...stored }), sort);
+  ])("saves without asking for %s", async (_, settings, sort) => {
+    await fakeBrowser.storage.local.set({ "olmono:settings": settings });
+    choose(mount({ ...DEFAULT_SETTINGS, ...settings }), sort);
 
-    await vi.waitFor(() => expect(set).toHaveBeenCalled());
+    await vi.waitFor(async () => expect((await stored())?.sort).toBe(sort));
     expect(document.querySelector(".olmono-dialog")).toBeNull();
-    expect(set.mock.calls[0][0]["olmono:settings"].sort).toBe(sort);
   });
 
   it("explains olmonopolet sort on first use and remembers it", async () => {
-    const set = stubChrome({});
     choose(mount(DEFAULT_SETTINGS), "-rating");
 
     const dialog = await openDialog();
@@ -75,16 +65,16 @@ describe("sort select", () => {
       .querySelector<HTMLButtonElement>(".olmono-dialog-btn-primary")!
       .click();
 
-    await vi.waitFor(() => expect(set).toHaveBeenCalled());
-    expect(set.mock.calls[0][0]["olmono:settings"]).toMatchObject({
-      sort: "-rating",
-      sortIntroSeen: true,
-    });
+    await vi.waitFor(async () =>
+      expect(await stored()).toMatchObject({
+        sort: "-rating",
+        sortIntroSeen: true,
+      }),
+    );
     expect(document.querySelector(".olmono-dialog")).toBeNull();
   });
 
   it("restores vinmonopolet order when the intro is cancelled", async () => {
-    const set = stubChrome({});
     const select = mount(DEFAULT_SETTINGS);
     choose(select, "-rating");
 
@@ -95,6 +85,6 @@ describe("sort select", () => {
       expect(document.querySelector(".olmono-dialog")).toBeNull(),
     );
     expect(select.value).toBe("vmp");
-    expect(set).not.toHaveBeenCalled();
+    expect(await stored()).toBeUndefined();
   });
 });

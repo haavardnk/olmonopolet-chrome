@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { fakeBrowser } from "wxt/testing/fake-browser";
 import {
   getBeers,
   getBeer,
@@ -54,15 +55,6 @@ describe("getBeers", () => {
   });
 
   it("persists to session storage and hydrates after a reload", async () => {
-    const store: Record<string, unknown> = {};
-    const session = {
-      get: vi.fn(async (keys: unknown) => (keys === null ? { ...store } : {})),
-      set: vi.fn(async (items: Record<string, unknown>) => {
-        Object.assign(store, items);
-      }),
-    };
-    vi.stubGlobal("chrome", { storage: { session } });
-
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ results: [{ vmp_id: 111, rating: 3.5 }] }),
@@ -70,7 +62,11 @@ describe("getBeers", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     await getBeers([111]);
-    expect(session.set).toHaveBeenCalled();
+    await vi.waitFor(async () =>
+      expect(Object.keys(await fakeBrowser.storage.session.get())).toEqual([
+        expect.stringMatching(/^olmono:beer:111:/),
+      ]),
+    );
 
     clearBeerCache();
     const map = await getBeers([111]);

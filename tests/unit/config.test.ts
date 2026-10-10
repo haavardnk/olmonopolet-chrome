@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import { fakeBrowser } from "wxt/testing/fake-browser";
 import {
   compareVersions,
   loadConfig,
@@ -6,19 +7,14 @@ import {
 } from "../../src/content/core/config";
 import { find, setAnchors } from "../../src/content/dom/anchors";
 
-function fakeChrome(store: Record<string, unknown> = {}) {
-  return {
-    store,
-    runtime: { getManifest: () => ({ version: "0.5.0" }) },
-    storage: {
-      local: {
-        get: vi.fn(async (key: string) => ({ [key]: store[key] })),
-        set: vi.fn(async (items: Record<string, unknown>) => {
-          Object.assign(store, items);
-        }),
-      },
-    },
-  };
+interface StoredConfig {
+  fetchedAt: number;
+  data: unknown;
+}
+
+async function storedConfig(): Promise<StoredConfig | undefined> {
+  const stored = await fakeBrowser.storage.local.get("olmono:config");
+  return stored["olmono:config"] as StoredConfig | undefined;
 }
 
 const VALID = {
@@ -77,10 +73,9 @@ describe("loadConfig", () => {
   it("applies a fresh cached config without fetching", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
-    vi.stubGlobal(
-      "chrome",
-      fakeChrome({ "olmono:config": { fetchedAt: Date.now(), data: VALID } }),
-    );
+    await fakeBrowser.storage.local.set({
+      "olmono:config": { fetchedAt: Date.now(), data: VALID },
+    });
 
     await loadConfig();
 
@@ -102,21 +97,16 @@ describe("loadConfig", () => {
           json: async () => data,
         }),
       );
-      const chrome = fakeChrome({
+      await fakeBrowser.storage.local.set({
         "olmono:config": { fetchedAt: 0, data: null },
       });
-      vi.stubGlobal("chrome", chrome);
 
       await loadConfig();
-      await vi.waitFor(() =>
-        expect(
-          (chrome.store["olmono:config"] as { fetchedAt: number }).fetchedAt,
-        ).toBeGreaterThan(0),
+      await vi.waitFor(async () =>
+        expect((await storedConfig())?.fetchedAt).toBeGreaterThan(0),
       );
 
-      expect((chrome.store["olmono:config"] as { data: unknown }).data).toEqual(
-        data,
-      );
+      expect((await storedConfig())?.data).toEqual(data);
       expect(find("productList")?.tagName).toBe(expectedTag);
     },
   );

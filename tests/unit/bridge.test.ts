@@ -1,7 +1,9 @@
 import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { Settings } from "../../src/shared/settings";
+import { fakeBrowser } from "wxt/testing/fake-browser";
+import { getSettings, type Settings } from "../../src/shared/settings";
+import { setToken } from "../../src/shared/auth";
 import { appliedSort } from "../../src/content/core/bridge";
 import { handleSearch } from "../../src/content/pages/search";
 
@@ -39,12 +41,6 @@ function apiBeer(id: number): Record<string, unknown> {
 
 const apiCalls: URL[] = [];
 let apiResponse: () => Response;
-let stored: Partial<Settings> = {};
-let token: string | undefined;
-
-const storageSet = vi.fn(async (items: Record<string, unknown>) => {
-  stored = items["olmono:settings"] as Partial<Settings>;
-});
 
 function vmpUrl(query: string): string {
   const params = new URLSearchParams({
@@ -72,24 +68,15 @@ async function search(query: string): Promise<{
   return body.productSearchResult;
 }
 
-function given(settings: Partial<Settings>, auth?: string): void {
-  stored = settings;
-  token = auth;
+async function given(
+  settings: Partial<Settings>,
+  auth?: string,
+): Promise<void> {
+  await fakeBrowser.storage.local.set({ "olmono:settings": settings });
+  if (auth) await setToken(auth);
 }
 
 beforeAll(async () => {
-  vi.stubGlobal("chrome", {
-    storage: {
-      local: {
-        get: vi.fn(async (key: string) => ({
-          [key]: key === "olmono:settings" ? stored : token,
-        })),
-        set: storageSet,
-        remove: vi.fn(),
-      },
-      onChanged: { addListener: vi.fn(), removeListener: vi.fn() },
-    },
-  });
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL) => {
@@ -121,7 +108,6 @@ beforeEach(() => {
     "utf-8",
   );
   apiCalls.length = 0;
-  storageSet.mockClear();
   apiResponse = () =>
     new Response(
       JSON.stringify({
@@ -139,7 +125,7 @@ describe("olmonopolet sorted search", () => {
   ])(
     "replaces vinmonopolet products in sorted order (hideTasted %s)",
     async (hideTasted, auth, userTasted) => {
-      given({ sort: "-rating", hideTasted }, auth);
+      await given({ sort: "-rating", hideTasted }, auth);
 
       const result = await search(BEER_QUERY);
 
@@ -174,19 +160,20 @@ describe("olmonopolet sorted search", () => {
   ] as const)(
     "keeps vinmonopolet products for %j on %s",
     async (settings, query, resetsSort) => {
-      given(settings);
+      await given(settings);
 
       const result = await search(query);
 
       expect(result.products.map((p) => p.code)).toEqual(["2", "9"]);
       expect(apiCalls).toHaveLength(0);
-      expect(storageSet.mock.calls.length > 0).toBe(resetsSort);
-      if (resetsSort) expect(stored.sort).toBe("vmp");
+      expect((await getSettings()).sort).toBe(
+        resetsSort ? "vmp" : settings.sort,
+      );
     },
   );
 
   it("falls back to vinmonopolet order and offers a retry when sorting fails", async () => {
-    given({ sort: "-rating" });
+    await given({ sort: "-rating" });
     apiResponse = () => new Response("", { status: 500 });
 
     const result = await search(BEER_QUERY);
@@ -215,11 +202,11 @@ describe("olmonopolet sorted search", () => {
   ] as const)(
     "after %j on %s, changing %j navigates to %s",
     async (initial, query, change, expected) => {
-      given(initial, "tok");
+      await given(initial, "tok");
       await search(query);
       const reload = vi.spyOn(location, "reload").mockImplementation(() => {});
       const assign = vi.spyOn(location, "assign").mockImplementation(() => {});
-      given({ ...initial, ...change }, "tok");
+      await given({ ...initial, ...change }, "tok");
 
       await handleSearch();
 

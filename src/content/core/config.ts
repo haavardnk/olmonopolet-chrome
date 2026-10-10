@@ -1,3 +1,4 @@
+import { storage } from "wxt/utils/storage";
 import {
   ANCHOR_NAMES,
   CONFIG_SCHEMA,
@@ -5,10 +6,8 @@ import {
   type Strategy,
 } from "../../shared/anchorConfig";
 import { API_BASE_URL, extensionVersion } from "../../shared/constants";
-import { localArea } from "../../shared/storage";
 import { setAnchors } from "../dom/anchors";
 
-const CONFIG_KEY = "olmono:config";
 const MAX_AGE = 6 * 60 * 60 * 1000;
 const MAX_UP = 10;
 
@@ -16,6 +15,8 @@ interface CachedConfig {
   fetchedAt: number;
   data: unknown;
 }
+
+const configItem = storage.defineItem<CachedConfig>("local:olmono:config");
 
 export function compareVersions(a: string, b: string): number {
   const pa = a.split(".").map(Number);
@@ -85,24 +86,20 @@ function apply(data: unknown): void {
   setAnchors(parseConfig(data, extensionVersion()) ?? {});
 }
 
-async function refresh(area: chrome.storage.LocalStorageArea): Promise<void> {
+async function refresh(): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/extension/config/`, {
     credentials: "omit",
   });
   if (!res.ok && res.status !== 404) return;
   const data: unknown = res.ok ? await res.json() : null;
-  const cached: CachedConfig = { fetchedAt: Date.now(), data };
-  await area.set({ [CONFIG_KEY]: cached });
+  await configItem.setValue({ fetchedAt: Date.now(), data });
   apply(data);
 }
 
 export async function loadConfig(): Promise<void> {
-  const area = localArea();
-  if (!area) return;
-  const stored = (await area.get(CONFIG_KEY))[CONFIG_KEY] as
-    CachedConfig | undefined;
+  const stored = await configItem.getValue();
   if (stored) apply(stored.data);
   if (!stored || Date.now() - stored.fetchedAt > MAX_AGE) {
-    void refresh(area).catch(() => {});
+    void refresh().catch(() => {});
   }
 }

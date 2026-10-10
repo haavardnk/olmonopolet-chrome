@@ -8,7 +8,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     languageOptions: {
-      globals: { ...globals.browser, chrome: "readonly" },
+      globals: globals.browser,
     },
   },
 );
