@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import {
   retryUntil,
-  waitFor,
+  observeMutations,
   onRouteChange,
 } from "../../src/content/core/observer";
 
@@ -18,24 +18,20 @@ describe("retryUntil", () => {
   });
 });
 
-describe("waitFor", () => {
-  it("resolves immediately when the element exists", async () => {
-    document.body.innerHTML = `<div class="x"></div>`;
-    expect(await waitFor(".x", { timeout: 50 })).not.toBeNull();
-  });
-
-  it("resolves when the element appears later", async () => {
+describe("observeMutations", () => {
+  it.each([
+    ["page", "vmp-card", 1],
+    ["own", "olmono-row", 0],
+  ])("reacts to %s mutations", async (_label, className, calls) => {
     document.body.innerHTML = "";
-    const pending = waitFor(".later", { timeout: 500 });
-    setTimeout(() => {
-      document.body.innerHTML = `<div class="later"></div>`;
-    }, 10);
-    expect(await pending).not.toBeNull();
-  });
-
-  it("resolves null on timeout", async () => {
-    document.body.innerHTML = "";
-    expect(await waitFor(".never", { timeout: 20 })).toBeNull();
+    const cb = vi.fn();
+    const cleanup = observeMutations(cb, { debounce: 1 });
+    const el = document.createElement("div");
+    el.className = className;
+    document.body.appendChild(el);
+    await new Promise((r) => setTimeout(r, 20));
+    expect(cb).toHaveBeenCalledTimes(calls);
+    cleanup();
   });
 });
 

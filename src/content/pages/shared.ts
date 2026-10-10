@@ -17,6 +17,7 @@ import {
 export interface ProcessOptions {
   fields?: string;
   requireBeer?: boolean;
+  signal?: AbortSignal;
   onRendered?: (card: Element, beer: Beer) => void;
 }
 
@@ -49,6 +50,7 @@ export async function processCards(
   const settings = await getSettings();
   const connected = await isConnected();
   const lists = connected ? await getLists() : [];
+  if (opts.signal?.aborted) return;
 
   for (const { card, id, container } of entries) {
     const beer = beers.get(id);

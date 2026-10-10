@@ -1,7 +1,7 @@
 import type { Beer } from "../../shared/types";
 import { getBeer, getLists } from "../api/client";
 import { getProductIdFromUrl } from "../dom/product";
-import { queryFirst, SELECTORS } from "../dom/selectors";
+import { find } from "../dom/anchors";
 import { ratingToStars, kFormatter, formatUpdated } from "../../shared/format";
 import { productUrl, BEER_CATEGORIES } from "../../shared/constants";
 import { retryUntil } from "../core/observer";
@@ -42,16 +42,6 @@ function buildBlock(): Block {
 
   container.append(rating);
   return { container, rating, value };
-}
-
-function findDetailsList(): Element | null {
-  for (const li of document.querySelectorAll("li")) {
-    const spans = li.querySelectorAll(":scope > span");
-    if (spans.length >= 2 && spans[0].textContent?.trim() === "Varenummer") {
-      return li.parentElement;
-    }
-  }
-  return null;
 }
 
 function findAlcoholRow(): HTMLElement | null {
@@ -112,7 +102,7 @@ function updateStyle(beer: Beer, category: Element): void {
 function injectStyleToVaretype(beer: Beer): boolean {
   if (!beer.style) return true;
 
-  const list = findDetailsList();
+  const list = find("detailFacts");
   if (!list) return false;
 
   const row = [...list.querySelectorAll("li")].find((li) => {
@@ -150,7 +140,7 @@ function injectPpau(beer: Beer): boolean {
   const value = beer.price_per_alcohol_unit;
   if (value === null || value === undefined) return true;
 
-  const perLiter = document.querySelector('[aria-label*="per liter"]');
+  const perLiter = find("detailPerLiter");
   const container = perLiter?.parentElement;
   if (!container) return false;
   if (container.querySelector(".olmono-ppau")) return true;
@@ -187,8 +177,8 @@ function addBadges(beer: Beer, layout: Element): void {
   }
 }
 
-export async function handleDetails(): Promise<void> {
-  const category = queryFirst(document, SELECTORS.categoryName);
+export async function handleDetails(signal?: AbortSignal): Promise<void> {
+  const category = find("category");
   const container = category?.parentElement;
   if (!category || !container) return;
   if (!isBeerCategory(category.textContent)) return;
@@ -215,6 +205,7 @@ export async function handleDetails(): Promise<void> {
     return;
   }
   revealBlock();
+  if (signal?.aborted) return;
 
   if (beer.rating !== null && beer.rating !== undefined) {
     block.rating.insertBefore(ratingToStars(beer.rating), block.value);

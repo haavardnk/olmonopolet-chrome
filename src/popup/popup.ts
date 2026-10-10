@@ -4,6 +4,16 @@ import {
   type LabelImageMode,
 } from "../shared/settings";
 import { isConnected, clearToken, onTokenChange } from "../shared/auth";
+import { getHealth, type HealthPage } from "../shared/health";
+
+const PAGE_LABELS: Record<HealthPage, string> = {
+  search: "søkesider",
+  details: "produktsider",
+  cart: "handlekurven",
+  wishlist: "Min liste",
+};
+
+const HEALTH_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
 
 function initAuth(): void {
   const status = document.querySelector<HTMLElement>("#auth-status");
@@ -35,6 +45,32 @@ function initVersion(): void {
   if (el) el.textContent = `v${chrome.runtime.getManifest().version}`;
 }
 
+async function initHealth(): Promise<void> {
+  const box = document.querySelector<HTMLElement>("#health");
+  const text = document.querySelector<HTMLElement>("#health-text");
+  if (!box || !text) return;
+
+  const version = chrome.runtime.getManifest().version;
+  const cutoff = Date.now() - HEALTH_MAX_AGE;
+  const entries = Object.entries(await getHealth()).filter(
+    ([, entry]) => entry.version === version && Date.parse(entry.at) >= cutoff,
+  );
+  if (entries.length === 0) return;
+
+  const broken = entries.filter(([, entry]) => entry.missing.length > 0);
+  box.hidden = false;
+  box.classList.toggle("is-degraded", broken.length > 0);
+  if (broken.length === 0) {
+    text.textContent = "Fungerer som det skal på vinmonopolet.no.";
+    return;
+  }
+  const pages = broken.map(([page]) => PAGE_LABELS[page as HealthPage]);
+  text.textContent = `vinmonopolet.no har endret seg. Noe kan mangle på ${pages.join(", ")}.`;
+  box.title = broken
+    .map(([page, entry]) => `${page}: ${entry.missing.join(", ")}`)
+    .join("\n");
+}
+
 async function initSettings(): Promise<void> {
   const settings = await getSettings();
 
@@ -53,8 +89,17 @@ async function initSettings(): Promise<void> {
       void setSettings({ tastedDim: dim.checked });
     });
   }
+
+  const reports = document.querySelector<HTMLInputElement>("#toggle-reports");
+  if (reports) {
+    reports.checked = settings.reports;
+    reports.addEventListener("change", () => {
+      void setSettings({ reports: reports.checked });
+    });
+  }
 }
 
 initAuth();
 initVersion();
+void initHealth();
 void initSettings();

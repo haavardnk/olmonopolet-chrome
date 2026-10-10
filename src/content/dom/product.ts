@@ -1,11 +1,11 @@
 import { BEER_CATEGORIES } from "../../shared/constants";
-import { SELECTORS, queryFirst, queryAll } from "./selectors";
+import { find, findAll } from "./anchors";
 
 const PRODUCT_ID_RE = /\/p\/(\d+)/;
 
 export function getProductId(product: ParentNode): string | null {
   const link =
-    product.querySelector<HTMLAnchorElement>('a[href*="/p/"]') ??
+    find<HTMLAnchorElement>("productLink", product) ??
     product.querySelector<HTMLAnchorElement>("a[aria-label]");
   const href = link?.getAttribute("href") ?? link?.href ?? "";
   const match = href.match(PRODUCT_ID_RE);
@@ -20,12 +20,12 @@ export function getProductIdFromUrl(
 }
 
 export function findProductCards(root: ParentNode = document): Element[] {
-  return queryAll(root, SELECTORS.productCard);
+  return findAll("productCard", root);
 }
 
 export function getCategoryText(product: ParentNode): string {
   const parts: string[] = [];
-  const cat = queryFirst(product, SELECTORS.categoryName);
+  const cat = find("category", product);
   if (cat?.textContent) parts.push(cat.textContent);
   const link = product.querySelector<HTMLAnchorElement>("a[aria-label]");
   const label = link?.getAttribute("aria-label");
@@ -39,7 +39,7 @@ export function isBeer(product: ParentNode): boolean {
 }
 
 export function getInfoContainer(product: Element): Element {
-  const cat = queryFirst(product, SELECTORS.categoryName);
+  const cat = find("category", product);
   if (cat?.parentElement) return cat.parentElement;
 
   const h3 = product.querySelector("h3");
@@ -55,7 +55,7 @@ export function getInfoContainer(product: Element): Element {
 }
 
 export function appendStyleToCategory(product: Element, style: string): void {
-  const cat = queryFirst(product, SELECTORS.categoryName);
+  const cat = find("category", product);
   if (!cat || cat.textContent?.includes(" - ")) return;
   cat.append(` - ${style}`);
 }

@@ -85,6 +85,36 @@ body {
   font-size: 12px;
 }
 
+.health {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--base-content) 80%, transparent);
+}
+
+.health-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background-color: var(--success);
+}
+
+.health.is-degraded .health-dot {
+  background-color: var(--error);
+}
+
+.setting-hint {
+  margin: 0 0 4px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--base-content) 50%, transparent);
+}
+
 .section-label {
   margin: 20px 0 4px;
   font-size: 11px;

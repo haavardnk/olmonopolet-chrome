@@ -4,10 +4,11 @@ import { processCards } from "./shared";
 const LIST_FIELDS =
   "vmp_id,style,rating,badges,value_score,label_hd_url,user_tasted";
 
-export async function handleSearch(): Promise<void> {
+export async function handleSearch(signal?: AbortSignal): Promise<void> {
   await processCards(findProductCards(), {
     requireBeer: true,
     fields: LIST_FIELDS,
+    signal,
     onRendered: (card, beer) => {
       if (beer.style) appendStyleToCategory(card, beer.style);
     },

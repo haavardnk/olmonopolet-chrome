@@ -1,5 +1,5 @@
 import { addToList, removeFromList } from "../api/client";
-import { findTools } from "../dom/selectors";
+import { find } from "../dom/anchors";
 import type { UserList } from "../../shared/types";
 
 const LIST_ICON =
@@ -64,7 +64,7 @@ export function injectListButton(
   id: string,
   lists: UserList[],
 ): boolean {
-  const tools = findTools(root);
+  const tools = find("tools", root);
   if (!tools) return false;
   if (tools.querySelector(".olmono-list-btn")) return true;
 

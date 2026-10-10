@@ -2,7 +2,7 @@ import { productUrl } from "../../shared/constants";
 import { ratingToStars, kFormatter } from "../../shared/format";
 import type { Beer, Badge } from "../../shared/types";
 import type { LabelImageMode } from "../../shared/settings";
-import { SELECTORS, queryFirst } from "../dom/selectors";
+import { find } from "../dom/anchors";
 
 export function renderRating(beer: Beer): HTMLDivElement {
   const container = document.createElement("div");
@@ -119,7 +119,7 @@ export function applyLabelImage(
   if (mode === "off") return;
   const url = beer.label_hd_url ?? beer.label_sm_url;
   if (!url) return;
-  const img = queryFirst<HTMLImageElement>(root, SELECTORS.productImage);
+  const img = find<HTMLImageElement>("productImage", root);
   if (!img) return;
 
   if (mode === "override") {
