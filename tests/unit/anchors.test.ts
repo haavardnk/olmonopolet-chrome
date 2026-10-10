@@ -30,8 +30,7 @@ describe("anchors", () => {
     ["search.html", ["productList", "productCard", "productLink", "category"]],
     ["search.html", ["productImage", "productPrice", "tools", "sortSelect"]],
     ["details.html", ["detailPage", "category", "tools", "productImage"]],
-    ["details.html", ["detailFacts", "detailColumns", "detailAside"]],
-    ["details.html", ["detailBuy"]],
+    ["details.html", ["detailBuy", "detailHero"]],
   ] as const)("resolves %s anchors %j", (file, names) => {
     document.body.innerHTML = fixture(file);
     expect(missing([...names])).toEqual([]);
@@ -39,8 +38,7 @@ describe("anchors", () => {
 
   it("resolves text strategies and climbs to the ancestor", () => {
     document.body.innerHTML = fixture("details.html");
-    expect(find("detailFacts")?.classList.contains("A86PRlFM")).toBe(true);
-    expect(find("detailAside")?.classList.contains("GfbhJELI")).toBe(true);
+    expect(find("detailHero")?.querySelector("h1")).not.toBeNull();
     expect(find("detailBuy")?.classList.contains("jznNJ0wW")).toBe(true);
   });
 

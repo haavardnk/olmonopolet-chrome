@@ -2,21 +2,35 @@ main:has(.olmono-panel, .olmono-hero) {
   container: olmono-page / inline-size;
 }
 
-.olmono-panel-wrap {
-  display: flex;
-  flex: 0 1 400px;
-  flex-direction: column;
-}
-
 .olmono-panel {
-  box-sizing: border-box;
-  padding: 24px 40px;
-  border-radius: var(--border-radius, 4px);
-  background-color: #fff;
+  background-color: var(--color-mint-light, #f7faf9);
   font-family: var(--font-family-sans-serif, Roboto, sans-serif);
   font-size: 14px;
   line-height: 1.4;
   color: var(--color-swamp, #092529);
+}
+
+.olmono-panel > section.section__inner-container {
+  padding-bottom: 0;
+}
+
+.olmono-panel-grid {
+  display: grid;
+  grid-template-areas: "head" "body" "facts" "foot";
+  gap: 16px;
+}
+
+.olmono-panel-head {
+  grid-area: head;
+}
+
+.olmono-panel-body {
+  grid-area: body;
+  max-width: 680px;
+}
+
+.olmono-panel-body > :last-child {
+  margin-bottom: 0;
 }
 
 .olmono-panel-title {
@@ -34,7 +48,7 @@ main:has(.olmono-panel, .olmono-hero) {
 }
 
 .olmono-panel .olmono-panel-score {
-  margin: 0 0 16px;
+  margin: 0;
 }
 
 .olmono-panel-score .olmono-logo {
@@ -110,12 +124,21 @@ main:has(.olmono-panel, .olmono-hero) {
   vertical-align: middle;
 }
 
-.olmono-panel > .olmono-badges {
+.olmono-panel-body > .olmono-badges {
   display: flex;
   margin-bottom: 16px;
 }
 
+.olmono-panel .olmono-facts {
+  grid-area: facts;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  align-content: start;
+  column-gap: 40px;
+  margin: 0;
+}
+
 .olmono-panel-footer {
+  grid-area: foot;
   margin: 0;
   font-size: 13px;
   color: var(--color-nevada, #66797c);
@@ -127,37 +150,35 @@ main:has(.olmono-panel, .olmono-hero) {
 }
 
 @media (min-width: 768px) {
-  @container olmono-page (width < 1272px) {
-    .olmono-columns:has(> .olmono-aside > .olmono-panel) {
-      display: grid;
-      grid-template-columns: minmax(0, 420px) minmax(0, 400px);
-      grid-template-rows: auto auto 1fr;
-      justify-content: space-between;
-      column-gap: 32px;
-    }
+  .olmono-panel-grid {
+    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "head body" "foot facts";
+    gap: 24px 0;
+  }
 
-    .olmono-columns > :not(.olmono-aside) {
-      grid-column: 1;
-    }
+  .olmono-panel-grid:not(:has(.olmono-panel-body)) {
+    grid-template-areas: "head facts" "foot facts";
+  }
 
-    .olmono-columns > .olmono-aside {
-      grid-column: 2;
-      grid-row: 1 / -1;
-    }
+  .olmono-panel-head,
+  .olmono-panel-footer {
+    padding-right: 24px;
+  }
+
+  .olmono-panel-footer {
+    align-self: end;
   }
 }
 
-@media (max-width: 767px) {
-  .olmono-panel {
-    padding: 24px 32px;
+@media (min-width: 1024px) {
+  .olmono-panel-grid {
+    grid-template-columns: 352px minmax(0, 1fr);
   }
+}
 
-  .olmono-aside:has(> .olmono-panel) {
-    display: contents;
-  }
-
-  .olmono-aside > .olmono-panel {
-    order: -1;
-    justify-self: stretch;
+@media (min-width: 1440px) {
+  .olmono-panel-grid {
+    grid-template-columns: 412px minmax(0, 1fr);
   }
 }

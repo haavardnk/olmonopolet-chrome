@@ -20,26 +20,10 @@ import { injectListButton } from "../ui/listButton";
 
 const RETRY = { attempts: 20, delay: 300 };
 
-function placePanel(panel: HTMLElement, id: string): boolean {
-  const aside = find("detailAside");
-  if (aside) {
-    aside.classList.add("olmono-aside");
-    aside.parentElement?.classList.add("olmono-columns");
-    aside.prepend(panel);
-    return true;
-  }
-  const columns = find("detailColumns");
-  if (columns) {
-    const wrap = document.createElement("div");
-    wrap.classList.add("olmono-panel-wrap");
-    wrap.dataset.olmono = id;
-    wrap.appendChild(panel);
-    columns.appendChild(wrap);
-    return true;
-  }
-  const facts = find("detailFacts");
-  if (!facts) return false;
-  facts.before(panel);
+function placePanel(panel: HTMLElement): boolean {
+  const hero = find("detailHero");
+  if (!hero) return false;
+  hero.after(panel);
   return true;
 }
 
@@ -93,7 +77,7 @@ export async function handleDetails(signal?: AbortSignal): Promise<void> {
 
   const stale = (): boolean => getProductIdFromUrl() !== id;
   const panel = renderPanel(beer, id);
-  void retryUntil(() => stale() || placePanel(panel, id), RETRY);
+  void retryUntil(() => stale() || placePanel(panel), RETRY);
   const heroFacts = renderHeroFacts(beer, id);
   if (heroFacts) {
     void retryUntil(() => stale() || placeHeroFacts(heroFacts), RETRY);
