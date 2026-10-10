@@ -15,6 +15,7 @@ export interface Settings {
   tastedDim: boolean;
   hideTasted: boolean;
   sort: SortMode;
+  sortIntroSeen: boolean;
   reports: boolean;
 }
 
@@ -23,6 +24,7 @@ export const DEFAULT_SETTINGS: Settings = {
   tastedDim: false,
   hideTasted: false,
   sort: "vmp",
+  sortIntroSeen: false,
   reports: true,
 };
 
