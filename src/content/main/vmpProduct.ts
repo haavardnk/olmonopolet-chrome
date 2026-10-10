@@ -114,8 +114,7 @@ function availability(beer: Beer): Record<string, unknown> {
 }
 
 export function toVmpProduct(beer: Beer): VmpProduct | null {
-  if (beer.price == null || beer.volume == null || beer.vmp_abv == null)
-    return null;
+  if (beer.price == null || beer.volume == null) return null;
   const code = String(beer.vmp_id);
   const main = named(beer.main_category);
   return {
@@ -146,7 +145,7 @@ export function toVmpProduct(beer: Beer): VmpProduct | null {
     sub_District: {},
     price: price(beer.price),
     volume: volume(beer.volume),
-    alcohol: alcohol(beer.vmp_abv),
+    alcohol: beer.vmp_abv == null ? undefined : alcohol(beer.vmp_abv),
     productAvailability: availability(beer),
     product_selection: beer.product_selection ?? "",
     buyable: true,
