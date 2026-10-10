@@ -1,3 +1,4 @@
+import { storage } from "wxt/utils/storage";
 import { API_BASE_URL } from "../../shared/constants";
 import type {
   Beer,
@@ -23,23 +24,14 @@ function cacheKey(id: string | number, fields: string): string {
   return `${id}:${fields}`;
 }
 
-function sessionArea(): chrome.storage.SessionStorageArea | null {
-  if (typeof chrome === "undefined") return null;
-  return chrome.storage?.session ?? null;
-}
-
 async function hydrate(): Promise<void> {
-  const area = sessionArea();
-  if (!area) return;
-  try {
-    const data = await area.get(null);
-    for (const [key, value] of Object.entries(data)) {
-      if (!key.startsWith(SESSION_PREFIX)) continue;
-      const inner = key.slice(SESSION_PREFIX.length);
-      if (!cache.has(inner)) cache.set(inner, value as Beer);
-    }
-  } catch {
-    // session storage unavailable
+  const data = await storage
+    .snapshot("session")
+    .catch((): Record<string, unknown> => ({}));
+  for (const [key, value] of Object.entries(data)) {
+    if (!key.startsWith(SESSION_PREFIX)) continue;
+    const inner = key.slice(SESSION_PREFIX.length);
+    if (!cache.has(inner)) cache.set(inner, value as Beer);
   }
 }
 
@@ -49,14 +41,13 @@ function ensureHydrated(): Promise<void> {
 }
 
 function persist(keys: string[]): void {
-  const area = sessionArea();
-  if (!area) return;
-  const items: Record<string, Beer> = {};
-  for (const key of keys) {
+  const items = keys.flatMap((key) => {
     const beer = cache.get(key);
-    if (beer) items[SESSION_PREFIX + key] = beer;
-  }
-  if (Object.keys(items).length > 0) void area.set(items).catch(() => {});
+    return beer
+      ? [{ key: `session:${SESSION_PREFIX}${key}` as const, value: beer }]
+      : [];
+  });
+  if (items.length > 0) void storage.setItems(items).catch(() => {});
 }
 
 async function fetchJson<T>(

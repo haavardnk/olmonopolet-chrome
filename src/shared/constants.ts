@@ -1,3 +1,5 @@
+import { browser } from "wxt/browser";
+
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "https://api.olmonopolet.app";
 
@@ -14,7 +16,5 @@ export function productUrl(vmpId: number | string): string {
 }
 
 export function extensionVersion(): string {
-  if (typeof chrome === "undefined" || !chrome.runtime?.getManifest)
-    return "0.0.0";
-  return chrome.runtime.getManifest().version;
+  return browser.runtime.getManifest().version;
 }

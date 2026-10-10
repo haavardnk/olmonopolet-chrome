@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { handleDetails } from "../../src/content/pages/details";
 import { clearBeerCache } from "../../src/content/api/client";
+import { setToken } from "../../src/shared/auth";
+import { setSettings } from "../../src/shared/settings";
 
 function fixture(name: string): string {
   return readFileSync(
@@ -322,21 +324,7 @@ describe("handleDetails", () => {
       }
     }
     vi.stubGlobal("Image", FakeImage);
-    vi.stubGlobal("chrome", {
-      storage: {
-        local: {
-          get: vi.fn(async (key: string) => ({
-            [key]:
-              key === "olmono:settings"
-                ? { labelImage: "fill-if-missing" }
-                : undefined,
-          })),
-          set: vi.fn(),
-          remove: vi.fn(),
-        },
-        onChanged: { addListener: vi.fn(), removeListener: vi.fn() },
-      },
-    });
+    await setSettings({ labelImage: "fill-if-missing" });
     mockBeer({
       vmp_id: 15616302,
       rating: 3.6,
@@ -352,16 +340,7 @@ describe("handleDetails", () => {
   });
 
   it("shows a tasted toggle keyed to the product when connected", async () => {
-    vi.stubGlobal("chrome", {
-      storage: {
-        local: {
-          get: vi.fn(async (key: string) => ({ [key]: "tok" })),
-          set: vi.fn(),
-          remove: vi.fn(),
-        },
-        onChanged: { addListener: vi.fn(), removeListener: vi.fn() },
-      },
-    });
+    await setToken("tok");
     mockBeer({ vmp_id: 15616302, rating: 3.6, user_tasted: false });
 
     await handleDetails();

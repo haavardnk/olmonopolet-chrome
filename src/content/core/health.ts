@@ -1,11 +1,6 @@
 import type { AnchorName } from "../../shared/anchorConfig";
 import { extensionVersion } from "../../shared/constants";
-import {
-  HEALTH_KEY,
-  type HealthPage,
-  type HealthState,
-} from "../../shared/health";
-import { localArea } from "../../shared/storage";
+import { healthItem, type HealthPage } from "../../shared/health";
 import { sendReport } from "../api/reports";
 
 const recorded = new Map<HealthPage, string>();
@@ -50,16 +45,14 @@ export async function recordHealth(
   if (missing.length > 0) {
     console.warn(`[olmono] Fant ikke elementer på ${page}: ${key}`);
   }
-  const area = localArea();
-  if (!area) return;
-
-  const state = ((await area.get(HEALTH_KEY))[HEALTH_KEY] ?? {}) as HealthState;
-  state[page] = {
-    missing,
-    at: new Date().toISOString(),
-    version: extensionVersion(),
-  };
-  await area.set({ [HEALTH_KEY]: state });
+  await healthItem.setValue({
+    ...(await healthItem.getValue()),
+    [page]: {
+      missing,
+      at: new Date().toISOString(),
+      version: extensionVersion(),
+    },
+  });
 
   if (missing.length > 0) await sendReport(page, missing);
 }

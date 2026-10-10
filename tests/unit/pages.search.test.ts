@@ -1,10 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { fakeBrowser } from "wxt/testing/fake-browser";
 import { handleSearch } from "../../src/content/pages/search";
 import { isBeerSearch } from "../../src/content/core/beerQuery";
 import { clearBeerCache } from "../../src/content/api/client";
 import { clearListsCache } from "../../src/content/api/lists";
+import { setToken } from "../../src/shared/auth";
 import type { Settings } from "../../src/shared/settings";
 
 const BEER_QUERY = ":relevance:mainCategory:øl";
@@ -23,19 +25,12 @@ function mockBeers(results: unknown[]): void {
   );
 }
 
-function stubChrome(settings: Partial<Settings>, token?: string): void {
-  vi.stubGlobal("chrome", {
-    storage: {
-      local: {
-        get: vi.fn(async (key: string) => ({
-          [key]: key === "olmono:settings" ? settings : token,
-        })),
-        set: vi.fn(),
-        remove: vi.fn(),
-      },
-      onChanged: { addListener: vi.fn(), removeListener: vi.fn() },
-    },
-  });
+async function given(
+  settings: Partial<Settings>,
+  token?: string,
+): Promise<void> {
+  await fakeBrowser.storage.local.set({ "olmono:settings": settings });
+  if (token) await setToken(token);
 }
 
 beforeEach(() => {
@@ -164,18 +159,7 @@ describe("handleSearch", () => {
   });
 
   it("injects a tasted button into the card tools when connected", async () => {
-    vi.stubGlobal("chrome", {
-      storage: {
-        local: {
-          get: vi.fn(async (key: string) => ({
-            [key]: key === "olmono:settings" ? { tastedDim: true } : "tok",
-          })),
-          set: vi.fn(),
-          remove: vi.fn(),
-        },
-        onChanged: { addListener: vi.fn(), removeListener: vi.fn() },
-      },
-    });
+    await given({ tastedDim: true }, "tok");
     mockBeers([{ vmp_id: 15616302, rating: 3.6, user_tasted: true }]);
 
     await handleSearch();
@@ -206,21 +190,7 @@ describe("handleSearch", () => {
       }
     }
     vi.stubGlobal("Image", FakeImage);
-    vi.stubGlobal("chrome", {
-      storage: {
-        local: {
-          get: vi.fn(async (key: string) => ({
-            [key]:
-              key === "olmono:settings"
-                ? { labelImage: "fill-if-missing" }
-                : undefined,
-          })),
-          set: vi.fn(),
-          remove: vi.fn(),
-        },
-        onChanged: { addListener: vi.fn(), removeListener: vi.fn() },
-      },
-    });
+    await given({ labelImage: "fill-if-missing" });
     mockBeers([
       {
         vmp_id: 15616302,
@@ -272,7 +242,7 @@ describe("olmonopolet sorting on search", () => {
 
   it("hides tasted cards in vinmonopolet order", async () => {
     history.replaceState(null, "", `/search?q=${BEER_QUERY}`);
-    stubChrome({ hideTasted: true }, "tok");
+    await given({ hideTasted: true }, "tok");
     mockBeers([{ vmp_id: 15616302, rating: 3.6, user_tasted: true }]);
 
     await handleSearch();

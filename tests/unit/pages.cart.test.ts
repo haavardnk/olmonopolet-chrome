@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { handleCart } from "../../src/content/pages/cart";
 import { clearBeerCache } from "../../src/content/api/client";
 import { clearListsCache } from "../../src/content/api/lists";
+import { setToken } from "../../src/shared/auth";
 
 function fixture(name: string): string {
   return readFileSync(
@@ -25,21 +26,6 @@ function mockBeers(results: unknown[]): void {
     "fetch",
     vi.fn().mockResolvedValue({ ok: true, json: async () => ({ results }) }),
   );
-}
-
-function stubConnected(): void {
-  vi.stubGlobal("chrome", {
-    storage: {
-      local: {
-        get: vi.fn(async (key: string) => ({
-          [key]: key === "olmono:settings" ? {} : "tok",
-        })),
-        set: vi.fn(),
-        remove: vi.fn(),
-      },
-      onChanged: { addListener: vi.fn(), removeListener: vi.fn() },
-    },
-  });
 }
 
 describe("handleCart", () => {
@@ -68,7 +54,7 @@ describe("handleCart", () => {
   });
 
   it("adds tasted and list buttons beside the remove button when connected", async () => {
-    stubConnected();
+    await setToken("tok");
     mockBeers([{ vmp_id: 15616302, rating: 3.6, user_tasted: true }]);
 
     await handleCart();

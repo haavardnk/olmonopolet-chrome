@@ -1,23 +1,17 @@
-import { localArea, onLocalChange } from "./storage";
+import { storage } from "wxt/utils/storage";
 
-const TOKEN_KEY = "olmono:token";
+const tokenItem = storage.defineItem<string>("local:olmono:token");
 
-export async function getToken(): Promise<string | null> {
-  const area = localArea();
-  if (!area) return null;
-  const data = await area.get(TOKEN_KEY);
-  const token = data[TOKEN_KEY];
-  return typeof token === "string" ? token : null;
+export function getToken(): Promise<string | null> {
+  return tokenItem.getValue();
 }
 
-export async function setToken(token: string): Promise<void> {
-  const area = localArea();
-  if (area) await area.set({ [TOKEN_KEY]: token });
+export function setToken(token: string): Promise<void> {
+  return tokenItem.setValue(token);
 }
 
-export async function clearToken(): Promise<void> {
-  const area = localArea();
-  if (area) await area.remove(TOKEN_KEY);
+export function clearToken(): Promise<void> {
+  return tokenItem.removeValue();
 }
 
 export async function isConnected(): Promise<boolean> {
@@ -27,7 +21,5 @@ export async function isConnected(): Promise<boolean> {
 export function onTokenChange(
   callback: (token: string | null) => void,
 ): () => void {
-  return onLocalChange(TOKEN_KEY, (value) =>
-    callback(typeof value === "string" ? value : null),
-  );
+  return tokenItem.watch((token) => callback(token));
 }
