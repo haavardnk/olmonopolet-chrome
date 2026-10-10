@@ -30,6 +30,8 @@ export interface ProcessOptions {
   beersOnly?: boolean;
   hideTasted?: boolean;
   signal?: AbortSignal;
+  rowBefore?: (container: Element) => Element | null;
+  tools?: (card: Element) => Element | null;
 }
 
 export async function processCards(
@@ -47,15 +49,14 @@ export async function processCards(
   const ids = [...idByCard.values()];
   if (ids.length === 0) return [];
 
-  const entries = [...idByCard].map(([card, id]) => ({
-    card,
-    id,
-    container: getInfoContainer(card),
-  }));
+  const entries = [...idByCard].map(([card, id]) => {
+    const container = getInfoContainer(card);
+    return { card, id, container, before: opts.rowBefore?.(container) ?? null };
+  });
 
-  for (const { card, id, container } of entries) {
+  for (const { card, id, container, before } of entries) {
     sweepStale(card, id);
-    injectSkeleton(container, id, renderSkeleton());
+    injectSkeleton(container, id, renderSkeleton(), before);
   }
 
   const beers = await getBeers(ids);
@@ -65,7 +66,7 @@ export async function processCards(
   if (opts.signal?.aborted) return [];
 
   const rendered: Beer[] = [];
-  for (const { card, id, container } of entries) {
+  for (const { card, id, container, before } of entries) {
     const beer = beers.get(id);
     if (!beer) {
       removeSkeleton(container, id);
@@ -78,7 +79,7 @@ export async function processCards(
     const tasted = connected && beer.user_tasted === true;
     card.classList.toggle("olmono-tasted-card", tasted && settings.tastedDim);
     card.classList.toggle("olmono-hidden-card", tasted && !!opts.hideTasted);
-    if (injectRating(container, id, row)) {
+    if (injectRating(container, id, row, before)) {
       const units = renderUnits(beer);
       if (units) {
         card.querySelector(".olmono-units")?.remove();
@@ -86,7 +87,7 @@ export async function processCards(
       }
       applyLabelImage(card, beer, settings.labelImage);
       if (connected) {
-        const tools = find("tools", card);
+        const tools = opts.tools ? opts.tools(card) : find("tools", card);
         injectTastedButton(tools, id, beer.user_tasted ?? false);
         injectListButton(tools, id, lists);
       }

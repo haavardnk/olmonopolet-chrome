@@ -15,16 +15,18 @@ export function injectSkeleton(
   container: Element,
   id: string,
   node: HTMLElement,
+  before: Element | null = null,
 ): void {
   if (alreadyInjected(container, id)) return;
   node.setAttribute(MARK, id);
-  container.appendChild(node);
+  container.insertBefore(node, before);
 }
 
 export function injectRating(
   container: Element,
   id: string,
   node: HTMLElement,
+  before: Element | null = null,
 ): boolean {
   node.setAttribute(MARK, id);
   const existing = container.querySelector(`:scope > [${MARK}="${id}"]`);
@@ -33,7 +35,7 @@ export function injectRating(
     existing.replaceWith(node);
     return true;
   }
-  container.appendChild(node);
+  container.insertBefore(node, before);
   return true;
 }
 

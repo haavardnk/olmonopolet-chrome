@@ -82,6 +82,12 @@
   color: var(--color-swamp, #092529);
 }
 
+@media (max-width: 767px) {
+  .cart .olmono-summary {
+    padding: 0 16px;
+  }
+}
+
 @media (max-width: 600px) {
   .olmono-toolbar {
     flex-wrap: wrap;
