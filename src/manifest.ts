@@ -7,7 +7,7 @@ export default defineManifest((env) => ({
   manifest_version: 3,
   name: "Ølmonopolet",
   version: "0.4.1",
-  description: "Legger til Untappd informasjon på Vinmonopolet.no",
+  description: "Vurderinger og ølfakta fra Ølmonopolet på Vinmonopolet.no",
   ...(env.command === "serve" ? { key: DEV_KEY } : {}),
   icons: {
     "16": "assets/img/icon16.png",

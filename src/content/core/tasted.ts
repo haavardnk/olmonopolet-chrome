@@ -1,11 +1,6 @@
 import { markTasted } from "../api/client";
 import { find } from "../dom/anchors";
-
-const ICON_OUTLINE =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg>';
-
-const ICON_FILLED =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="11.5"/><path d="m7 12.5 3.2 3.2 6-6.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+import { ICONS, icon } from "./icons";
 
 export function injectTastedButton(
   root: ParentNode,
@@ -14,15 +9,18 @@ export function injectTastedButton(
 ): boolean {
   const tools = find("tools", root);
   if (!tools) return false;
-  if (tools.querySelector(".olmono-tasted-btn")) return true;
+  const existing = tools.querySelector<HTMLElement>(".olmono-tasted-btn");
+  if (existing?.dataset.olmono === id) return true;
+  existing?.remove();
 
   const btn = document.createElement("button");
   btn.type = "button";
   btn.classList.add("btn-icon", "olmono-tasted-btn");
+  btn.dataset.olmono = id;
 
   let tasted = initial;
   const render = (): void => {
-    btn.innerHTML = tasted ? ICON_FILLED : ICON_OUTLINE;
+    btn.replaceChildren(icon(tasted ? ICONS.tastedFilled : ICONS.tasted));
     btn.classList.toggle("is-tasted", tasted);
     const label = tasted ? "Smakt" : "Marker som smakt";
     btn.title = label;
@@ -31,13 +29,14 @@ export function injectTastedButton(
   };
   render();
 
-  btn.addEventListener("click", () => {
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     const next = !tasted;
     void markTasted(id, next).then((ok) => {
-      if (ok) {
-        tasted = next;
-        render();
-      }
+      if (!ok) return;
+      tasted = next;
+      render();
     });
   });
 

@@ -30,7 +30,7 @@ describe("handleCart", () => {
     await handleCart();
 
     const li = document.querySelector("ul.product-list > li")!;
-    expect(li.querySelector(".untappd")).not.toBeNull();
-    expect(li.querySelector(".stars")).not.toBeNull();
+    expect(li.querySelector(".olmono-row")).not.toBeNull();
+    expect(li.querySelector(".olmono-star")).not.toBeNull();
   });
 });

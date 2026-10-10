@@ -1,48 +1,33 @@
 import { describe, it, expect } from "vitest";
 import {
-  kFormatter,
-  ratingToStars,
-  formatUpdated,
+  formatCompact,
+  formatDate,
+  formatNumber,
+  formatRating,
 } from "../../src/shared/format";
 
-describe("kFormatter", () => {
-  it("formats thousands with k", () => {
-    expect(kFormatter(1693)).toBe("2k");
-    expect(kFormatter(15000)).toBe("15k");
+describe("format", () => {
+  it.each([
+    [3.606, "3,61"],
+    [4, "4,00"],
+  ])("formats rating %d as %s", (value, expected) => {
+    expect(formatRating(value)).toBe(expected);
   });
 
-  it("keeps small numbers as-is", () => {
-    expect(kFormatter(999)).toBe("999");
-    expect(kFormatter(42)).toBe("42");
-  });
-});
-
-describe("ratingToStars", () => {
-  it("renders 5 star svgs in a .stars span", () => {
-    const el = ratingToStars(3.6);
-    expect(el.classList.contains("stars")).toBe(true);
-    expect(el.querySelectorAll("svg")).toHaveLength(5);
+  it.each([
+    [999, "999"],
+    [1693, "1,7k"],
+    [15000, "15k"],
+  ])("formats count %d compactly as %s", (value, expected) => {
+    expect(formatCompact(value)).toBe(expected);
   });
 
-  it("fills full stars yellow and leaves empty stars gray", () => {
-    const svgs = [...ratingToStars(3).querySelectorAll("svg")];
-    expect(svgs[0].getAttribute("fill")).toBe("#facc15");
-    expect(svgs[2].getAttribute("fill")).toBe("#facc15");
-    expect(svgs[4].getAttribute("fill")).toBe("none");
-    expect(svgs[4].getAttribute("stroke")).toBe("#d1d5db");
+  it("formats numbers with Norwegian separators", () => {
+    expect(formatNumber(1693)).toBe("1\u00a0693");
+    expect(formatNumber(2.75, 1)).toBe("2,8");
   });
 
-  it("renders a half star for ratings with .5 or more", () => {
-    const svgs = [...ratingToStars(3.5).querySelectorAll("svg")];
-    // 3 full + 1 half + 1 empty
-    expect(svgs[3].getAttribute("fill")).toBe("#facc15");
-    const half = svgs[3].querySelector("path")?.getAttribute("d") ?? "";
-    expect(half.startsWith("M12 18.338")).toBe(true);
-  });
-});
-
-describe("formatUpdated", () => {
-  it("prefixes with Oppdatert", () => {
-    expect(formatUpdated("2026-07-14T22:39:32Z")).toMatch(/^Oppdatert: /);
+  it("formats dates as dd.mm.yyyy", () => {
+    expect(formatDate("2026-07-14T12:00:00Z")).toBe("14.07.2026");
   });
 });

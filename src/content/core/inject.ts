@@ -5,6 +5,12 @@ export function alreadyInjected(container: Element, id: string): boolean {
   return container.querySelector(`:scope > [${MARK}="${id}"]`) !== null;
 }
 
+export function sweepStale(root: ParentNode, id: string): void {
+  for (const el of root.querySelectorAll<HTMLElement>(`[${MARK}]`)) {
+    if (el.getAttribute(MARK) !== id) el.remove();
+  }
+}
+
 export function injectSkeleton(
   container: Element,
   id: string,

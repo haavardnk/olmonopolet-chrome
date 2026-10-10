@@ -16,8 +16,8 @@ export const ANCHOR_NAMES = [
   "emptyResults",
   "detailPage",
   "detailColumns",
+  "detailAside",
   "detailFacts",
-  "detailPerLiter",
 ] as const;
 
 export type AnchorName = (typeof ANCHOR_NAMES)[number];
@@ -60,6 +60,6 @@ export const DEFAULT_ANCHORS: AnchorMap = {
     { css: "h2.sr-only", text: "Karakteristikk", up: 3 },
     { css: "h2.sr-only", text: "Passer til", up: 3 },
   ],
+  detailAside: [{ css: "h5", text: "Bærekraft", up: 2 }],
   detailFacts: [{ css: "li > span", text: "Varenummer", up: 2 }],
-  detailPerLiter: [{ css: '[aria-label*="per liter"]' }],
 };

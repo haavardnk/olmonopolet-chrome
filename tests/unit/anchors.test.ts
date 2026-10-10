@@ -30,7 +30,7 @@ describe("anchors", () => {
     ["search.html", ["productList", "productCard", "productLink", "category"]],
     ["search.html", ["productImage", "tools", "searchResults", "sortSelect"]],
     ["details.html", ["detailPage", "category", "tools", "productImage"]],
-    ["details.html", ["detailFacts", "detailPerLiter"]],
+    ["details.html", ["detailFacts", "detailColumns", "detailAside"]],
   ] as const)("resolves %s anchors %j", (file, names) => {
     document.body.innerHTML = fixture(file);
     expect(missing([...names])).toEqual([]);
@@ -38,7 +38,8 @@ describe("anchors", () => {
 
   it("resolves text strategies and climbs to the ancestor", () => {
     document.body.innerHTML = fixture("details.html");
-    expect(find("detailFacts")?.classList.contains("details-list")).toBe(true);
+    expect(find("detailFacts")?.classList.contains("A86PRlFM")).toBe(true);
+    expect(find("detailAside")?.classList.contains("GfbhJELI")).toBe(true);
   });
 
   it("resolves tools as the parent of the list button", () => {

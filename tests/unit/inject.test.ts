@@ -4,6 +4,7 @@ import {
   injectSkeleton,
   removeSkeleton,
   alreadyInjected,
+  sweepStale,
 } from "../../src/content/core/inject";
 
 function skeleton(): HTMLElement {
@@ -17,6 +18,16 @@ beforeEach(() => {
 });
 
 describe("inject", () => {
+  it("sweeps injections that belong to another product", () => {
+    document.body.innerHTML = `<div class="c"><span data-olmono="1"></span><span data-olmono="2"></span><span></span></div>`;
+    sweepStale(document, "2");
+    expect(
+      [...document.querySelectorAll(".c > span")].map((s) =>
+        s.getAttribute("data-olmono"),
+      ),
+    ).toEqual(["2", null]);
+  });
+
   it("injects once and marks the node with the id", () => {
     const c = document.querySelector(".c")!;
     expect(injectRating(c, "111", document.createElement("div"))).toBe(true);

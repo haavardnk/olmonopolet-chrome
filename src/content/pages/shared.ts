@@ -3,7 +3,12 @@ import { getSettings } from "../../shared/settings";
 import { isConnected } from "../../shared/auth";
 import { getBeers, getLists } from "../api/client";
 import { getProductId, getInfoContainer, isBeer } from "../dom/product";
-import { injectRating, injectSkeleton, removeSkeleton } from "../core/inject";
+import {
+  injectRating,
+  injectSkeleton,
+  removeSkeleton,
+  sweepStale,
+} from "../core/inject";
 import { injectTastedButton } from "../core/tasted";
 import { injectListButton } from "../core/lists";
 import {
@@ -42,7 +47,8 @@ export async function processCards(
     container: getInfoContainer(card),
   }));
 
-  for (const { id, container } of entries) {
+  for (const { card, id, container } of entries) {
+    sweepStale(card, id);
     injectSkeleton(container, id, renderSkeleton());
   }
 
@@ -59,21 +65,21 @@ export async function processCards(
       continue;
     }
 
-    const node = renderRating(beer);
+    const row = renderRating(beer);
     const valueScore = renderValueScore(beer);
-    const ratingRow = node.firstElementChild;
-    if (valueScore && ratingRow) ratingRow.appendChild(valueScore);
+    if (valueScore) row.appendChild(valueScore);
     const badges = renderBadges(beer.badges);
-    if (badges && ratingRow) ratingRow.appendChild(badges);
+    if (badges) row.appendChild(badges);
 
-    if (injectRating(container, id, node)) {
+    card.classList.toggle(
+      "olmono-tasted-card",
+      connected && settings.tastedDim && beer.user_tasted === true,
+    );
+    if (injectRating(container, id, row)) {
       applyLabelImage(card, beer, settings.labelImage);
       if (connected) {
         injectTastedButton(card, id, beer.user_tasted ?? false);
         injectListButton(card, id, lists);
-        if (beer.user_tasted && settings.tastedDim) {
-          card.classList.add("olmono-tasted-card");
-        }
       }
       opts.onRendered?.(card, beer);
     }
