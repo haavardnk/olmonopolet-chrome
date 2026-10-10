@@ -1,4 +1,4 @@
-import type { Beer } from "../../shared/types";
+import type { Beer, Brewery, Release } from "../../shared/types";
 import { getBeer, getLists } from "../api/client";
 import { getProductIdFromUrl } from "../dom/product";
 import { find } from "../dom/anchors";
@@ -20,6 +20,8 @@ import { injectTastedButton } from "../core/tasted";
 import { injectListButton } from "../core/lists";
 
 const RETRY = { attempts: 20, delay: 300 };
+const MIN_STYLE_PEERS = 5;
+const CLAMP_LENGTH = 180;
 
 function isBeerCategory(text: string | null | undefined): boolean {
   if (!text) return false;
@@ -50,6 +52,65 @@ function addFact(list: HTMLElement, label: string, value: Node | string): void {
   list.appendChild(item);
 }
 
+function renderDescription(text: string): HTMLElement {
+  const wrap = document.createElement("div");
+  wrap.classList.add("olmono-panel-text");
+  const body = document.createElement("p");
+  body.textContent = text;
+  wrap.appendChild(body);
+  if (text.length <= CLAMP_LENGTH) return wrap;
+
+  body.classList.add("olmono-clamp");
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.classList.add("olmono-panel-toggle");
+  toggle.textContent = "Vis mer";
+  toggle.setAttribute("aria-expanded", "false");
+  toggle.addEventListener("click", () => {
+    const open = !body.classList.toggle("olmono-clamp");
+    toggle.textContent = open ? "Vis mindre" : "Vis mer";
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+  wrap.appendChild(toggle);
+  return wrap;
+}
+
+function priceComparison(cheaperThan: number): string {
+  if (cheaperThan >= 100) return "Billigst i stilen";
+  if (cheaperThan <= 0) return "Dyrest i stilen";
+  return `Billigere enn ${cheaperThan} %`;
+}
+
+function addStyleFacts(list: HTMLElement, beer: Beer): void {
+  const stats = beer.style_stats;
+  if (!stats) return;
+  if (stats.rank !== null && stats.rated >= MIN_STYLE_PEERS) {
+    addFact(list, "Rangering i stilen", `Nr. ${stats.rank} av ${stats.rated}`);
+  }
+  if (stats.cheaper_than !== null && stats.priced >= MIN_STYLE_PEERS) {
+    const value = document.createElement("span");
+    value.textContent = priceComparison(stats.cheaper_than);
+    value.title = `Billigere per alkoholenhet enn ${stats.cheaper_than} % av ølene i samme stil`;
+    addFact(list, "Pris i stilen", value);
+  }
+}
+
+function releaseLabel(release: Release): string {
+  if (!release.release_date) return release.name;
+  return `${release.name} (${formatDate(release.release_date)})`;
+}
+
+function renderBrewery(brewery: Brewery): HTMLElement {
+  const details = document.createElement("details");
+  details.classList.add("olmono-panel-more");
+  const summary = document.createElement("summary");
+  summary.textContent = `Om ${brewery.name}`;
+  const body = document.createElement("p");
+  body.textContent = brewery.description ?? "";
+  details.append(summary, body);
+  return details;
+}
+
 function buildPanel(beer: Beer, id: string): HTMLElement {
   const panel = document.createElement("section");
   panel.classList.add("olmono-panel");
@@ -64,6 +125,8 @@ function buildPanel(beer: Beer, id: string): HTMLElement {
   const score = renderRating(beer, true);
   score.classList.add("olmono-panel-score");
   panel.appendChild(score);
+
+  if (beer.description) panel.appendChild(renderDescription(beer.description));
 
   const facts = document.createElement("dl");
   facts.classList.add("olmono-facts");
@@ -84,7 +147,18 @@ function buildPanel(beer: Beer, id: string): HTMLElement {
   }
   const value = renderValueScore(beer);
   if (value) addFact(facts, "Verdi for pengene", value);
+  addStyleFacts(facts, beer);
+  if (beer.releases?.length) {
+    addFact(facts, "Lansering", beer.releases.map(releaseLabel).join(", "));
+  }
+  if (beer.first_seen) {
+    addFact(facts, "På Vinmonopolet siden", formatDate(beer.first_seen));
+  }
   if (facts.childElementCount > 0) panel.appendChild(facts);
+
+  if (beer.brewery_details?.description) {
+    panel.appendChild(renderBrewery(beer.brewery_details));
+  }
 
   const badges = renderBadges(beer.badges);
   if (badges) panel.appendChild(badges);

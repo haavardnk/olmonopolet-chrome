@@ -103,6 +103,83 @@ describe("handleDetails", () => {
     expect(document.body.innerHTML.toLowerCase()).not.toContain("untappd");
   });
 
+  it("adds style comparison, releases, first seen and brewery", async () => {
+    mockBeer({
+      ...FULL_BEER,
+      style_stats: { rank: 3, rated: 12, cheaper_than: 80, priced: 12 },
+      releases: [
+        { name: "Juleslipp 2026", release_date: "2026-11-06T08:00:00+01:00" },
+      ],
+      first_seen: "2024-03-14T09:00:00Z",
+      brewery_details: {
+        name: "Lervig",
+        description: "Brewery in Stavanger.",
+        untpd_url: "https://untappd.com/Lervig",
+      },
+    });
+
+    await handleDetails();
+
+    expect(facts()).toMatchObject({
+      "Rangering i stilen": "Nr. 3 av 12",
+      "Pris i stilen": "Billigere enn 80 %",
+      Lansering: "Juleslipp 2026 (06.11.2026)",
+      "På Vinmonopolet siden": "14.03.2024",
+    });
+    const brewery = document.querySelector(".olmono-panel-more");
+    expect(brewery?.querySelector("summary")?.textContent).toBe("Om Lervig");
+    expect(brewery?.querySelector("p")?.textContent).toBe(
+      "Brewery in Stavanger.",
+    );
+    expect(document.body.innerHTML.toLowerCase()).not.toContain("untappd");
+  });
+
+  it.each([
+    [{ rank: 1, rated: 4, cheaper_than: 50, priced: 4 }, {}],
+    [
+      { rank: null, rated: 9, cheaper_than: 100, priced: 9 },
+      { "Pris i stilen": "Billigst i stilen" },
+    ],
+    [
+      { rank: 9, rated: 9, cheaper_than: 0, priced: 9 },
+      {
+        "Rangering i stilen": "Nr. 9 av 9",
+        "Pris i stilen": "Dyrest i stilen",
+      },
+    ],
+  ])("shows style facts for %o", async (stats, expected) => {
+    mockBeer({ ...FULL_BEER, style_stats: stats });
+
+    await handleDetails();
+
+    const shown = Object.fromEntries(
+      Object.entries(facts()).filter(([label]) => label.endsWith("i stilen")),
+    );
+    expect(shown).toEqual(expected);
+  });
+
+  it.each([
+    ["Short and sweet.", false],
+    ["Hazy and juicy. ".repeat(20), true],
+  ])("clamps long descriptions (%#)", async (description, clamped) => {
+    mockBeer({ ...FULL_BEER, description });
+
+    await handleDetails();
+
+    const text = document.querySelector(".olmono-panel-text p");
+    const toggle = document.querySelector<HTMLButtonElement>(
+      ".olmono-panel-toggle",
+    );
+    expect(text?.textContent).toBe(description);
+    expect(text?.classList.contains("olmono-clamp")).toBe(clamped);
+    expect(toggle !== null).toBe(clamped);
+    if (!toggle) return;
+    toggle.click();
+    expect(text?.classList.contains("olmono-clamp")).toBe(false);
+    expect(toggle.textContent).toBe("Vis mindre");
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+  });
+
   it("leaves Vinmonopolet's own text untouched", async () => {
     mockBeer(FULL_BEER);
     const category = document.querySelector("p.AVg39DO6")!.textContent;

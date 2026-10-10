@@ -6,6 +6,23 @@ export interface UserCheckin {
   rating: number;
 }
 
+export interface Brewery {
+  name: string;
+  description?: string | null;
+}
+
+export interface StyleStats {
+  rank: number | null;
+  rated: number;
+  cheaper_than: number | null;
+  priced: number;
+}
+
+export interface Release {
+  name: string;
+  release_date: string | null;
+}
+
 export interface Beer {
   vmp_id: number;
   vmp_name?: string;
@@ -33,6 +50,11 @@ export interface Beer {
   alcohol_units?: number | null;
   label_sm_url?: string | null;
   label_hd_url?: string | null;
+  description?: string | null;
+  brewery_details?: Brewery | null;
+  first_seen?: string | null;
+  style_stats?: StyleStats | null;
+  releases?: Release[];
 }
 
 export interface BeerListResponse {
