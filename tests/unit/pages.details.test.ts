@@ -79,15 +79,17 @@ describe("handleDetails", () => {
     expect(hero?.textContent).toContain("1\u00a0693 vurderinger");
   });
 
-  it("renders the Ølmonopolet panel above the sustainability card", async () => {
+  it("renders the Ølmonopolet band between the hero and the lower section", async () => {
     mockBeer(FULL_BEER);
 
     await handleDetails();
 
-    const panel = document.querySelector(
-      ".dDnT0pW8.olmono-columns > .GfbhJELI.olmono-aside > .olmono-panel:first-child",
+    const panel = document.querySelector("div.SeFRvCFQ > div.olmono-panel");
+    expect(panel?.previousElementSibling?.querySelector("h1")).not.toBeNull();
+    expect(panel?.nextElementSibling?.classList.contains("gSzVyerq")).toBe(
+      true,
     );
-    expect(panel?.querySelector("h5")?.textContent).toBe("Ølmonopolet");
+    expect(panel?.querySelector("h2")?.textContent).toBe("Ølmonopolet");
     expect(facts()).toEqual({
       Stil: "IPA - American",
       IBU: "50",
@@ -182,6 +184,38 @@ describe("handleDetails", () => {
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
   });
 
+  it.each([
+    [80, false],
+    [120, true],
+  ])(
+    "shows the toggle only when the text overflows (%i)",
+    async (scrollHeight, shown) => {
+      let measure = (): void => {};
+      vi.stubGlobal(
+        "ResizeObserver",
+        class {
+          constructor(callback: () => void) {
+            measure = callback;
+          }
+          observe(): void {}
+        },
+      );
+      mockBeer({ ...FULL_BEER, description: "Hazy and juicy. ".repeat(20) });
+
+      await handleDetails();
+
+      const text = document.querySelector<HTMLElement>(".olmono-panel-text p");
+      if (!text) throw new Error("missing description");
+      Object.defineProperty(text, "scrollHeight", { value: scrollHeight });
+      Object.defineProperty(text, "clientHeight", { value: 80 });
+      measure();
+      expect(
+        document.querySelector<HTMLButtonElement>(".olmono-panel-toggle")
+          ?.hidden,
+      ).toBe(!shown);
+    },
+  );
+
   it("adds a compact summary beside the buy column", async () => {
     mockBeer({
       ...FULL_BEER,
@@ -229,22 +263,6 @@ describe("handleDetails", () => {
     expect(document.querySelector("p.AVg39DO6")!.textContent).toBe(category);
     expect(document.querySelector("ul.A86PRlFM")!.innerHTML).toBe(factsHtml);
   });
-
-  it.each([
-    ["div.GfbhJELI", "div.dDnT0pW8 > .olmono-panel-wrap > .olmono-panel"],
-    ["div.dDnT0pW8", "hr.QfywKVsh + .olmono-panel + ul.A86PRlFM"],
-  ])(
-    "falls back when %s is missing",
-    async (removed: string, expected: string) => {
-      document.querySelector(removed)!.remove();
-      mockBeer(FULL_BEER);
-
-      await handleDetails();
-
-      expect(document.querySelector(expected)).not.toBeNull();
-      expect(document.querySelectorAll(".olmono-panel")).toHaveLength(1);
-    },
-  );
 
   it.each([
     [404, "Ikke på Ølmonopolet ennå"],

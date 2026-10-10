@@ -26,6 +26,11 @@ function renderDescription(text: string): HTMLElement {
     toggle.textContent = open ? "Vis mindre" : "Vis mer";
     toggle.setAttribute("aria-expanded", String(open));
   });
+  new ResizeObserver(() => {
+    toggle.hidden =
+      body.classList.contains("olmono-clamp") &&
+      body.scrollHeight <= body.clientHeight;
+  }).observe(body);
   wrap.appendChild(toggle);
   return wrap;
 }
@@ -71,33 +76,47 @@ function renderFooter(beer: Beer, id: string): HTMLElement {
   return footer;
 }
 
+function renderBody(beer: Beer): HTMLElement {
+  const body = document.createElement("div");
+  body.classList.add("olmono-panel-body");
+  if (beer.description) body.appendChild(renderDescription(beer.description));
+  if (beer.brewery_details?.description) {
+    body.appendChild(renderBrewery(beer.brewery_details));
+  }
+  const badges = renderBadges(beer.badges);
+  if (badges) body.appendChild(badges);
+  return body;
+}
+
 export function renderPanel(beer: Beer, id: string): HTMLElement {
-  const panel = document.createElement("section");
+  const panel = document.createElement("div");
   panel.classList.add("olmono-panel");
   panel.dataset.olmono = id;
-  panel.setAttribute("aria-label", "Ølmonopolet");
 
-  const title = document.createElement("h5");
+  const inner = document.createElement("section");
+  inner.classList.add("section__inner-container");
+  inner.setAttribute("aria-label", "Ølmonopolet");
+  const grid = document.createElement("div");
+  grid.classList.add("olmono-panel-grid");
+  inner.append(grid, document.createElement("hr"));
+  panel.appendChild(inner);
+
+  const head = document.createElement("div");
+  head.classList.add("olmono-panel-head");
+  const title = document.createElement("h2");
   title.classList.add("olmono-panel-title");
   title.append(logo(20), "Ølmonopolet");
-  panel.appendChild(title);
-
   const score = renderRating(beer, true);
   score.classList.add("olmono-panel-score");
-  panel.appendChild(score);
+  head.append(title, score);
+  grid.appendChild(head);
 
-  if (beer.description) panel.appendChild(renderDescription(beer.description));
+  const body = renderBody(beer);
+  if (body.childElementCount > 0) grid.appendChild(body);
 
   const facts = renderFacts(beer);
-  if (facts.childElementCount > 0) panel.appendChild(facts);
+  if (facts.childElementCount > 0) grid.appendChild(facts);
 
-  if (beer.brewery_details?.description) {
-    panel.appendChild(renderBrewery(beer.brewery_details));
-  }
-
-  const badges = renderBadges(beer.badges);
-  if (badges) panel.appendChild(badges);
-
-  panel.appendChild(renderFooter(beer, id));
+  grid.appendChild(renderFooter(beer, id));
   return panel;
 }

@@ -65,9 +65,9 @@ describe("recordHealth", () => {
   it("does not report when reports are disabled", async () => {
     chrome.store["olmono:settings"] = { reports: false };
 
-    await recordHealth("details", ["detailFacts"]);
+    await recordHealth("details", ["detailHero"]);
 
-    expect(health().details?.missing).toEqual(["detailFacts"]);
+    expect(health().details?.missing).toEqual(["detailHero"]);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -107,10 +107,10 @@ describe("checkHealth", () => {
   it("records misses still present after the settle delay", async () => {
     vi.useFakeTimers();
 
-    checkHealth("details", () => ["detailFacts"]);
+    checkHealth("details", () => ["detailHero"]);
     await vi.advanceTimersByTimeAsync(SETTLE_DELAY);
 
-    expect(health().details?.missing).toEqual(["detailFacts"]);
+    expect(health().details?.missing).toEqual(["detailHero"]);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
