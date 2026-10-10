@@ -199,6 +199,50 @@ a.olmono-rating:focus-visible .olmono-rating-value {
   display: none;
 }
 
+.olmono-panel-text {
+  margin: 0 0 16px;
+}
+
+.olmono-panel-text p,
+.olmono-panel-more p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.olmono-clamp {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+}
+
+.olmono-panel-toggle {
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  color: var(--color-blue-stone, #006458);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.olmono-panel-more {
+  margin: 0 0 16px;
+}
+
+.olmono-panel-more summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.olmono-panel-more p {
+  margin-top: 8px;
+  color: var(--color-nevada, #66797c);
+}
+
 .olmono-facts {
   display: grid;
   gap: 8px;
