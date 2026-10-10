@@ -2,7 +2,7 @@
 
 Browser extension for Ølmonopolet - adds Untappd ratings and Ølmonopolet data to Vinmonopolet's web store.
 
-Built with TypeScript, Vite and [@crxjs](https://crxjs.dev/).
+Built with TypeScript and [WXT](https://wxt.dev/).
 
 ## Setup
 
@@ -15,11 +15,11 @@ npm install
 ## Run
 
 ```bash
-npm run dev      # watch build into dist/
-npm run build    # production build into dist/
+npm run dev      # watch build into .output/chrome-mv3-dev/
+npm run build    # production build into .output/chrome-mv3/
 ```
 
-Load the unpacked `dist/` folder in `chrome://extensions` (Developer mode) to test locally.
+Load the unpacked output folder in `chrome://extensions` (Developer mode) to test locally.
 
 ## Development
 

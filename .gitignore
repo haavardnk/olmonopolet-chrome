@@ -1,6 +1,7 @@
 *.zip
 .DS_STORE
 node_modules/
-dist/
+.output/
+.wxt/
 .env
 .env.local

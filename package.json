@@ -5,19 +5,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "dev": "wxt",
+    "build": "tsc --noEmit && wxt build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "zip": "npm run build && cd dist && zip -r -FS ../olmonopolet-chrome.zip . -x '.vite/*'"
+    "zip": "tsc --noEmit && wxt zip",
+    "postinstall": "wxt prepare"
   },
   "license": "LGPL-3.0",
   "devDependencies": {
-    "@crxjs/vite-plugin": "^2.0.0-beta.33",
     "@eslint/js": "^10.0.1",
     "@types/chrome": "^0.2.2",
     "@types/node": "^26.1.1",
@@ -28,6 +28,7 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.64.0",
     "vite": "^6.4.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "wxt": "^0.21.4"
   }
 }
