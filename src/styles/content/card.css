@@ -15,6 +15,10 @@
   font-size: 14px;
 }
 
+.olmono-row:has(+ * input) {
+  margin-top: 8px;
+}
+
 .olmono-rating {
   display: inline-flex;
   align-items: center;

@@ -17,6 +17,8 @@ export const ANCHOR_NAMES = [
   "detailPage",
   "detailBuy",
   "detailHero",
+  "cartQuantity",
+  "cartRemove",
 ] as const;
 
 export type AnchorName = (typeof ANCHOR_NAMES)[number];
@@ -58,4 +60,6 @@ export const DEFAULT_ANCHORS: AnchorMap = {
     { css: 'form button[type="submit"]', text: "Kjøp", up: 3 },
   ],
   detailHero: [{ css: "main section:has(h1)" }],
+  cartQuantity: [{ css: 'input[aria-label="Antall du ønsker å kjøpe"]' }],
+  cartRemove: [{ css: 'button[aria-label="Fjern produkt fra handlekurven"]' }],
 };
