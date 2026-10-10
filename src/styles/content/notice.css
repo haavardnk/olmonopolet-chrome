@@ -1,0 +1,35 @@
+.olmono-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 360px;
+  padding: 16px;
+  border-radius: var(--border-radius, 4px);
+  background-color: var(--color-swamp, #092529);
+  color: #fff;
+  font-family: var(--font-family-sans-serif, Roboto, sans-serif);
+  font-size: 14px;
+  box-shadow: var(--box-shadow, 0 2px 12px rgba(9, 37, 41, 0.2));
+}
+
+.olmono-toast-link {
+  color: var(--color-spray, #aaf2c2);
+  font-weight: 700;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.olmono-toast-close {
+  margin-left: auto;
+  padding: 0 4px;
+  border: none;
+  background: none;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}

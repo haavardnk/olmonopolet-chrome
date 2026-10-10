@@ -1,0 +1,129 @@
+.olmono-panel-wrap {
+  display: flex;
+  flex: 0 1 400px;
+  flex-direction: column;
+}
+
+.olmono-panel {
+  box-sizing: border-box;
+  padding: 24px 40px;
+  border-radius: var(--border-radius, 4px);
+  background-color: #fff;
+  font-family: var(--font-family-sans-serif, Roboto, sans-serif);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-swamp, #092529);
+}
+
+.olmono-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.olmono-panel-title .olmono-logo {
+  margin: 0;
+}
+
+.olmono-panel .olmono-panel-score {
+  margin: 0 0 16px;
+}
+
+.olmono-panel-score .olmono-logo {
+  display: none;
+}
+
+.olmono-panel-text {
+  margin: 0 0 16px;
+}
+
+.olmono-panel-text p,
+.olmono-panel-more p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.olmono-clamp {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+}
+
+.olmono-panel-toggle {
+  margin-top: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  color: var(--color-blue-stone, #006458);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.olmono-panel-more {
+  margin: 0 0 16px;
+}
+
+.olmono-panel-more summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.olmono-panel-more p {
+  margin-top: 8px;
+  color: var(--color-nevada, #66797c);
+}
+
+.olmono-facts {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.olmono-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.olmono-facts dt {
+  font-weight: 700;
+}
+
+.olmono-facts dd {
+  margin: 0;
+  text-align: right;
+}
+
+.olmono-facts .olmono-value {
+  vertical-align: middle;
+}
+
+.olmono-panel > .olmono-badges {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.olmono-panel-footer {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-nevada, #66797c);
+}
+
+.olmono-panel-footer a {
+  color: var(--color-blue-stone, #006458);
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .olmono-panel {
+    padding: 24px;
+  }
+}

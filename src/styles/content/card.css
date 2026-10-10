@@ -1,0 +1,161 @@
+.olmono-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin-top: 0;
+  font-family: var(--font-family-sans-serif, Roboto, sans-serif);
+  font-size: 13px;
+  line-height: 1.2;
+  color: var(--color-swamp, #092529);
+}
+
+.olmono-row--lg {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.olmono-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.olmono-rating:hover .olmono-rating-value,
+a.olmono-rating:focus-visible .olmono-rating-value {
+  text-decoration: underline;
+}
+
+.olmono-logo {
+  display: block;
+  flex: none;
+  margin-right: 2px;
+}
+
+.olmono-star {
+  display: block;
+  flex: none;
+  color: var(--color-supernova, #ffc600);
+}
+
+.olmono-rating-value {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.olmono-row--lg .olmono-rating-value {
+  font-size: 16px;
+}
+
+.olmono-rating-count,
+.olmono-rating-empty {
+  font-size: 13px;
+  color: var(--color-nevada, #66797c);
+}
+
+.olmono-row--lg .olmono-rating-count,
+.olmono-row--lg .olmono-rating-empty {
+  font-size: 14px;
+}
+
+.olmono-value {
+  display: inline-block;
+  flex: none;
+  width: 44px;
+  height: 5px;
+  border-radius: 3px;
+  background-color: var(--color-grey-02, #e9eaeb);
+  overflow: hidden;
+}
+
+.olmono-value-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+}
+
+.olmono-value--success .olmono-value-fill {
+  background-color: #1aa849;
+}
+
+.olmono-value--info .olmono-value-fill {
+  background-color: var(--color-blue-stone, #006458);
+}
+
+.olmono-value--warning .olmono-value-fill {
+  background-color: var(--color-supernova, #ffc600);
+}
+
+.olmono-value--error .olmono-value-fill {
+  background-color: var(--color-warning-red, #c8102e);
+}
+
+.olmono-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-nevada, #66797c);
+  white-space: nowrap;
+}
+
+.olmono-unit-price {
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--color-nevada, #66797c);
+}
+
+.olmono-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.olmono-badge {
+  padding: 4px 8px;
+  border-radius: 50px;
+  background-color: var(--color-mint-green, #cfe9de);
+  color: var(--color-swamp, #092529);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.olmono-skeleton-bar {
+  display: inline-block;
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #e9eaeb 25%, #f4f5f5 37%, #e9eaeb 63%);
+  background-size: 400% 100%;
+  animation: olmono-shimmer 1.4s ease infinite;
+}
+
+.olmono-skeleton-text {
+  width: 64px;
+}
+
+.olmono-skeleton-value {
+  width: 48px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+@keyframes olmono-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .olmono-skeleton-bar {
+    animation: none;
+  }
+}

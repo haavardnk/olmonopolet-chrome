@@ -1,0 +1,63 @@
+.olmono-dialog {
+  box-sizing: border-box;
+  width: min(440px, calc(100vw - 32px));
+  margin: auto;
+  padding: 32px;
+  border: none;
+  border-radius: var(--border-radius, 4px);
+  background-color: #fff;
+  box-shadow: var(--box-shadow, 0 2px 12px rgba(9, 37, 41, 0.2));
+  font-family: var(--font-family-sans-serif, Roboto, sans-serif);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-swamp, #092529);
+}
+
+.olmono-dialog::backdrop {
+  background-color: rgba(9, 37, 41, 0.5);
+}
+
+.olmono-dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.olmono-dialog-title .olmono-logo {
+  margin: 0;
+}
+
+.olmono-dialog-text {
+  margin: 0 0 12px;
+}
+
+.olmono-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.olmono-dialog-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--color-blue-stone, #006458);
+  font: 700 14px / 1 var(--font-family-sans-serif, Roboto, sans-serif);
+  cursor: pointer;
+}
+
+.olmono-dialog-btn-primary {
+  background-color: var(--color-blue-stone, #006458);
+  color: #fff;
+}
+
+.olmono-dialog-btn:focus-visible {
+  outline: 2px solid var(--color-blue-stone, #006458);
+  outline-offset: 2px;
+}
