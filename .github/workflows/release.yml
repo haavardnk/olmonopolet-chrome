@@ -1,0 +1,84 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish
+        required: true
+      dry-run:
+        description: Only check Chrome Web Store credentials
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - name: Validate tag
+        run: |
+          if [[ ! "$TAG" =~ ^[0-9]+(\.[0-9]+){0,3}$ ]]; then
+            echo "::error::Tag $TAG is not a Chrome extension version"
+            exit 1
+          fi
+      - uses: actions/checkout@v5
+        with:
+          ref: refs/tags/${{ env.TAG }}
+          fetch-depth: 0
+      - name: Check tag is on main
+        run: git merge-base --is-ancestor HEAD origin/main
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm test
+      - name: Build zip
+        env:
+          EXTENSION_VERSION: ${{ env.TAG }}
+          VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
+        run: |
+          if [[ -z "$VITE_API_KEY" ]]; then
+            echo "::error::VITE_API_KEY secret is not set"
+            exit 1
+          fi
+          npm run zip
+      - name: Check manifest
+        run: |
+          jq -e --arg version "$TAG" '
+            .version == $version
+            and (has("key") | not)
+            and .host_permissions == ["https://api.olmonopolet.app/*"]
+          ' .output/chrome-mv3/manifest.json
+      - name: Attach zip to release
+        if: ${{ !inputs.dry-run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" ".output/olmonopolet-chrome-$TAG.zip" --clobber
+      - name: Submit to Chrome Web Store
+        env:
+          CHROME_API_VERSION: v2
+          CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+          CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
+          SERVICE_ACCOUNT_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_KEY }}
+          DRY_RUN: ${{ inputs.dry-run == true }}
+        run: |
+          CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL=$(jq -r .client_email <<< "$SERVICE_ACCOUNT_KEY")
+          CHROME_SERVICE_ACCOUNT_PRIVATE_KEY=$(jq -r .private_key <<< "$SERVICE_ACCOUNT_KEY")
+          export CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL CHROME_SERVICE_ACCOUNT_PRIVATE_KEY
+          npx wxt submit --chrome-zip ".output/olmonopolet-chrome-$TAG.zip"
