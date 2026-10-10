@@ -1,26 +1,11 @@
 import type { Beer, Brewery, Release } from "../../shared/types";
-import { formatDate, formatNumber } from "../../shared/format";
+import { formatDate } from "../../shared/format";
 import { productUrl } from "../../shared/constants";
-import {
-  externalLink,
-  renderBadges,
-  renderRating,
-  renderValueScore,
-} from "./render";
+import { externalLink, renderBadges, renderRating } from "./render";
+import { addFact, addSummaryFacts } from "./facts";
 import { logo } from "./icons";
 
-const MIN_STYLE_PEERS = 5;
 const CLAMP_LENGTH = 180;
-
-function addFact(list: HTMLElement, label: string, value: Node | string): void {
-  const item = document.createElement("div");
-  const dt = document.createElement("dt");
-  dt.textContent = label;
-  const dd = document.createElement("dd");
-  dd.append(value);
-  item.append(dt, dd);
-  list.appendChild(item);
-}
 
 function renderDescription(text: string): HTMLElement {
   const wrap = document.createElement("div");
@@ -45,26 +30,6 @@ function renderDescription(text: string): HTMLElement {
   return wrap;
 }
 
-function priceComparison(cheaperThan: number): string {
-  if (cheaperThan >= 100) return "Billigst i stilen";
-  if (cheaperThan <= 0) return "Dyrest i stilen";
-  return `Billigere enn ${cheaperThan} %`;
-}
-
-function addStyleFacts(list: HTMLElement, beer: Beer): void {
-  const stats = beer.style_stats;
-  if (!stats) return;
-  if (stats.rank !== null && stats.rated >= MIN_STYLE_PEERS) {
-    addFact(list, "Rangering i stilen", `Nr. ${stats.rank} av ${stats.rated}`);
-  }
-  if (stats.cheaper_than !== null && stats.priced >= MIN_STYLE_PEERS) {
-    const value = document.createElement("span");
-    value.textContent = priceComparison(stats.cheaper_than);
-    value.title = `Billigere per alkoholenhet enn ${stats.cheaper_than} % av ølene i samme stil`;
-    addFact(list, "Pris i stilen", value);
-  }
-}
-
 function releaseLabel(release: Release): string {
   if (!release.release_date) return release.name;
   return `${release.name} (${formatDate(release.release_date)})`;
@@ -84,24 +49,7 @@ function renderBrewery(brewery: Brewery): HTMLElement {
 function renderFacts(beer: Beer): HTMLElement {
   const facts = document.createElement("dl");
   facts.classList.add("olmono-facts");
-  if (beer.style) addFact(facts, "Stil", beer.style);
-  if (beer.ibu) addFact(facts, "IBU", String(beer.ibu));
-  if (beer.alcohol_units !== null && beer.alcohol_units !== undefined) {
-    addFact(facts, "Alkoholenheter", formatNumber(beer.alcohol_units, 1));
-  }
-  if (
-    beer.price_per_alcohol_unit !== null &&
-    beer.price_per_alcohol_unit !== undefined
-  ) {
-    addFact(
-      facts,
-      "Pris per alkoholenhet",
-      `${formatNumber(beer.price_per_alcohol_unit)} kr`,
-    );
-  }
-  const value = renderValueScore(beer);
-  if (value) addFact(facts, "Verdi for pengene", value);
-  addStyleFacts(facts, beer);
+  addSummaryFacts(facts, beer);
   if (beer.releases?.length) {
     addFact(facts, "Lansering", beer.releases.map(releaseLabel).join(", "));
   }

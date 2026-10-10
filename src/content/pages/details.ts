@@ -13,6 +13,7 @@ import {
   applyLabelImage,
 } from "../ui/render";
 import { renderPanel } from "../ui/panel";
+import { renderHeroFacts } from "../ui/heroFacts";
 import { sweepStale } from "../dom/inject";
 import { injectTastedButton } from "../ui/tastedButton";
 import { injectListButton } from "../ui/listButton";
@@ -22,6 +23,8 @@ const RETRY = { attempts: 20, delay: 300 };
 function placePanel(panel: HTMLElement, id: string): boolean {
   const aside = find("detailAside");
   if (aside) {
+    aside.classList.add("olmono-aside");
+    aside.parentElement?.classList.add("olmono-columns");
     aside.prepend(panel);
     return true;
   }
@@ -37,6 +40,15 @@ function placePanel(panel: HTMLElement, id: string): boolean {
   const facts = find("detailFacts");
   if (!facts) return false;
   facts.before(panel);
+  return true;
+}
+
+function placeHeroFacts(hero: HTMLElement): boolean {
+  const buy = find("detailBuy");
+  if (!buy) return false;
+  buy.classList.add("olmono-hero-grid");
+  hero.style.gridRow = `1 / span ${buy.childElementCount}`;
+  buy.appendChild(hero);
   return true;
 }
 
@@ -75,12 +87,17 @@ export async function handleDetails(signal?: AbortSignal): Promise<void> {
   if (signal?.aborted) return;
 
   const row = renderRating(beer, true);
+  row.classList.add("olmono-name-rating");
   row.dataset.olmono = id;
   hero.replaceWith(row);
 
   const stale = (): boolean => getProductIdFromUrl() !== id;
   const panel = renderPanel(beer, id);
   void retryUntil(() => stale() || placePanel(panel, id), RETRY);
+  const heroFacts = renderHeroFacts(beer, id);
+  if (heroFacts) {
+    void retryUntil(() => stale() || placeHeroFacts(heroFacts), RETRY);
+  }
 
   const settings = await getSettings();
   applyLabelImage(document, beer, settings.labelImage);

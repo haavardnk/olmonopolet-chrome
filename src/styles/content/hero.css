@@ -1,0 +1,38 @@
+.olmono-hero {
+  display: none;
+  font-family: var(--font-family-sans-serif, Roboto, sans-serif);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-swamp, #092529);
+}
+
+.olmono-hero .olmono-panel-score {
+  margin: 0 0 16px;
+}
+
+.olmono-hero .olmono-facts {
+  margin: 0;
+}
+
+@container olmono-page (min-width: 1272px) {
+  .olmono-hero-grid > :not(.olmono-hero) {
+    grid-column: 1;
+  }
+
+  .olmono-hero {
+    display: block;
+    grid-column: 2;
+    align-self: start;
+    contain: inline-size;
+    min-width: 260px;
+    max-width: 360px;
+    padding-left: 24px;
+    border-left: 1px solid var(--color-iron, #ccd2d3);
+  }
+
+  main:has(.olmono-hero) .olmono-name-rating,
+  main:has(.olmono-hero) .olmono-panel .olmono-panel-score,
+  main:has(.olmono-hero) .olmono-panel .olmono-fact--summary {
+    display: none;
+  }
+}
