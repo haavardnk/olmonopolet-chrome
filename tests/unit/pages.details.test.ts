@@ -37,7 +37,7 @@ describe("handleDetails", () => {
     const done = handleDetails();
     await new Promise((r) => setTimeout(r, 0));
 
-    const block = document.querySelector(".product-details-main .untappd");
+    const block = document.querySelector(".untappd");
     expect(block?.classList.contains("olmono-skeleton")).toBe(true);
     expect(block?.querySelector(".olmono-skeleton-stars")).not.toBeNull();
 
@@ -51,7 +51,7 @@ describe("handleDetails", () => {
     expect(block?.querySelector(".stars")).not.toBeNull();
   });
 
-  it("injects the rating block into product-details-main", async () => {
+  it("injects the rating block into the name block", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -70,8 +70,9 @@ describe("handleDetails", () => {
 
     await handleDetails();
 
-    const block = document.querySelector(".product-details-main .untappd");
+    const block = document.querySelector(".untappd");
     expect(block).not.toBeNull();
+    expect(block?.parentElement?.querySelector("h1")).not.toBeNull();
     expect(block?.querySelector(".stars")).not.toBeNull();
 
     const link = block?.querySelector("a.olmono-rating");
@@ -99,16 +100,15 @@ describe("handleDetails", () => {
 
     await handleDetails();
 
-    const ibuInjected = [
-      ...document.querySelectorAll(".characteristics li"),
-    ].some(
-      (li) =>
-        li.querySelector("strong")?.textContent === "Ibu" &&
-        li.querySelector("span")?.textContent === "50",
+    const ibuInjected = [...document.querySelectorAll("p.olmono-extra")].some(
+      (p) =>
+        p.querySelector("strong")?.textContent === "Ibu" &&
+        p.textContent?.includes("50"),
     );
     expect(ibuInjected).toBe(true);
     expect(
-      document.querySelector(".product__category-name")?.textContent,
+      document.querySelector('[data-track-link-click="product-categories"]')
+        ?.textContent,
     ).toContain("(IPA - American)");
 
     const varetype = [...document.querySelectorAll(".details-list li")].find(
@@ -136,14 +136,12 @@ describe("handleDetails", () => {
 
     await handleDetails();
 
-    const units = [...document.querySelectorAll(".characteristics li")].find(
-      (li) => li.querySelector("strong")?.textContent === "Alkoholenheter",
+    const units = [...document.querySelectorAll("p.olmono-extra")].find(
+      (p) => p.querySelector("strong")?.textContent === "Alkoholenheter",
     );
-    expect(units?.querySelector("span")?.textContent).toBe("2,8");
+    expect(units?.textContent).toContain("2,8");
 
-    const ppau = document.querySelector(
-      ".volume-and-cost_per_unit .olmono-ppau",
-    );
+    const ppau = document.querySelector(".olmono-ppau");
     expect(ppau?.textContent).toBe("39 kr/alkoholenhet");
   });
 
@@ -218,7 +216,7 @@ describe("handleDetails", () => {
 
     await handleDetails();
 
-    const btn = document.querySelector(".product-tools .olmono-tasted-btn");
+    const btn = document.querySelector(".olmono-tasted-btn");
     expect(btn).not.toBeNull();
     expect(btn?.getAttribute("aria-label")).toBe("Marker som smakt");
   });

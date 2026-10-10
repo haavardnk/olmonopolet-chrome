@@ -33,9 +33,12 @@ describe("product (search fixture)", () => {
     expect(isBeer(findProductCards()[0])).toBe(true);
   });
 
-  it("info container holds the product name", () => {
+  it("info container holds the category and product link", () => {
     const c = getInfoContainer(findProductCards()[0]);
-    expect(c.querySelector(".product__name")).not.toBeNull();
+    expect(
+      c.querySelector('[data-track-link-click="product-categories"]'),
+    ).not.toBeNull();
+    expect(c.querySelector('a[href*="/p/"]')).not.toBeNull();
   });
 });
 

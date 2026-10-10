@@ -47,7 +47,8 @@ describe("handleSearch", () => {
     await handleSearch();
 
     expect(
-      document.querySelector(".product__category-name")?.textContent,
+      document.querySelector('[data-track-link-click="product-categories"]')
+        ?.textContent,
     ).toContain("IPA - American");
   });
 
@@ -88,7 +89,7 @@ describe("handleSearch", () => {
     await handleSearch();
 
     const card = document.querySelector("ul.product-list > li")!;
-    const btn = card.querySelector(".product-tools .olmono-tasted-btn");
+    const btn = card.querySelector(".olmono-tasted-btn");
     expect(btn).not.toBeNull();
     expect(btn?.getAttribute("aria-label")).toBe("Smakt");
     expect(card.classList.contains("olmono-tasted-card")).toBe(true);

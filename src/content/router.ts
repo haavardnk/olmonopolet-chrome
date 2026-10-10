@@ -6,7 +6,7 @@ export function detectPage(): PageType {
 
   if (
     getProductIdFromUrl(path) &&
-    document.querySelector(".product-details-main")
+    document.querySelector('main[data-react-component*="/p/"]')
   ) {
     return "details";
   }

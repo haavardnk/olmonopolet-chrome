@@ -1,10 +1,10 @@
 export const SELECTORS = {
   productCard: ["ul.product-list > li"],
   productLink: ['a[href*="/p/"]'],
-  productName: [".product__name"],
-  categoryName: [".product__category-name"],
-  productLayoutWrapper: [".product__layout-wrapper"],
-  productDetailsMain: [".product-details-main"],
+  categoryName: [
+    'p[data-track-link-click="product-categories"]',
+    ".product__category-name",
+  ],
   productImage: [
     'img[alt^="Bilde"]',
     'a[href*="/p/"] img',
@@ -12,6 +12,13 @@ export const SELECTORS = {
     "picture img",
   ],
 } as const;
+
+export function findTools(root: ParentNode): Element | null {
+  const btn = root.querySelector(
+    'button[aria-label="Min liste"], button[aria-label^="Gi produkt"]',
+  );
+  return btn?.parentElement ?? null;
+}
 
 export function queryFirst<E extends Element = Element>(
   root: ParentNode,
