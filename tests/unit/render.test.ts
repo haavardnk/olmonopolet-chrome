@@ -163,7 +163,9 @@ describe("applyLabelImage", () => {
   it("overrides an existing image", () => {
     const el = root();
     applyLabelImage(el, beer, "override");
-    expect(el.querySelector("img")?.src).toContain("untappd.jpg");
+    const img = el.querySelector("img");
+    expect(img?.src).toContain("untappd.jpg");
+    expect(img?.classList.contains("olmono-label")).toBe(true);
   });
 
   it("strips srcset and sizes when overriding", () => {

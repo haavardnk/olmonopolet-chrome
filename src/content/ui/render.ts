@@ -144,6 +144,7 @@ export function renderUnitPrice(beer: Beer): HTMLDivElement | null {
 function setLabelImage(img: HTMLImageElement, url: string): void {
   img.removeAttribute("srcset");
   img.removeAttribute("sizes");
+  img.classList.add("olmono-label");
   img.src = url;
 }
 
