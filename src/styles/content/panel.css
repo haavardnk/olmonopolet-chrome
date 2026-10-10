@@ -38,6 +38,8 @@ main:has(.olmono-panel, .olmono-hero) {
   align-items: center;
   gap: 8px;
   margin: 0 0 16px;
+  font-family:
+    "JetBrains Mono", var(--font-family-sans-serif, Roboto, sans-serif);
   font-size: 16px;
   font-weight: 700;
   line-height: 1.2;
