@@ -33,6 +33,12 @@ export default defineManifest((env) => {
     externally_connectable: {
       matches: ["https://olmonopolet.app/*"],
     },
+    web_accessible_resources: [
+      {
+        resources: ["fonts/*.woff2"],
+        matches: ["https://*.vinmonopolet.no/*"],
+      },
+    ],
     content_scripts: [
       {
         matches: ["https://*.vinmonopolet.no/*"],
