@@ -1,3 +1,7 @@
+main:has(.olmono-panel, .olmono-hero) {
+  container: olmono-page / inline-size;
+}
+
 .olmono-panel-wrap {
   display: flex;
   flex: 0 1 400px;
@@ -122,8 +126,38 @@
   text-decoration: underline;
 }
 
-@media (max-width: 600px) {
+@media (min-width: 768px) {
+  @container olmono-page (width < 1272px) {
+    .olmono-columns:has(> .olmono-aside > .olmono-panel) {
+      display: grid;
+      grid-template-columns: minmax(0, 420px) minmax(0, 400px);
+      grid-template-rows: auto auto 1fr;
+      justify-content: space-between;
+      column-gap: 32px;
+    }
+
+    .olmono-columns > :not(.olmono-aside) {
+      grid-column: 1;
+    }
+
+    .olmono-columns > .olmono-aside {
+      grid-column: 2;
+      grid-row: 1 / -1;
+    }
+  }
+}
+
+@media (max-width: 767px) {
   .olmono-panel {
-    padding: 24px;
+    padding: 24px 32px;
+  }
+
+  .olmono-aside:has(> .olmono-panel) {
+    display: contents;
+  }
+
+  .olmono-aside > .olmono-panel {
+    order: -1;
+    justify-self: stretch;
   }
 }

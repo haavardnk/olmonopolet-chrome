@@ -41,12 +41,14 @@ beforeEach(() => {
   history.replaceState({}, "", PATH);
 });
 
-function facts(): Record<string, string> {
+function facts(scope = ".olmono-panel"): Record<string, string> {
   return Object.fromEntries(
-    [...document.querySelectorAll(".olmono-facts > div")].map((row) => [
-      row.querySelector("dt")?.textContent ?? "",
-      row.querySelector("dd")?.textContent ?? "",
-    ]),
+    [...document.querySelectorAll(`${scope} .olmono-facts > div`)].map(
+      (row) => [
+        row.querySelector("dt")?.textContent ?? "",
+        row.querySelector("dd")?.textContent ?? "",
+      ],
+    ),
   );
 }
 
@@ -83,7 +85,7 @@ describe("handleDetails", () => {
     await handleDetails();
 
     const panel = document.querySelector(
-      ".GfbhJELI > .olmono-panel:first-child",
+      ".dDnT0pW8.olmono-columns > .GfbhJELI.olmono-aside > .olmono-panel:first-child",
     );
     expect(panel?.querySelector("h5")?.textContent).toBe("Ølmonopolet");
     expect(facts()).toEqual({
@@ -178,6 +180,43 @@ describe("handleDetails", () => {
     expect(text?.classList.contains("olmono-clamp")).toBe(false);
     expect(toggle.textContent).toBe("Vis mindre");
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
+  });
+
+  it("adds a compact summary beside the buy column", async () => {
+    mockBeer({
+      ...FULL_BEER,
+      style_stats: { rank: 3, rated: 12, cheaper_than: 80, priced: 12 },
+      first_seen: "2024-03-14T09:00:00Z",
+    });
+    const rows = document.querySelector("div.jznNJ0wW")!.childElementCount;
+
+    await handleDetails();
+
+    const hero = document.querySelector<HTMLElement>(
+      ".jznNJ0wW.olmono-hero-grid > aside.olmono-hero:last-child",
+    );
+    expect(hero?.style.gridRow).toBe(`1 / span ${rows}`);
+    expect(hero?.querySelector(".olmono-panel-score")?.textContent).toContain(
+      "3,61",
+    );
+    expect(
+      document.querySelector("div.drVuAFYe > .olmono-name-rating"),
+    ).not.toBeNull();
+    expect(facts(".olmono-hero")).toEqual({
+      Stil: "IPA - American",
+      IBU: "50",
+      Alkoholenheter: "2,8",
+      "Pris per alkoholenhet": "39 kr",
+      "Verdi for pengene": "",
+      "Rangering i stilen": "Nr. 3 av 12",
+      "Pris i stilen": "Billigere enn 80 %",
+    });
+    const panelOnly = [
+      ...document.querySelectorAll(
+        ".olmono-panel .olmono-facts > div:not(.olmono-fact--summary) dt",
+      ),
+    ].map((dt) => dt.textContent);
+    expect(panelOnly).toEqual(["På Vinmonopolet siden"]);
   });
 
   it("leaves Vinmonopolet's own text untouched", async () => {

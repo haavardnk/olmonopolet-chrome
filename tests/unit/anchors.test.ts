@@ -31,6 +31,7 @@ describe("anchors", () => {
     ["search.html", ["productImage", "productPrice", "tools", "sortSelect"]],
     ["details.html", ["detailPage", "category", "tools", "productImage"]],
     ["details.html", ["detailFacts", "detailColumns", "detailAside"]],
+    ["details.html", ["detailBuy"]],
   ] as const)("resolves %s anchors %j", (file, names) => {
     document.body.innerHTML = fixture(file);
     expect(missing([...names])).toEqual([]);
@@ -40,6 +41,7 @@ describe("anchors", () => {
     document.body.innerHTML = fixture("details.html");
     expect(find("detailFacts")?.classList.contains("A86PRlFM")).toBe(true);
     expect(find("detailAside")?.classList.contains("GfbhJELI")).toBe(true);
+    expect(find("detailBuy")?.classList.contains("jznNJ0wW")).toBe(true);
   });
 
   it("resolves tools as the parent of the list button", () => {

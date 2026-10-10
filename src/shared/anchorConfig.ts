@@ -15,6 +15,7 @@ export const ANCHOR_NAMES = [
   "sortSelect",
   "emptyResults",
   "detailPage",
+  "detailBuy",
   "detailColumns",
   "detailAside",
   "detailFacts",
@@ -53,6 +54,10 @@ export const DEFAULT_ANCHORS: AnchorMap = {
   detailPage: [
     { css: 'main[data-react-component*="/p/"]' },
     { css: "li > span", text: "Varenummer", up: 2 },
+  ],
+  detailBuy: [
+    { css: 'span[aria-label$=" kroner"]', up: 3 },
+    { css: 'form button[type="submit"]', text: "Kjøp", up: 3 },
   ],
   detailColumns: [
     { css: "div.dDnT0pW8" },
