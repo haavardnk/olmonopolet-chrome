@@ -77,12 +77,14 @@ describe("handleDetails", () => {
     expect(hero?.textContent).toContain("1\u00a0693 vurderinger");
   });
 
-  it("renders the Ølmonopolet panel next to the sustainability card", async () => {
+  it("renders the Ølmonopolet panel above the sustainability card", async () => {
     mockBeer(FULL_BEER);
 
     await handleDetails();
 
-    const panel = document.querySelector(".GfbhJELI > .olmono-panel");
+    const panel = document.querySelector(
+      ".GfbhJELI > .olmono-panel:first-child",
+    );
     expect(panel?.querySelector("h5")?.textContent).toBe("Ølmonopolet");
     expect(facts()).toEqual({
       Stil: "IPA - American",

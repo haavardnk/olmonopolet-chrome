@@ -113,7 +113,7 @@ function buildPanel(beer: Beer, id: string): HTMLElement {
 function placePanel(panel: HTMLElement, id: string): boolean {
   const aside = find("detailAside");
   if (aside) {
-    aside.appendChild(panel);
+    aside.prepend(panel);
     return true;
   }
   const columns = find("detailColumns");
