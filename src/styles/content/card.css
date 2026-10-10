@@ -107,6 +107,21 @@ a.olmono-rating:focus-visible .olmono-rating-value {
   color: var(--color-nevada, #66797c);
 }
 
+main img.olmono-label {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  margin-inline: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+@media (max-width: 767px) {
+  main section:has(h1) img.olmono-label {
+    max-width: calc(100% - 112px);
+  }
+}
+
 .olmono-badges {
   display: inline-flex;
   flex-wrap: wrap;
