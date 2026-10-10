@@ -1,17 +1,15 @@
 import type { PageType } from "../shared/types";
+import { find } from "./dom/anchors";
 import { getProductIdFromUrl } from "./dom/product";
 
-export function detectPage(): PageType {
-  const path = location.pathname;
+export function isSearchPath(path: string = location.pathname): boolean {
+  return path.startsWith("/search");
+}
 
-  if (
-    getProductIdFromUrl(path) &&
-    document.querySelector('main[data-react-component*="/p/"]')
-  ) {
-    return "details";
-  }
+export function detectPage(path: string = location.pathname): PageType {
+  if (getProductIdFromUrl(path)) return "details";
   if (path.includes("/cart")) return "cart";
   if (path.includes("/wishlist")) return "wishlist";
-  if (document.querySelector("ul.product-list")) return "search";
+  if (isSearchPath(path) || find("productList")) return "search";
   return "unknown";
 }

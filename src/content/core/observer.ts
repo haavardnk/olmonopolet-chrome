@@ -1,30 +1,13 @@
 type Cleanup = () => void;
 
-export function waitFor(
-  selector: string,
-  {
-    timeout = 8000,
-    root = document.documentElement,
-  }: { timeout?: number; root?: Element } = {},
-): Promise<Element | null> {
-  const existing = document.querySelector(selector);
-  if (existing) return Promise.resolve(existing);
+function isOwn(node: Node): boolean {
+  const el = node instanceof Element ? node : node.parentElement;
+  return el?.closest('[class*="olmono"]') != null;
+}
 
-  return new Promise((resolve) => {
-    const obs = new MutationObserver(() => {
-      const el = document.querySelector(selector);
-      if (el) {
-        clearTimeout(timer);
-        obs.disconnect();
-        resolve(el);
-      }
-    });
-    const timer = setTimeout(() => {
-      obs.disconnect();
-      resolve(null);
-    }, timeout);
-    obs.observe(root, { childList: true, subtree: true });
-  });
+function isOwnMutation(record: MutationRecord): boolean {
+  const nodes = [...record.addedNodes, ...record.removedNodes];
+  return nodes.length > 0 ? nodes.every(isOwn) : isOwn(record.target);
 }
 
 export function observeMutations(
@@ -35,7 +18,8 @@ export function observeMutations(
   }: { debounce?: number; root?: Element } = {},
 ): Cleanup {
   let timer: ReturnType<typeof setTimeout> | undefined;
-  const obs = new MutationObserver(() => {
+  const obs = new MutationObserver((records) => {
+    if (records.every(isOwnMutation)) return;
     if (timer) clearTimeout(timer);
     timer = setTimeout(cb, debounce);
   });

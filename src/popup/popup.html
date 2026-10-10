@@ -45,6 +45,11 @@
         utvidelsen kobles til automatisk etter innlogging.
       </p>
 
+      <div id="health" class="health" hidden>
+        <span class="health-dot"></span>
+        <span id="health-text"></span>
+      </div>
+
       <div class="section-label">Innstillinger</div>
 
       <label class="setting setting--stack">
@@ -63,6 +68,18 @@
           <span class="slider"></span>
         </span>
       </label>
+
+      <label class="setting">
+        <span>Send anonyme feilrapporter</span>
+        <span class="switch">
+          <input type="checkbox" id="toggle-reports" />
+          <span class="slider"></span>
+        </span>
+      </label>
+      <p class="setting-hint">
+        Sender kun versjonsnummer og navnet på elementet som ikke ble funnet når
+        vinmonopolet.no endrer seg. Ingen personopplysninger.
+      </p>
 
       <div class="links">
         <a

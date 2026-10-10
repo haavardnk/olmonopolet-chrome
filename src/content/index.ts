@@ -1,25 +1,17 @@
-import type { PageType } from "../shared/types";
 import "../styles/content.css";
-import { detectPage } from "./router";
-import { handleSearch } from "./pages/search";
-import { handleDetails } from "./pages/details";
-import { handleCart } from "./pages/cart";
-import { handleWishlist } from "./pages/wishlist";
+import { run } from "./app";
+import { loadConfig } from "./core/config";
+import { resetHealth } from "./core/health";
 import { observeMutations, onRouteChange } from "./core/observer";
+import { createScheduler } from "./core/scheduler";
 
-const HANDLERS: Record<Exclude<PageType, "unknown">, () => Promise<void>> = {
-  search: handleSearch,
-  details: handleDetails,
-  cart: handleCart,
-  wishlist: handleWishlist,
-};
+const scheduler = createScheduler(run);
 
-function run(): void {
-  const page = detectPage();
-  if (page === "unknown") return;
-  void HANDLERS[page]().catch((err) => console.error("[olmono]", err));
-}
-
-run();
-observeMutations(run, { debounce: 300 });
-onRouteChange(() => setTimeout(run, 300));
+void loadConfig()
+  .catch(() => {})
+  .finally(scheduler.schedule);
+observeMutations(scheduler.schedule, { debounce: 300 });
+onRouteChange(() => {
+  resetHealth();
+  scheduler.restart();
+});

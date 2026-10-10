@@ -3,11 +3,13 @@ export type LabelImageMode = "off" | "fill-if-missing" | "override";
 export interface Settings {
   labelImage: LabelImageMode;
   tastedDim: boolean;
+  reports: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   labelImage: "off",
   tastedDim: false,
+  reports: true,
 };
 
 const STORAGE_KEY = "olmono:settings";
