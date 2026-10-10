@@ -130,14 +130,27 @@ export function renderCardRow(beer: Beer): HTMLDivElement {
   return row;
 }
 
-export function renderUnitPrice(beer: Beer): HTMLDivElement | null {
+export function renderUnits(beer: Beer): HTMLDivElement | null {
+  const parts: [string, string][] = [];
+  if (beer.alcohol_units !== null && beer.alcohol_units !== undefined) {
+    parts.push([
+      "Alkoholenheter",
+      `${formatNumber(beer.alcohol_units, 1)} enheter`,
+    ]);
+  }
   const unitPrice = beer.price_per_alcohol_unit;
-  if (unitPrice === null || unitPrice === undefined) return null;
+  if (unitPrice !== null && unitPrice !== undefined) {
+    parts.push([
+      "Pris per alkoholenhet",
+      `${formatNumber(unitPrice)} kr/enhet`,
+    ]);
+  }
+  if (parts.length === 0) return null;
   const el = document.createElement("div");
-  el.classList.add("olmono-unit-price");
+  el.classList.add("olmono-units");
   el.dataset.olmono = String(beer.vmp_id);
-  el.title = "Pris per alkoholenhet";
-  el.textContent = `${formatNumber(unitPrice)} kr/alkoholenhet`;
+  el.title = parts.map(([label]) => label).join(" · ");
+  el.textContent = parts.map(([, text]) => text).join(" · ");
   return el;
 }
 

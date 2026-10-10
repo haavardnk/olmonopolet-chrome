@@ -5,7 +5,7 @@ import {
   renderBadges,
   renderValueScore,
   renderCardRow,
-  renderUnitPrice,
+  renderUnits,
   applyLabelImage,
 } from "../../src/content/ui/render";
 
@@ -116,14 +116,17 @@ describe("renderCardRow", () => {
   });
 });
 
-describe("renderUnitPrice", () => {
+describe("renderUnits", () => {
   it.each([
-    [14.6, "15 kr/alkoholenhet"],
-    [null, null],
-  ])("renders %s as %s", (unitPrice, text) => {
-    const el = renderUnitPrice({
+    [2.75, 14.6, "2,8 enheter · 15 kr/enhet"],
+    [null, 14.6, "15 kr/enhet"],
+    [2.75, null, "2,8 enheter"],
+    [null, null, null],
+  ])("renders %s units at %s kr as %s", (units, unitPrice, text) => {
+    const el = renderUnits({
       vmp_id: 1,
       rating: 4,
+      alcohol_units: units,
       price_per_alcohol_unit: unitPrice,
     });
     expect(el?.textContent ?? null).toBe(text);

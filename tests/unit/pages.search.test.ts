@@ -105,17 +105,24 @@ describe("handleSearch", () => {
     expect(document.querySelectorAll(".olmono-row")).toHaveLength(1);
   });
 
-  it("shows the unit price under the card price", async () => {
-    mockBeers([{ vmp_id: 15616302, rating: 3.6, price_per_alcohol_unit: 39 }]);
+  it("shows alcohol units under the card price", async () => {
+    mockBeers([
+      {
+        vmp_id: 15616302,
+        rating: 3.6,
+        alcohol_units: 2.2,
+        price_per_alcohol_unit: 39,
+      },
+    ]);
 
     await handleSearch();
     await handleSearch();
 
     const card = document.querySelector("ul.product-list > li")!;
-    const unitPrices = card.querySelectorAll(".olmono-unit-price");
-    expect(unitPrices).toHaveLength(1);
-    expect(unitPrices[0].textContent).toBe("39 kr/alkoholenhet");
-    expect(unitPrices[0].parentElement).toBe(card.querySelector("div.price"));
+    const units = card.querySelectorAll(".olmono-units");
+    expect(units).toHaveLength(1);
+    expect(units[0].textContent).toBe("2,2 enheter · 39 kr/enhet");
+    expect(units[0].parentElement).toBe(card.querySelector("div.price"));
   });
 
   it("replaces stale injections when the page reuses a card for another product", async () => {
