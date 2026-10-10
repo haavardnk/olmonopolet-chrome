@@ -88,9 +88,29 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1023px) {
+  main div:has(> .olmono-toolbar) {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: 1fr auto auto;
+    align-items: end;
+    gap: 8px 16px;
+  }
+
+  main div:has(> .olmono-toolbar) > :not(.olmono-toolbar, .olmono-toolbar + *) {
+    grid-area: 1 / 1 / 4 / 2;
+  }
+
   .olmono-toolbar {
-    flex-wrap: wrap;
+    grid-area: 2 / 2;
+    flex-direction: column;
+    align-items: flex-end;
     gap: 8px;
+    margin-right: 0;
+  }
+
+  .olmono-toolbar + * {
+    grid-area: 3 / 2;
+    justify-self: end;
   }
 }
