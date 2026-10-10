@@ -5,9 +5,8 @@ const PRODUCT_ID_RE = /\/p\/(\d+)/;
 
 export function getProductId(product: ParentNode): string | null {
   const link =
-    queryFirst<HTMLAnchorElement>(product, SELECTORS.productName) ??
-    product.querySelector<HTMLAnchorElement>("a[aria-label]") ??
-    queryFirst<HTMLAnchorElement>(product, SELECTORS.productLink);
+    product.querySelector<HTMLAnchorElement>('a[href*="/p/"]') ??
+    product.querySelector<HTMLAnchorElement>("a[aria-label]");
   const href = link?.getAttribute("href") ?? link?.href ?? "";
   const match = href.match(PRODUCT_ID_RE);
   return match ? match[1] : null;
@@ -40,8 +39,8 @@ export function isBeer(product: ParentNode): boolean {
 }
 
 export function getInfoContainer(product: Element): Element {
-  const named = queryFirst(product, SELECTORS.productName);
-  if (named?.parentElement) return named.parentElement;
+  const cat = queryFirst(product, SELECTORS.categoryName);
+  if (cat?.parentElement) return cat.parentElement;
 
   const h3 = product.querySelector("h3");
   if (h3) {

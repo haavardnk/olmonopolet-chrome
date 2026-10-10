@@ -54,27 +54,49 @@ function findDetailsList(): Element | null {
   return null;
 }
 
+function findAlcoholRow(): HTMLElement | null {
+  for (const strong of document.querySelectorAll<HTMLElement>("strong")) {
+    if (strong.textContent?.trim() === "Alkohol") return strong.closest("p");
+  }
+  return null;
+}
+
+function hasExtraRow(parent: Element, label: string): boolean {
+  return [...parent.querySelectorAll(":scope > .olmono-extra strong")].some(
+    (strong) => strong.textContent?.trim() === label,
+  );
+}
+
+function buildExtraRow(label: string, value: string): HTMLElement | null {
+  const row = findAlcoholRow();
+  if (!row) return null;
+
+  const clone = row.cloneNode(true) as HTMLElement;
+  clone.classList.add("olmono-extra");
+  const span = clone.querySelector("span");
+  const strong = clone.querySelector("strong");
+  if (!span || !strong) return null;
+
+  strong.textContent = label;
+  for (const node of [...span.childNodes]) {
+    if (node !== strong) node.remove();
+  }
+  span.append(` ${value}`);
+  span.removeAttribute("aria-label");
+  return clone;
+}
+
 function injectIBU(beer: Beer, category: Element): boolean {
   if (!beer.ibu) return true;
   if (!isBeerCategory(category.textContent)) return true;
 
   const row = findAlcoholRow();
   if (!row?.parentElement) return false;
+  if (hasExtraRow(row.parentElement, "Ibu")) return true;
 
-  const exists = [...row.parentElement.children].some((li) => {
-    const strong = li.querySelector(":scope > strong");
-    return strong?.textContent?.trim() === "Ibu";
-  });
-  if (exists) return true;
-
-  const clone = row.cloneNode(true) as HTMLElement;
-  const strong = clone.querySelector(":scope > strong");
-  const span = clone.querySelector(":scope > span");
-  if (!strong || !span) return true;
-  strong.textContent = "Ibu";
-  span.textContent = String(beer.ibu);
-  span.removeAttribute("aria-label");
-  row.parentElement.appendChild(clone);
+  const clone = buildExtraRow("Ibu", String(beer.ibu));
+  if (!clone) return true;
+  row.insertAdjacentElement("afterend", clone);
   return true;
 }
 
@@ -102,17 +124,9 @@ function injectStyleToVaretype(beer: Beer): boolean {
   const value = row.querySelectorAll<HTMLElement>(":scope > span")[1];
   if (!value || value.dataset.olmonoStyle) return true;
 
-  value.textContent = `${value.textContent} (${beer.style})`;
+  value.append(` (${beer.style})`);
   value.dataset.olmonoStyle = "1";
   return true;
-}
-
-function findAlcoholRow(): HTMLElement | null {
-  for (const li of document.querySelectorAll<HTMLElement>("li")) {
-    const strong = li.querySelector(":scope > strong");
-    if (strong?.textContent?.trim() === "Alkohol") return li;
-  }
-  return null;
 }
 
 function injectAlcoholUnits(beer: Beer): boolean {
@@ -121,20 +135,13 @@ function injectAlcoholUnits(beer: Beer): boolean {
 
   const row = findAlcoholRow();
   if (!row?.parentElement) return false;
+  if (hasExtraRow(row.parentElement, "Alkoholenheter")) return true;
 
-  const exists = [...row.parentElement.children].some((li) => {
-    const strong = li.querySelector(":scope > strong");
-    return strong?.textContent?.trim() === "Alkoholenheter";
-  });
-  if (exists) return true;
-
-  const clone = row.cloneNode(true) as HTMLElement;
-  const strong = clone.querySelector(":scope > strong");
-  const span = clone.querySelector(":scope > span");
-  if (!strong || !span) return true;
-  strong.textContent = "Alkoholenheter";
-  span.textContent = beer.alcohol_units.toFixed(1).replace(".", ",");
-  span.removeAttribute("aria-label");
+  const clone = buildExtraRow(
+    "Alkoholenheter",
+    beer.alcohol_units.toFixed(1).replace(".", ","),
+  );
+  if (!clone) return true;
   row.insertAdjacentElement("afterend", clone);
   return true;
 }
@@ -143,7 +150,8 @@ function injectPpau(beer: Beer): boolean {
   const value = beer.price_per_alcohol_unit;
   if (value === null || value === undefined) return true;
 
-  const container = document.querySelector(".volume-and-cost_per_unit");
+  const perLiter = document.querySelector('[aria-label*="per liter"]');
+  const container = perLiter?.parentElement;
   if (!container) return false;
   if (container.querySelector(".olmono-ppau")) return true;
 
@@ -180,19 +188,18 @@ function addBadges(beer: Beer, layout: Element): void {
 }
 
 export async function handleDetails(): Promise<void> {
-  const detailsMain = queryFirst(document, SELECTORS.productDetailsMain);
-  const layout = queryFirst(document, SELECTORS.productLayoutWrapper);
   const category = queryFirst(document, SELECTORS.categoryName);
-  if (!detailsMain || !layout || !category) return;
+  const container = category?.parentElement;
+  if (!category || !container) return;
   if (!isBeerCategory(category.textContent)) return;
-  if (detailsMain.querySelector(".untappd")) return;
+  if (container.querySelector(".untappd")) return;
 
   const id = getProductIdFromUrl();
   if (!id) return;
 
   const settings = await getSettings();
   const block = buildBlock();
-  detailsMain.appendChild(block.container);
+  container.appendChild(block.container);
 
   const revealBlock = (): void => {
     block.container.classList.remove("olmono-skeleton");
@@ -248,5 +255,5 @@ export async function handleDetails(): Promise<void> {
     });
   }
 
-  addBadges(beer, layout);
+  addBadges(beer, container);
 }

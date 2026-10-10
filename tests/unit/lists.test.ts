@@ -8,7 +8,8 @@ beforeEach(() => {
   clearListsCache();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
-  document.body.innerHTML = '<div class="product-tools"></div>';
+  document.body.innerHTML =
+    '<div class="sMnNlv3t"><button aria-label="Min liste"></button></div>';
 });
 
 describe("injectListButton", () => {
@@ -18,12 +19,10 @@ describe("injectListButton", () => {
 
   it("adds a list button to the product tools", () => {
     expect(injectListButton(document, "111", lists())).toBe(true);
-    expect(
-      document.querySelector(".product-tools .olmono-list-btn"),
-    ).not.toBeNull();
+    expect(document.querySelector(".olmono-list-btn")).not.toBeNull();
   });
 
-  it("returns false when there is no product-tools", () => {
+  it("returns false when there is no product tools cluster", () => {
     document.body.innerHTML = "";
     expect(injectListButton(document, "111", lists())).toBe(false);
   });
