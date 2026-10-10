@@ -107,10 +107,13 @@ describe("toVmpProduct", () => {
     expect(toVmpProduct({ ...base, ...fields })?.url).toBe(url);
   });
 
-  it.each(["price", "volume", "vmp_abv"] as const)(
-    "skips beers without %s",
-    (field) => {
-      expect(toVmpProduct({ ...base, [field]: null })).toBeNull();
-    },
-  );
+  it.each(["price", "volume"] as const)("skips beers without %s", (field) => {
+    expect(toVmpProduct({ ...base, [field]: null })).toBeNull();
+  });
+
+  it("omits alcohol when vinmonopolet abv is unknown", () => {
+    const product = toVmpProduct({ ...base, vmp_abv: null });
+    expect(product).not.toBeNull();
+    expect(JSON.parse(JSON.stringify(product))).not.toHaveProperty("alcohol");
+  });
 });
