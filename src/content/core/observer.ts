@@ -6,8 +6,9 @@ function isOwn(node: Node): boolean {
 }
 
 function isOwnMutation(record: MutationRecord): boolean {
+  if (isOwn(record.target)) return true;
   const nodes = [...record.addedNodes, ...record.removedNodes];
-  return nodes.length > 0 ? nodes.every(isOwn) : isOwn(record.target);
+  return nodes.length > 0 && nodes.every(isOwn);
 }
 
 export function observeMutations(

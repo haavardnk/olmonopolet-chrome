@@ -4,7 +4,10 @@ import { loadConfig } from "./core/config";
 import { resetHealth } from "./core/health";
 import { observeMutations, onRouteChange } from "./core/observer";
 import { createScheduler } from "./core/scheduler";
+import { listenForSearch } from "./core/bridge";
+import { onSettingsChange } from "../shared/settings";
 
+listenForSearch();
 const scheduler = createScheduler(run);
 
 void loadConfig()
@@ -15,3 +18,4 @@ onRouteChange(() => {
   resetHealth();
   scheduler.restart();
 });
+onSettingsChange(() => scheduler.restart());

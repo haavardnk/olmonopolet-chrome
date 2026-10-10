@@ -1,13 +1,11 @@
 import { markTasted } from "../api/client";
-import { find } from "../dom/anchors";
 import { ICONS, icon } from "./icons";
 
 export function injectTastedButton(
-  root: ParentNode,
+  tools: Element | null,
   id: string,
   initial: boolean,
 ): boolean {
-  const tools = find("tools", root);
   if (!tools) return false;
   const existing = tools.querySelector<HTMLElement>(".olmono-tasted-btn");
   if (existing?.dataset.olmono === id) return true;

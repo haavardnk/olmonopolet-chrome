@@ -83,12 +83,7 @@ function buildPanel(beer: Beer, id: string): HTMLElement {
     );
   }
   const value = renderValueScore(beer);
-  if (value && beer.value_score !== null && beer.value_score !== undefined) {
-    const wrap = document.createElement("span");
-    wrap.classList.add("olmono-fact-value");
-    wrap.append(value, `${formatNumber(beer.value_score, 1)} av 20`);
-    addFact(facts, "Verdi for pengene", wrap);
-  }
+  if (value) addFact(facts, "Verdi for pengene", value);
   if (facts.childElementCount > 0) panel.appendChild(facts);
 
   const badges = renderBadges(beer.badges);
@@ -180,11 +175,12 @@ export async function handleDetails(signal?: AbortSignal): Promise<void> {
   if (signal?.aborted) return;
   void retryUntil(
     () =>
-      stale() || injectTastedButton(document, id, beer.user_tasted ?? false),
+      stale() ||
+      injectTastedButton(find("tools"), id, beer.user_tasted ?? false),
     RETRY,
   );
   void retryUntil(
-    () => stale() || injectListButton(document, id, lists),
+    () => stale() || injectListButton(find("tools"), id, lists),
     RETRY,
   );
 }

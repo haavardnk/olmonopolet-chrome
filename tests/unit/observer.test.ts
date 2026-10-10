@@ -19,16 +19,27 @@ describe("retryUntil", () => {
 });
 
 describe("observeMutations", () => {
-  it.each([
-    ["page", "vmp-card", 1],
-    ["own", "olmono-row", 0],
-  ])("reacts to %s mutations", async (_label, className, calls) => {
-    document.body.innerHTML = "";
-    const cb = vi.fn();
-    const cleanup = observeMutations(cb, { debounce: 1 });
+  const append = (className: string) => () => {
     const el = document.createElement("div");
     el.className = className;
     document.body.appendChild(el);
+  };
+
+  it.each([
+    ["page", append("vmp-card"), 1],
+    ["own", append("olmono-row"), 0],
+    [
+      "own text",
+      () => {
+        document.querySelector(".olmono-chip")!.textContent = "B";
+      },
+      0,
+    ],
+  ])("reacts to %s mutations", async (_label, mutate, calls) => {
+    document.body.innerHTML = '<button class="olmono-chip">A</button>';
+    const cb = vi.fn();
+    const cleanup = observeMutations(cb, { debounce: 1 });
+    mutate();
     await new Promise((r) => setTimeout(r, 20));
     expect(cb).toHaveBeenCalledTimes(calls);
     cleanup();

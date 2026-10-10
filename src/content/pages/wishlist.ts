@@ -1,11 +1,11 @@
 import { findProductCards, appendStyleToCategory } from "../dom/product";
-import { processCards } from "./shared";
+import { processCards, showSummary } from "./shared";
 
 const LIST_FIELDS =
-  "vmp_id,style,rating,checkins,badges,value_score,label_hd_url,user_tasted";
+  "vmp_id,style,rating,checkins,badges,value_score,price_per_alcohol_unit,label_hd_url,user_tasted";
 
 export async function handleWishlist(signal?: AbortSignal): Promise<void> {
-  await processCards(findProductCards(), {
+  const beers = await processCards(findProductCards(), {
     requireBeer: true,
     fields: LIST_FIELDS,
     signal,
@@ -15,4 +15,5 @@ export async function handleWishlist(signal?: AbortSignal): Promise<void> {
       }
     },
   });
+  await showSummary(beers, signal);
 }

@@ -28,7 +28,7 @@ afterEach(() => {
 describe("anchors", () => {
   it.each([
     ["search.html", ["productList", "productCard", "productLink", "category"]],
-    ["search.html", ["productImage", "tools", "searchResults", "sortSelect"]],
+    ["search.html", ["productImage", "productPrice", "tools", "sortSelect"]],
     ["details.html", ["detailPage", "category", "tools", "productImage"]],
     ["details.html", ["detailFacts", "detailColumns", "detailAside"]],
   ] as const)("resolves %s anchors %j", (file, names) => {

@@ -6,10 +6,18 @@ export function isSearchPath(path: string = location.pathname): boolean {
   return path.startsWith("/search");
 }
 
-export function detectPage(path: string = location.pathname): PageType {
+export function detectPage(
+  path: string = location.pathname,
+  search: string = location.search,
+): PageType {
   if (getProductIdFromUrl(path)) return "details";
   if (path.includes("/cart")) return "cart";
   if (path.includes("/wishlist")) return "wishlist";
-  if (isSearchPath(path) || find("productList")) return "search";
+  if (isSearchPath(path)) {
+    return new URLSearchParams(search).get("searchType") === "content"
+      ? "unknown"
+      : "search";
+  }
+  if (find("productList")) return "search";
   return "unknown";
 }

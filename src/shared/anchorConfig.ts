@@ -10,8 +10,8 @@ export const ANCHOR_NAMES = [
   "productLink",
   "category",
   "productImage",
+  "productPrice",
   "tools",
-  "searchResults",
   "sortSelect",
   "emptyResults",
   "detailPage",
@@ -39,13 +39,12 @@ export const DEFAULT_ANCHORS: AnchorMap = {
     { css: 'a[href*="/p/"] img' },
     { css: "picture img" },
   ],
+  productPrice: [
+    { css: 'div[aria-hidden="true"]:not(:has(p)):has(> span + span)' },
+  ],
   tools: [
     { css: 'button[aria-label="Min liste"]', up: 1 },
     { css: 'button[aria-label^="Gi produkt"]', up: 1 },
-  ],
-  searchResults: [
-    { css: "#search-results" },
-    { css: "ul.product-list", up: 1 },
   ],
   sortSelect: [{ css: 'select:has(option[value="relevance"])' }],
   emptyResults: [

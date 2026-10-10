@@ -16,7 +16,8 @@ export function renderRating(beer: Beer, large = false): HTMLDivElement {
     const text = document.createElement("span");
     text.classList.add("olmono-rating-empty");
     text.textContent = "Ingen vurdering";
-    empty.append(logo(), text);
+    if (large) empty.append(logo(20));
+    empty.append(text);
     row.appendChild(empty);
     return row;
   }
@@ -34,7 +35,8 @@ export function renderRating(beer: Beer, large = false): HTMLDivElement {
   const value = document.createElement("span");
   value.classList.add("olmono-rating-value");
   value.textContent = formatRating(beer.rating);
-  link.append(logo(large ? 20 : 16), star, value);
+  if (large) link.append(logo(20));
+  link.append(star, value);
 
   if (beer.checkins !== null && beer.checkins !== undefined) {
     const count = document.createElement("span");
@@ -58,7 +60,7 @@ export function renderSkeleton(): HTMLDivElement {
   value.classList.add("olmono-skeleton-bar", "olmono-skeleton-text");
   const bar = document.createElement("span");
   bar.classList.add("olmono-skeleton-bar", "olmono-skeleton-value");
-  row.append(logo(), value, bar);
+  row.append(value, bar);
   return row;
 }
 
@@ -78,20 +80,21 @@ export function renderBadges(
   return wrap;
 }
 
-function valueLevel(score: number): string {
-  if (score >= 15) return "success";
-  if (score >= 10) return "info";
-  if (score >= 5) return "warning";
-  return "error";
+function valueLevel(score: number): [string, string] {
+  if (score >= 15) return ["success", "Svært god"];
+  if (score >= 10) return ["info", "God"];
+  if (score >= 5) return ["warning", "Middels"];
+  return ["error", "Lav"];
 }
 
 export function renderValueScore(beer: Beer): HTMLSpanElement | null {
   const score = beer.value_score;
   if (score === null || score === undefined) return null;
 
+  const [level, label] = valueLevel(score);
   const track = document.createElement("span");
-  track.classList.add("olmono-value", `olmono-value--${valueLevel(score)}`);
-  track.title = `Verdi for pengene: ${formatNumber(score, 1)} av 20`;
+  track.classList.add("olmono-value", `olmono-value--${level}`);
+  track.title = `Verdi for pengene: ${label}`;
   track.setAttribute("role", "img");
   track.setAttribute("aria-label", track.title);
 
@@ -101,6 +104,31 @@ export function renderValueScore(beer: Beer): HTMLSpanElement | null {
   track.appendChild(fill);
 
   return track;
+}
+
+export function renderCardRow(beer: Beer): HTMLDivElement {
+  const row = renderRating(beer);
+  const value = renderValueScore(beer);
+  if (value) {
+    const fact = document.createElement("span");
+    fact.classList.add("olmono-fact");
+    fact.append("Verdi", value);
+    row.appendChild(fact);
+  }
+  const badges = renderBadges(beer.badges);
+  if (badges) row.appendChild(badges);
+  return row;
+}
+
+export function renderUnitPrice(beer: Beer): HTMLDivElement | null {
+  const unitPrice = beer.price_per_alcohol_unit;
+  if (unitPrice === null || unitPrice === undefined) return null;
+  const el = document.createElement("div");
+  el.classList.add("olmono-unit-price");
+  el.dataset.olmono = String(beer.vmp_id);
+  el.title = "Pris per alkoholenhet";
+  el.textContent = `${formatNumber(unitPrice)} kr/alkoholenhet`;
+  return el;
 }
 
 function setLabelImage(img: HTMLImageElement, url: string): void {
