@@ -1,6 +1,5 @@
 import type { Beer } from "../../shared/types";
 import { addSummaryFacts } from "./facts";
-import { logo } from "./icons";
 import { renderRating } from "./render";
 
 export function renderHeroFacts(beer: Beer, id: string): HTMLElement | null {
@@ -15,7 +14,7 @@ export function renderHeroFacts(beer: Beer, id: string): HTMLElement | null {
   hero.setAttribute("aria-label", "Ølmonopolet");
   const title = document.createElement("h5");
   title.classList.add("olmono-panel-title");
-  title.append(logo(20), "Ølmonopolet");
+  title.textContent = "Ølmonopolet";
   const score = renderRating(beer, true);
   score.classList.add("olmono-panel-score");
   hero.append(title, score, facts);

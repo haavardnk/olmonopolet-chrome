@@ -31,15 +31,13 @@ describe("renderRating", () => {
     );
   });
 
-  it.each([
-    [{ rating: 3.6 }, false, false],
-    [{ rating: 3.6 }, true, true],
-    [{ rating: null }, false, false],
-    [{ rating: null }, true, true],
-  ])("shows the logo for %j large=%s: %s", (fields, large, shown) => {
-    const el = renderRating({ vmp_id: 1, ...fields }, large);
-    expect(el.querySelector(".olmono-logo") !== null).toBe(shown);
-  });
+  it.each([[{ rating: 3.6 }], [{ rating: null }]])(
+    "never shows the logo in large rows for %j",
+    (fields) => {
+      const el = renderRating({ vmp_id: 1, ...fields }, true);
+      expect(el.querySelector(".olmono-logo")).toBeNull();
+    },
+  );
 
   it.each([
     [false, "1,7k"],
