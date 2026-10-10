@@ -22,7 +22,7 @@ import { renderSummary } from "../ui/summary";
 import {
   renderCardRow,
   renderSkeleton,
-  renderUnitPrice,
+  renderUnits,
   applyLabelImage,
 } from "../ui/render";
 
@@ -79,10 +79,10 @@ export async function processCards(
     card.classList.toggle("olmono-tasted-card", tasted && settings.tastedDim);
     card.classList.toggle("olmono-hidden-card", tasted && !!opts.hideTasted);
     if (injectRating(container, id, row)) {
-      const unitPrice = renderUnitPrice(beer);
-      if (unitPrice) {
-        card.querySelector(".olmono-unit-price")?.remove();
-        (find("productPrice", card) ?? row).appendChild(unitPrice);
+      const units = renderUnits(beer);
+      if (units) {
+        card.querySelector(".olmono-units")?.remove();
+        (find("productPrice", card) ?? row).appendChild(units);
       }
       applyLabelImage(card, beer, settings.labelImage);
       if (connected) {

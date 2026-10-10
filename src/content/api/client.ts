@@ -10,7 +10,7 @@ const DEFAULT_TIMEOUT = 8000;
 const SEARCH_FIELDS =
   "vmp_id,vmp_name,vmp_url,main_category,sub_category,country,price,volume,vmp_abv,product_selection,post_delivery,store_delivery";
 const DEFAULT_LIST_FIELDS =
-  "vmp_id,style,rating,checkins,badges,value_score,price_per_alcohol_unit,label_hd_url,user_tasted";
+  "vmp_id,style,rating,checkins,badges,value_score,price_per_alcohol_unit,alcohol_units,label_hd_url,user_tasted";
 const DEFAULT_BEER_FIELDS =
   "vmp_id,ibu,style,rating,checkins,untpd_updated,badges,value_score,price_per_alcohol_unit,alcohol_units,label_sm_url,label_hd_url,user_tasted,description,brewery_details,first_seen,style_stats,releases";
 

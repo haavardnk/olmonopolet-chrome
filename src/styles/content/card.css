@@ -101,10 +101,15 @@ a.olmono-rating:focus-visible .olmono-rating-value {
   white-space: nowrap;
 }
 
-.olmono-unit-price {
+.olmono-units {
   font-size: 14px;
   line-height: 18px;
   color: var(--color-nevada, #66797c);
+}
+
+.olmono-row .olmono-units {
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 main img.olmono-label {
