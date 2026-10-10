@@ -1,10 +1,12 @@
 import {
   SORT_LABELS,
+  getSettings,
   setSettings,
   type Settings,
   type SortMode,
 } from "../../shared/settings";
 import { logo } from "./icons";
+import { confirmOlmonoSort } from "./notice";
 
 export interface ToolbarState {
   settings: Settings;
@@ -30,8 +32,18 @@ function build(): HTMLElement {
     option.textContent = label;
     select.appendChild(option);
   }
-  select.addEventListener("change", () => {
-    void setSettings({ sort: select.value as SortMode });
+  select.addEventListener("change", async () => {
+    const sort = select.value as SortMode;
+    const settings = await getSettings();
+    if (sort === "vmp" || settings.sortIntroSeen || settings.sort !== "vmp") {
+      await setSettings({ sort });
+      return;
+    }
+    if (!(await confirmOlmonoSort())) {
+      select.value = settings.sort;
+      return;
+    }
+    await setSettings({ sort, sortIntroSeen: true });
   });
   sort.append(logo(16), select);
 
