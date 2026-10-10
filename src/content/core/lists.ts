@@ -1,9 +1,9 @@
 import { addToList, removeFromList } from "../api/client";
 import { find } from "../dom/anchors";
 import type { UserList } from "../../shared/types";
+import { ICONS, icon } from "./icons";
 
-const LIST_ICON =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v6"/><path d="M21 12h-6"/></svg>';
+const MENU_WIDTH = 220;
 
 function inList(list: UserList, id: string): boolean {
   return (list.product_ids ?? []).map(String).includes(id);
@@ -16,11 +16,17 @@ function buildMenu(
 ): HTMLElement {
   const menu = document.createElement("div");
   menu.classList.add("olmono-list-menu");
+  menu.setAttribute("role", "menu");
+
+  const title = document.createElement("div");
+  title.classList.add("olmono-list-title");
+  title.textContent = "Ølmonopolet-lister";
+  menu.appendChild(title);
 
   if (lists.length === 0) {
     const empty = document.createElement("div");
     empty.classList.add("olmono-list-empty");
-    empty.textContent = "Ingen lister";
+    empty.textContent = "Du har ingen lister ennå.";
     menu.appendChild(empty);
     return menu;
   }
@@ -29,10 +35,17 @@ function buildMenu(
     const item = document.createElement("button");
     item.type = "button";
     item.classList.add("olmono-list-item");
+    item.setAttribute("role", "menuitemcheckbox");
+
+    const check = icon(ICONS.check, 18);
+    check.classList.add("olmono-list-check");
+    const name = document.createElement("span");
+    name.textContent = list.name;
+    item.append(check, name);
 
     const setState = (member: boolean): void => {
       item.classList.toggle("is-member", member);
-      item.textContent = (member ? "✓ " : "") + list.name;
+      item.setAttribute("aria-checked", String(member));
     };
     setState(inList(list, id));
 
@@ -66,14 +79,19 @@ export function injectListButton(
 ): boolean {
   const tools = find("tools", root);
   if (!tools) return false;
-  if (tools.querySelector(".olmono-list-btn")) return true;
+  const existing = tools.querySelector<HTMLElement>(".olmono-list-btn");
+  if (existing?.dataset.olmono === id) return true;
+  existing?.remove();
 
   const btn = document.createElement("button");
   btn.type = "button";
   btn.classList.add("btn-icon", "olmono-list-btn");
+  btn.dataset.olmono = id;
   btn.title = "Legg til i Ølmonopolet-liste";
   btn.setAttribute("aria-label", "Legg til i Ølmonopolet-liste");
-  btn.innerHTML = LIST_ICON;
+  btn.setAttribute("aria-haspopup", "menu");
+  btn.setAttribute("aria-expanded", "false");
+  btn.appendChild(icon(ICONS.listAdd));
 
   const badge = document.createElement("span");
   badge.classList.add("olmono-list-badge");
@@ -89,19 +107,23 @@ export function injectListButton(
   let menu: HTMLElement | null = null;
 
   const onDocClick = (e: MouseEvent): void => {
-    if (
-      menu &&
-      !menu.contains(e.target as Node) &&
-      !btn.contains(e.target as Node)
-    ) {
-      closeMenu();
-    }
+    const target = e.target as Node;
+    if (menu && !menu.contains(target) && !btn.contains(target)) closeMenu();
+  };
+
+  const onKey = (e: KeyboardEvent): void => {
+    if (e.key !== "Escape") return;
+    closeMenu();
+    btn.focus();
   };
 
   function closeMenu(): void {
     menu?.remove();
     menu = null;
+    btn.setAttribute("aria-expanded", "false");
     document.removeEventListener("click", onDocClick);
+    document.removeEventListener("keydown", onKey);
+    window.removeEventListener("scroll", closeMenu);
   }
 
   btn.addEventListener("click", (e) => {
@@ -114,10 +136,14 @@ export function injectListButton(
     menu = buildMenu(lists, id, refreshBadge);
     document.body.appendChild(menu);
     const r = btn.getBoundingClientRect();
-    menu.style.position = "fixed";
     menu.style.top = `${r.bottom + 4}px`;
-    menu.style.left = `${Math.max(8, r.right - 200)}px`;
-    setTimeout(() => document.addEventListener("click", onDocClick), 0);
+    menu.style.left = `${Math.max(8, r.right - MENU_WIDTH)}px`;
+    btn.setAttribute("aria-expanded", "true");
+    setTimeout(() => {
+      document.addEventListener("click", onDocClick);
+      document.addEventListener("keydown", onKey);
+      window.addEventListener("scroll", closeMenu, { passive: true });
+    }, 0);
   });
 
   tools.appendChild(btn);

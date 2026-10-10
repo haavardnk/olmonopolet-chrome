@@ -34,8 +34,8 @@ describe("handleSearch", () => {
     await handleSearch();
 
     const card = document.querySelector("ul.product-list > li")!;
-    expect(card.querySelector(".untappd")).not.toBeNull();
-    expect(card.querySelector(".stars")).not.toBeNull();
+    expect(card.querySelector(".olmono-row")).not.toBeNull();
+    expect(card.querySelector(".olmono-star")).not.toBeNull();
     expect(
       card.querySelector("a.olmono-rating")?.getAttribute("href"),
     ).toContain("olmonopolet.app/products/15616302");
@@ -58,7 +58,35 @@ describe("handleSearch", () => {
     await handleSearch();
     await handleSearch();
 
-    expect(document.querySelectorAll(".untappd")).toHaveLength(1);
+    expect(document.querySelectorAll(".olmono-row")).toHaveLength(1);
+  });
+
+  it("replaces stale injections when the page reuses a card for another product", async () => {
+    mockBeers([{ vmp_id: 15616302, rating: 3.6, style: "IPA - American" }]);
+    await handleSearch();
+
+    const card = document.querySelector("ul.product-list > li")!;
+    card
+      .querySelectorAll('a[href*="/p/15616302"]')
+      .forEach((a) =>
+        a.setAttribute(
+          "href",
+          a.getAttribute("href")!.replace("15616302", "999"),
+        ),
+      );
+    clearBeerCache();
+    mockBeers([{ vmp_id: 999, rating: 4.2, style: "Stout" }]);
+    await handleSearch();
+
+    const rows = card.querySelectorAll(".olmono-row");
+    expect(rows).toHaveLength(1);
+    expect(rows[0].getAttribute("data-olmono")).toBe("999");
+    expect(rows[0].textContent).toContain("4,20");
+    const category = card.querySelector(
+      '[data-track-link-click="product-categories"]',
+    )!.textContent;
+    expect(category).toContain("Stout");
+    expect(category).not.toContain("IPA");
   });
 
   it("removes the skeleton when no beer matches", async () => {
@@ -67,7 +95,7 @@ describe("handleSearch", () => {
     await handleSearch();
 
     const card = document.querySelector("ul.product-list > li")!;
-    expect(card.querySelector(".untappd")).toBeNull();
+    expect(card.querySelector(".olmono-row")).toBeNull();
     expect(card.querySelector(".olmono-skeleton")).toBeNull();
   });
 
@@ -134,7 +162,7 @@ describe("handleSearch", () => {
         vmp_id: 15616302,
         rating: 3.6,
         value_score: 8.0,
-        label_hd_url: "https://untappd.example/label.jpg",
+        label_hd_url: "https://labels.example/label.jpg",
       },
     ]);
 
@@ -146,7 +174,7 @@ describe("handleSearch", () => {
     expect(value?.classList.contains("olmono-value--warning")).toBe(true);
     expect(value?.querySelector(".olmono-value-fill")).not.toBeNull();
     expect(card.querySelector("img")?.src).toContain(
-      "untappd.example/label.jpg",
+      "labels.example/label.jpg",
     );
   });
 });

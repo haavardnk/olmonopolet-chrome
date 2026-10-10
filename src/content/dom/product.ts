@@ -54,8 +54,17 @@ export function getInfoContainer(product: Element): Element {
   return product;
 }
 
-export function appendStyleToCategory(product: Element, style: string): void {
+export function appendStyleToCategory(
+  product: Element,
+  id: string,
+  style: string,
+): void {
   const cat = find("category", product);
-  if (!cat || cat.textContent?.includes(" - ")) return;
-  cat.append(` - ${style}`);
+  if (!cat || cat.querySelector(".olmono-style")) return;
+  if (cat.textContent?.includes(" - ")) return;
+  const span = document.createElement("span");
+  span.classList.add("olmono-style");
+  span.dataset.olmono = id;
+  span.textContent = ` - ${style}`;
+  cat.appendChild(span);
 }

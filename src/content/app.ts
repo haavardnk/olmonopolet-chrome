@@ -35,8 +35,8 @@ export const HEALTH_CHECKS: Record<HealthPage, () => AnchorName[]> = {
     missing([
       "category",
       "tools",
+      "detailColumns",
       "detailFacts",
-      "detailPerLiter",
       "productImage",
     ]),
   cart: () => cardMissing(["productLink"]),

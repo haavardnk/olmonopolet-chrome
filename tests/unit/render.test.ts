@@ -8,43 +8,51 @@ import {
 } from "../../src/content/core/render";
 
 describe("renderSkeleton", () => {
-  it("renders a marked skeleton with shimmer bars", () => {
+  it("renders a busy skeleton row with the logo and shimmer bars", () => {
     const el = renderSkeleton();
-    expect(el.classList.contains("untappd")).toBe(true);
+    expect(el.classList.contains("olmono-row")).toBe(true);
     expect(el.classList.contains("olmono-skeleton")).toBe(true);
-    expect(el.querySelector(".olmono-skeleton-stars")).not.toBeNull();
-    expect(el.querySelector(".olmono-skeleton-text")).not.toBeNull();
-    expect(el.querySelector(".olmono-skeleton-value")).not.toBeNull();
+    expect(el.getAttribute("aria-busy")).toBe("true");
+    expect(el.querySelector("img.olmono-logo")?.getAttribute("src")).toMatch(
+      /^data:image\/png/,
+    );
+    expect(el.querySelectorAll(".olmono-skeleton-bar")).toHaveLength(2);
   });
 });
 
 describe("renderRating", () => {
-  it("renders stars, a value and links to olmonopolet for a rated beer", () => {
+  it("renders the logo, a star and the rating linked to olmonopolet", () => {
     const el = renderRating({ vmp_id: 15616302, rating: 3.606 });
-    expect(el.classList.contains("untappd")).toBe(true);
-    expect(el.querySelector(".stars")).not.toBeNull();
-    expect(el.querySelector(".olmono-rating-value")?.textContent).toBe("3.61");
-    expect(el.querySelector("a.olmono-rating")?.getAttribute("href")).toContain(
-      "olmonopolet.app/products/15616302",
+    expect(el.classList.contains("olmono-row")).toBe(true);
+    expect(el.querySelector(".olmono-logo")).not.toBeNull();
+    expect(el.querySelector(".olmono-star")).not.toBeNull();
+    expect(el.querySelector(".olmono-rating-value")?.textContent).toBe("3,61");
+    expect(el.querySelector("a.olmono-rating")?.getAttribute("href")).toBe(
+      "https://olmonopolet.app/products/15616302",
     );
   });
 
-  it("includes checkins in the value when present", () => {
-    const el = renderRating({ vmp_id: 1, rating: 3.6, checkins: 1693 });
-    expect(el.querySelector(".olmono-rating-value")?.textContent).toBe(
-      "3.60 (2k)",
-    );
+  it.each([
+    [false, "1,7k"],
+    [true, "1\u00a0693 vurderinger"],
+  ])("formats checkins for large=%s as %s", (large, text) => {
+    const el = renderRating({ vmp_id: 1, rating: 3.6, checkins: 1693 }, large);
+    expect(el.querySelector(".olmono-rating-count")?.textContent).toBe(text);
+    expect(el.classList.contains("olmono-row--lg")).toBe(large);
   });
 
-  it("shows 'Ingen match', no stars and no link when rating is null", () => {
+  it("shows a muted message without link or star when rating is null", () => {
     const el = renderRating({ vmp_id: 1, rating: null });
-    expect(el.querySelector(".olmono-rating-value")?.textContent).toBe(
-      "Ingen match",
+    expect(el.querySelector(".olmono-rating-empty")?.textContent).toBe(
+      "Ingen vurdering",
     );
-    expect(el.querySelector(".stars")).toBeNull();
-    expect(
-      el.querySelector("a.olmono-rating")?.getAttribute("href"),
-    ).toBeNull();
+    expect(el.querySelector(".olmono-star")).toBeNull();
+    expect(el.querySelector("a")).toBeNull();
+  });
+
+  it("never mentions Untappd", () => {
+    const el = renderRating({ vmp_id: 1, rating: 3.6, checkins: 10 }, true);
+    expect(el.outerHTML.toLowerCase()).not.toContain("untappd");
   });
 });
 

@@ -1,59 +1,65 @@
 import { productUrl } from "../../shared/constants";
-import { ratingToStars, kFormatter } from "../../shared/format";
+import { formatCompact, formatNumber, formatRating } from "../../shared/format";
 import type { Beer, Badge } from "../../shared/types";
 import type { LabelImageMode } from "../../shared/settings";
 import { find } from "../dom/anchors";
+import { ICONS, icon, logo } from "./icons";
 
-export function renderRating(beer: Beer): HTMLDivElement {
-  const container = document.createElement("div");
-  container.classList.add("untappd");
+export function renderRating(beer: Beer, large = false): HTMLDivElement {
+  const row = document.createElement("div");
+  row.classList.add("olmono-row");
+  if (large) row.classList.add("olmono-row--lg");
 
-  const rating = document.createElement("a");
-  rating.classList.add("olmono-rating");
-  rating.target = "_blank";
-  rating.rel = "noopener noreferrer";
-  container.appendChild(rating);
+  if (beer.rating === null || beer.rating === undefined) {
+    const empty = document.createElement("span");
+    empty.classList.add("olmono-rating");
+    const text = document.createElement("span");
+    text.classList.add("olmono-rating-empty");
+    text.textContent = "Ingen vurdering";
+    empty.append(logo(), text);
+    row.appendChild(empty);
+    return row;
+  }
+
+  const link = document.createElement("a");
+  link.classList.add("olmono-rating");
+  link.href = productUrl(beer.vmp_id);
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.title = "Åpne på Ølmonopolet";
+
+  const star = icon(ICONS.star, large ? 20 : 16);
+  star.classList.add("olmono-star");
 
   const value = document.createElement("span");
   value.classList.add("olmono-rating-value");
+  value.textContent = formatRating(beer.rating);
+  link.append(logo(large ? 20 : 16), star, value);
 
-  if (beer.rating !== null && beer.rating !== undefined) {
-    rating.appendChild(ratingToStars(beer.rating));
-    value.textContent =
-      beer.checkins !== null && beer.checkins !== undefined
-        ? `${beer.rating.toFixed(2)} (${kFormatter(beer.checkins)})`
-        : beer.rating.toFixed(2);
-    rating.appendChild(value);
-    rating.href = productUrl(beer.vmp_id);
-    rating.title = "Åpne på Ølmonopolet";
-  } else {
-    value.textContent = "Ingen match";
-    rating.appendChild(value);
+  if (beer.checkins !== null && beer.checkins !== undefined) {
+    const count = document.createElement("span");
+    count.classList.add("olmono-rating-count");
+    count.textContent = large
+      ? `${formatNumber(beer.checkins)} vurderinger`
+      : formatCompact(beer.checkins);
+    count.title = `${formatNumber(beer.checkins)} vurderinger`;
+    link.appendChild(count);
   }
 
-  return container;
+  row.appendChild(link);
+  return row;
 }
 
-export function appendSkeletonBars(target: Element): void {
-  const stars = document.createElement("span");
-  stars.classList.add("olmono-skeleton-bar", "olmono-skeleton-stars");
+export function renderSkeleton(): HTMLDivElement {
+  const row = document.createElement("div");
+  row.classList.add("olmono-row", "olmono-skeleton");
+  row.setAttribute("aria-busy", "true");
   const value = document.createElement("span");
   value.classList.add("olmono-skeleton-bar", "olmono-skeleton-text");
   const bar = document.createElement("span");
   bar.classList.add("olmono-skeleton-bar", "olmono-skeleton-value");
-  target.append(stars, value, bar);
-}
-
-export function renderSkeleton(): HTMLDivElement {
-  const container = document.createElement("div");
-  container.classList.add("untappd", "olmono-skeleton");
-
-  const rating = document.createElement("div");
-  rating.classList.add("olmono-rating");
-  appendSkeletonBars(rating);
-  container.appendChild(rating);
-
-  return container;
+  row.append(logo(), value, bar);
+  return row;
 }
 
 export function renderBadges(
@@ -63,12 +69,12 @@ export function renderBadges(
 
   const wrap = document.createElement("span");
   wrap.classList.add("olmono-badges");
-  badges.forEach((badge) => {
+  for (const badge of badges) {
     const chip = document.createElement("span");
     chip.classList.add("olmono-badge");
     chip.textContent = badge.text;
     wrap.appendChild(chip);
-  });
+  }
   return wrap;
 }
 
@@ -85,11 +91,13 @@ export function renderValueScore(beer: Beer): HTMLSpanElement | null {
 
   const track = document.createElement("span");
   track.classList.add("olmono-value", `olmono-value--${valueLevel(score)}`);
-  track.title = "Verdi for pengene — basert på vurdering og literpris";
+  track.title = `Verdi for pengene: ${formatNumber(score, 1)} av 20`;
+  track.setAttribute("role", "img");
+  track.setAttribute("aria-label", track.title);
 
   const fill = document.createElement("span");
   fill.classList.add("olmono-value-fill");
-  fill.style.width = `${(Math.min(score, 20) / 20) * 100}%`;
+  fill.style.width = `${(Math.min(Math.max(score, 0), 20) / 20) * 100}%`;
   track.appendChild(fill);
 
   return track;

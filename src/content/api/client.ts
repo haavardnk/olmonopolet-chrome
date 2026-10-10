@@ -4,7 +4,7 @@ import { authFetch } from "./authFetch";
 
 const DEFAULT_TIMEOUT = 8000;
 const DEFAULT_LIST_FIELDS =
-  "vmp_id,rating,badges,value_score,label_hd_url,user_tasted";
+  "vmp_id,rating,checkins,badges,value_score,label_hd_url,user_tasted";
 const DEFAULT_BEER_FIELDS =
   "vmp_id,ibu,style,rating,checkins,untpd_updated,badges,value_score,price_per_alcohol_unit,alcohol_units,label_sm_url,label_hd_url,user_tasted";
 
