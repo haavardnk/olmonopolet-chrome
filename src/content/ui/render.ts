@@ -3,7 +3,7 @@ import { formatCompact, formatNumber, formatRating } from "../../shared/format";
 import type { Beer, Badge } from "../../shared/types";
 import type { LabelImageMode } from "../../shared/settings";
 import { find } from "../dom/anchors";
-import { ICONS, icon, logo } from "./icons";
+import { ICONS, icon } from "./icons";
 
 export function externalLink(href: string): HTMLAnchorElement {
   const link = document.createElement("a");
@@ -22,7 +22,6 @@ export function renderMessage(text: string, large = false): HTMLDivElement {
   const message = document.createElement("span");
   message.classList.add("olmono-rating-empty");
   message.textContent = text;
-  if (large) span.append(logo(20));
   span.append(message);
   row.appendChild(span);
   return row;
@@ -47,7 +46,6 @@ export function renderRating(beer: Beer, large = false): HTMLDivElement {
   const value = document.createElement("span");
   value.classList.add("olmono-rating-value");
   value.textContent = formatRating(beer.rating);
-  if (large) link.append(logo(20));
   link.append(star, value);
 
   if (beer.checkins !== null && beer.checkins !== undefined) {

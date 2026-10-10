@@ -34,9 +34,6 @@ main:has(.olmono-panel, .olmono-hero) {
 }
 
 .olmono-panel-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   margin: 0 0 16px;
   font-family:
     "JetBrains Mono", var(--font-family-sans-serif, Roboto, sans-serif);
@@ -45,16 +42,8 @@ main:has(.olmono-panel, .olmono-hero) {
   line-height: 1.2;
 }
 
-.olmono-panel-title .olmono-logo {
-  margin: 0;
-}
-
 .olmono-panel .olmono-panel-score {
   margin: 0;
-}
-
-.olmono-panel-score .olmono-logo {
-  display: none;
 }
 
 .olmono-panel-text {

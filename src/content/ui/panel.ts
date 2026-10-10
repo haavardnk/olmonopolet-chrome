@@ -3,7 +3,6 @@ import { formatDate } from "../../shared/format";
 import { productUrl } from "../../shared/constants";
 import { externalLink, renderBadges, renderRating } from "./render";
 import { addFact, addSummaryFacts } from "./facts";
-import { logo } from "./icons";
 
 const CLAMP_LENGTH = 180;
 
@@ -105,7 +104,7 @@ export function renderPanel(beer: Beer, id: string): HTMLElement {
   head.classList.add("olmono-panel-head");
   const title = document.createElement("h2");
   title.classList.add("olmono-panel-title");
-  title.append(logo(20), "Ølmonopolet");
+  title.textContent = "Ølmonopolet";
   const score = renderRating(beer, true);
   score.classList.add("olmono-panel-score");
   head.append(title, score);
