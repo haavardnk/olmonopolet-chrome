@@ -1,19 +1,10 @@
-import { findProductCards, appendStyleToCategory } from "../dom/product";
-import { processCards, showSummary } from "./shared";
-
-const LIST_FIELDS =
-  "vmp_id,style,rating,checkins,badges,value_score,price_per_alcohol_unit,label_hd_url,user_tasted";
+import { findProductCards } from "../dom/product";
+import { processCards, showSummary } from "./cards";
 
 export async function handleWishlist(signal?: AbortSignal): Promise<void> {
   const beers = await processCards(findProductCards(), {
-    requireBeer: true,
-    fields: LIST_FIELDS,
+    beersOnly: true,
     signal,
-    onRendered: (card, beer) => {
-      if (beer.style) {
-        appendStyleToCategory(card, String(beer.vmp_id), beer.style);
-      }
-    },
   });
   await showSummary(beers, signal);
 }

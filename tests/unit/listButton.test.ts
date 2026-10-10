@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { injectListButton } from "../../src/content/core/lists";
-import { clearListsCache } from "../../src/content/api/client";
+import { injectListButton } from "../../src/content/ui/listButton";
+import { clearListsCache } from "../../src/content/api/lists";
 
 const flush = (): Promise<void> => new Promise((r) => setTimeout(r, 0));
 

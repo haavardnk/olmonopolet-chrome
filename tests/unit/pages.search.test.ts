@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { handleSearch } from "../../src/content/pages/search";
 import { isBeerSearch } from "../../src/content/core/beerQuery";
-import { clearBeerCache, clearListsCache } from "../../src/content/api/client";
+import { clearBeerCache } from "../../src/content/api/client";
+import { clearListsCache } from "../../src/content/api/lists";
 import type { Settings } from "../../src/shared/settings";
 
 const BEER_QUERY = ":relevance:mainCategory:øl";

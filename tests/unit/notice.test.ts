@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { notifySessionExpired } from "../../src/content/core/notice";
+import { notifySessionExpired } from "../../src/content/ui/notice";
 
 beforeEach(() => {
   document.body.innerHTML = "";

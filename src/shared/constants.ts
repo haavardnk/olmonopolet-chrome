@@ -7,6 +7,8 @@ export const APP_LOGIN_URL = "https://olmonopolet.app/login";
 
 export const BEER_CATEGORIES = ["ØL", "SIDER", "MJØD"] as const;
 
+export const VMP_IMAGE_CACHE = "https://bilder.vinmonopolet.no/cache";
+
 export function productUrl(vmpId: number | string): string {
   return `https://olmonopolet.app/products/${vmpId}`;
 }

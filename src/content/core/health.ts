@@ -5,6 +5,7 @@ import {
   type HealthPage,
   type HealthState,
 } from "../../shared/health";
+import { localArea } from "../../shared/storage";
 import { sendReport } from "../api/reports";
 
 const recorded = new Map<HealthPage, string>();
@@ -49,9 +50,9 @@ export async function recordHealth(
   if (missing.length > 0) {
     console.warn(`[olmono] Fant ikke elementer på ${page}: ${key}`);
   }
-  if (typeof chrome === "undefined" || !chrome.storage?.local) return;
+  const area = localArea();
+  if (!area) return;
 
-  const area = chrome.storage.local;
   const state = ((await area.get(HEALTH_KEY))[HEALTH_KEY] ?? {}) as HealthState;
   state[page] = {
     missing,

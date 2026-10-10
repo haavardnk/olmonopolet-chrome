@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, type Mock } from "vitest";
-import { renderToolbar } from "../../src/content/core/toolbar";
+import { renderToolbar } from "../../src/content/ui/toolbar";
 import {
   DEFAULT_SETTINGS,
   type Settings,

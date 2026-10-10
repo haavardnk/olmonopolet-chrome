@@ -4,6 +4,7 @@ import {
   type LabelImageMode,
 } from "../shared/settings";
 import { isConnected, clearToken, onTokenChange } from "../shared/auth";
+import { extensionVersion } from "../shared/constants";
 import { getHealth, type HealthPage } from "../shared/health";
 
 const PAGE_LABELS: Record<HealthPage, string> = {
@@ -42,7 +43,7 @@ function initAuth(): void {
 
 function initVersion(): void {
   const el = document.querySelector<HTMLElement>("#version");
-  if (el) el.textContent = `v${chrome.runtime.getManifest().version}`;
+  if (el) el.textContent = `v${extensionVersion()}`;
 }
 
 async function initHealth(): Promise<void> {
@@ -50,7 +51,7 @@ async function initHealth(): Promise<void> {
   const text = document.querySelector<HTMLElement>("#health-text");
   if (!box || !text) return;
 
-  const version = chrome.runtime.getManifest().version;
+  const version = extensionVersion();
   const cutoff = Date.now() - HEALTH_MAX_AGE;
   const entries = Object.entries(await getHealth()).filter(
     ([, entry]) => entry.version === version && Date.parse(entry.at) >= cutoff,
