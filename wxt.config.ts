@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import { defineConfig } from "wxt";
+import { extensionVersion } from "./config/version";
 
 const DEV_KEY =
   "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArlBWrtzi4evkyDj0dOc8VIsTJTwu1zZpoHfpyQYNwQjV9bzw3m7i/gX2iheYvf1DZNAxYkQ9YDh9nMUM8brTJFQbVR2bqlqCnu4W4MUf0cnQ+9r0AQihsfRuBYLR0g98Jtor8Kev/Qtk9qYosfYPaNH4tXwIwZFKr/OH2ycsC2nUPhLACoe7JkUquXBgVmMb5JZyVdUJfjUC3Zk6OIJFl3e4XJJNwoYIRCVeThdLo5QBx5Q9eiekpnf9tLq5qJC5MtVKvQ48tIB1WNkDPWmwdPMYLXqMjSIqpXPEgs9mML7M02gZr70PK/eJVQsNtaZQ3cEOnoSwYS82VbTdn+kb5wIDAQAB";
@@ -29,6 +30,7 @@ export default defineConfig({
     const devBuild = command === "serve" || apiBaseUrl !== PROD_API;
     return {
       name: "Ølmonopolet",
+      version: extensionVersion(),
       description: "Vurderinger og ølfakta fra Ølmonopolet på Vinmonopolet.no",
       ...(devBuild ? { key: DEV_KEY } : {}),
       icons: Object.fromEntries(

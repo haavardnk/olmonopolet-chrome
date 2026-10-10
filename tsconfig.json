@@ -21,6 +21,7 @@
   "include": [
     "src",
     "tests",
+    "config",
     "wxt.config.ts",
     "vitest.config.ts",
     ".wxt/wxt.d.ts"

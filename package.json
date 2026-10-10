@@ -1,6 +1,5 @@
 {
   "name": "olmonopolet-chrome",
-  "version": "0.4.1",
   "description": "Vurderinger og ølfakta fra Ølmonopolet på Vinmonopolet.no",
   "private": true,
   "type": "module",
