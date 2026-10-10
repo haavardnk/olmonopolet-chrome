@@ -21,13 +21,15 @@ afterEach(() => {
 
 describe("detectPage", () => {
   it.each([
-    ["/Land/Norge/Disko-Agent/p/15616302", "details"],
-    ["/cart", "cart"],
-    ["/my-account/wishlist", "wishlist"],
-    ["/search", "search"],
-    ["/", "unknown"],
-  ])("detects %s as %s", (path, expected) => {
-    expect(detectPage(path)).toBe(expected);
+    ["/Land/Norge/Disko-Agent/p/15616302", "", "details"],
+    ["/cart", "", "cart"],
+    ["/my-account/wishlist", "", "wishlist"],
+    ["/search", "", "search"],
+    ["/search", "?searchType=product&q=%3Arelevance", "search"],
+    ["/search", "?searchType=content&q=%3Arelevance", "unknown"],
+    ["/", "", "unknown"],
+  ])("detects %s%s as %s", (path, search, expected) => {
+    expect(detectPage(path, search)).toBe(expected);
   });
 
   it("treats other pages with a product list as search", () => {

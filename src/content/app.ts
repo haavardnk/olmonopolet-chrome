@@ -3,6 +3,7 @@ import type { HealthPage } from "../shared/health";
 import { isSearchPath, detectPage } from "./router";
 import { find, findAll, missing, waitForAnchor } from "./dom/anchors";
 import { checkHealth, recordHealth } from "./core/health";
+import { removeToolbar } from "./core/toolbar";
 import { handleSearch } from "./pages/search";
 import { handleDetails } from "./pages/details";
 import { handleCart } from "./pages/cart";
@@ -28,7 +29,13 @@ export const HEALTH_CHECKS: Record<HealthPage, () => AnchorName[]> = {
     }
     return [
       ...page,
-      ...cardMissing(["productLink", "category", "tools", "productImage"]),
+      ...cardMissing([
+        "productLink",
+        "category",
+        "tools",
+        "productImage",
+        "productPrice",
+      ]),
     ];
   },
   details: () =>
@@ -51,7 +58,10 @@ function readyAnchor(page: HealthPage): AnchorName | null {
 
 export async function run(signal: AbortSignal): Promise<void> {
   const page = detectPage();
-  if (page === "unknown") return;
+  if (page === "unknown") {
+    removeToolbar();
+    return;
+  }
 
   const ready = readyAnchor(page);
   if (ready && !(await waitForAnchor(ready, { signal }))) {

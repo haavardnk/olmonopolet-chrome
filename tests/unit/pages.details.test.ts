@@ -91,8 +91,11 @@ describe("handleDetails", () => {
       IBU: "50",
       Alkoholenheter: "2,8",
       "Pris per alkoholenhet": "39 kr",
-      "Verdi for pengene": "8,0 av 20",
+      "Verdi for pengene": "",
     });
+    expect(
+      panel?.querySelector<HTMLElement>(".olmono-facts .olmono-value")?.title,
+    ).toBe("Verdi for pengene: Middels");
     expect(panel?.querySelector(".olmono-badge")?.textContent).toBe("Ny");
     expect(panel?.querySelector(".olmono-panel-footer")?.textContent).toBe(
       "Oppdatert 14.07.2026 · Se på Ølmonopolet",

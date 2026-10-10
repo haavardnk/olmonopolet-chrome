@@ -32,5 +32,8 @@ describe("handleCart", () => {
     const li = document.querySelector("ul.product-list > li")!;
     expect(li.querySelector(".olmono-row")).not.toBeNull();
     expect(li.querySelector(".olmono-star")).not.toBeNull();
+    expect(document.querySelector(".olmono-summary")?.textContent).toBe(
+      "Ølmonopolet · 1 øl · snittvurdering 3,60",
+    );
   });
 });

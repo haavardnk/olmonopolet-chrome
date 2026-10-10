@@ -16,19 +16,19 @@ describe("injectListButton", () => {
   const lists = () => [
     { id: 1, name: "Handleliste", list_type: "shopping", product_ids: [] },
   ];
+  const tools = () => document.querySelector(".sMnNlv3t");
 
   it("adds a list button to the product tools", () => {
-    expect(injectListButton(document, "111", lists())).toBe(true);
+    expect(injectListButton(tools(), "111", lists())).toBe(true);
     expect(document.querySelector(".olmono-list-btn")).not.toBeNull();
   });
 
   it("returns false when there is no product tools cluster", () => {
-    document.body.innerHTML = "";
-    expect(injectListButton(document, "111", lists())).toBe(false);
+    expect(injectListButton(null, "111", lists())).toBe(false);
   });
 
   it("shows a count badge when the product is already in lists", () => {
-    injectListButton(document, "111", [
+    injectListButton(tools(), "111", [
       { id: 1, name: "A", list_type: "standard", product_ids: ["111"] },
       { id: 2, name: "B", list_type: "standard", product_ids: ["111"] },
       { id: 3, name: "C", list_type: "standard", product_ids: [] },
@@ -45,7 +45,7 @@ describe("injectListButton", () => {
     );
 
     const data = lists();
-    injectListButton(document, "111", data);
+    injectListButton(tools(), "111", data);
     const badge = document.querySelector<HTMLElement>(".olmono-list-badge")!;
     expect(badge.hidden).toBe(true);
 

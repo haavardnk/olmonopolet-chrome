@@ -1,14 +1,22 @@
 import { API_BASE_URL } from "../../shared/constants";
-import type { Beer, BeerListResponse, UserList } from "../../shared/types";
+import type {
+  Beer,
+  BeerListResponse,
+  BeerSearchPage,
+  UserList,
+} from "../../shared/types";
 import { authFetch } from "./authFetch";
 
 const DEFAULT_TIMEOUT = 8000;
+const SEARCH_FIELDS =
+  "vmp_id,vmp_name,vmp_url,main_category,sub_category,country,price,volume,vmp_abv,product_selection,post_delivery,store_delivery";
 const DEFAULT_LIST_FIELDS =
-  "vmp_id,rating,checkins,badges,value_score,label_hd_url,user_tasted";
+  "vmp_id,rating,checkins,badges,value_score,price_per_alcohol_unit,label_hd_url,user_tasted";
 const DEFAULT_BEER_FIELDS =
   "vmp_id,ibu,style,rating,checkins,untpd_updated,badges,value_score,price_per_alcohol_unit,alcohol_units,label_sm_url,label_hd_url,user_tasted";
 
 const cache = new Map<string, Beer>();
+const notFound = new Set<string>();
 const SESSION_PREFIX = "olmono:beer:";
 let hydrated: Promise<void> | null = null;
 
@@ -77,7 +85,10 @@ export async function getBeers(
   fields = DEFAULT_LIST_FIELDS,
 ): Promise<Map<string, Beer>> {
   await ensureHydrated();
-  const missing = ids.filter((id) => !cache.has(cacheKey(id, fields)));
+  const missing = ids.filter((id) => {
+    const key = cacheKey(id, fields);
+    return !cache.has(key) && !notFound.has(key);
+  });
 
   if (missing.length > 0) {
     const url = `${API_BASE_URL}/beers/?beers=${missing.join()}&fields=${fields}`;
@@ -89,6 +100,10 @@ export async function getBeers(
       keys.push(key);
     });
     persist(keys);
+    missing
+      .map((id) => cacheKey(id, fields))
+      .filter((key) => !cache.has(key))
+      .forEach((key) => notFound.add(key));
   }
 
   const result = new Map<string, Beer>();
@@ -117,7 +132,29 @@ export async function getBeer(
 
 export function clearBeerCache(): void {
   cache.clear();
+  notFound.clear();
   hydrated = null;
+}
+
+export interface BeerSearch {
+  query: string;
+  ordering: string;
+  hideTasted: boolean;
+  page: number;
+  pageSize: number;
+}
+
+export function searchBeers(search: BeerSearch): Promise<BeerSearchPage> {
+  const params = new URLSearchParams({
+    vmp_query: search.query,
+    ordering: `${search.ordering},vmp_name`,
+    active: "True",
+    page: String(search.page),
+    page_size: String(search.pageSize),
+    fields: SEARCH_FIELDS,
+  });
+  if (search.hideTasted) params.set("user_tasted", "false");
+  return fetchJson<BeerSearchPage>(`${API_BASE_URL}/beers/?${params}`);
 }
 
 export async function markTasted(
@@ -127,7 +164,14 @@ export async function markTasted(
   const res = await authFetch(`${API_BASE_URL}/beers/${id}/mark_tasted/`, {
     method: tasted ? "POST" : "DELETE",
   });
-  return res.ok;
+  if (!res.ok) return false;
+  const keys = [...cache.keys()].filter((key) => key.startsWith(`${id}:`));
+  for (const key of keys) {
+    const beer = cache.get(key);
+    if (beer) cache.set(key, { ...beer, user_tasted: tasted });
+  }
+  persist(keys);
+  return true;
 }
 
 let listsCache: UserList[] | null = null;

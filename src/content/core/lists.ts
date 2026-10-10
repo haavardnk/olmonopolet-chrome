@@ -1,5 +1,4 @@
 import { addToList, removeFromList } from "../api/client";
-import { find } from "../dom/anchors";
 import type { UserList } from "../../shared/types";
 import { ICONS, icon } from "./icons";
 
@@ -73,11 +72,10 @@ function buildMenu(
 }
 
 export function injectListButton(
-  root: ParentNode,
+  tools: Element | null,
   id: string,
   lists: UserList[],
 ): boolean {
-  const tools = find("tools", root);
   if (!tools) return false;
   const existing = tools.querySelector<HTMLElement>(".olmono-list-btn");
   if (existing?.dataset.olmono === id) return true;

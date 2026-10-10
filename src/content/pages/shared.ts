@@ -3,6 +3,7 @@ import { getSettings } from "../../shared/settings";
 import { isConnected } from "../../shared/auth";
 import { getBeers, getLists } from "../api/client";
 import { getProductId, getInfoContainer, isBeer } from "../dom/product";
+import { find } from "../dom/anchors";
 import {
   injectRating,
   injectSkeleton,
@@ -11,17 +12,18 @@ import {
 } from "../core/inject";
 import { injectTastedButton } from "../core/tasted";
 import { injectListButton } from "../core/lists";
+import { renderSummary } from "../core/summary";
 import {
-  renderRating,
+  renderCardRow,
   renderSkeleton,
-  renderBadges,
-  renderValueScore,
+  renderUnitPrice,
   applyLabelImage,
 } from "../core/render";
 
 export interface ProcessOptions {
   fields?: string;
   requireBeer?: boolean;
+  hideTasted?: boolean;
   signal?: AbortSignal;
   onRendered?: (card: Element, beer: Beer) => void;
 }
@@ -29,7 +31,7 @@ export interface ProcessOptions {
 export async function processCards(
   cards: Element[],
   opts: ProcessOptions = {},
-): Promise<void> {
+): Promise<Beer[]> {
   const relevant = opts.requireBeer ? cards.filter(isBeer) : cards;
 
   const idByCard = new Map<Element, string>();
@@ -39,7 +41,7 @@ export async function processCards(
   }
 
   const ids = [...idByCard.values()];
-  if (ids.length === 0) return;
+  if (ids.length === 0) return [];
 
   const entries = [...idByCard].map(([card, id]) => ({
     card,
@@ -56,32 +58,46 @@ export async function processCards(
   const settings = await getSettings();
   const connected = await isConnected();
   const lists = connected ? await getLists() : [];
-  if (opts.signal?.aborted) return;
+  if (opts.signal?.aborted) return [];
 
+  const rendered: Beer[] = [];
   for (const { card, id, container } of entries) {
     const beer = beers.get(id);
     if (!beer) {
       removeSkeleton(container, id);
       continue;
     }
+    rendered.push(beer);
 
-    const row = renderRating(beer);
-    const valueScore = renderValueScore(beer);
-    if (valueScore) row.appendChild(valueScore);
-    const badges = renderBadges(beer.badges);
-    if (badges) row.appendChild(badges);
+    const row = renderCardRow(beer);
 
-    card.classList.toggle(
-      "olmono-tasted-card",
-      connected && settings.tastedDim && beer.user_tasted === true,
-    );
+    const tasted = connected && beer.user_tasted === true;
+    card.classList.toggle("olmono-tasted-card", tasted && settings.tastedDim);
+    card.classList.toggle("olmono-hidden-card", tasted && !!opts.hideTasted);
     if (injectRating(container, id, row)) {
+      const unitPrice = renderUnitPrice(beer);
+      if (unitPrice) {
+        card.querySelector(".olmono-unit-price")?.remove();
+        (find("productPrice", card) ?? row).appendChild(unitPrice);
+      }
       applyLabelImage(card, beer, settings.labelImage);
       if (connected) {
-        injectTastedButton(card, id, beer.user_tasted ?? false);
-        injectListButton(card, id, lists);
+        const tools = find("tools", card);
+        injectTastedButton(tools, id, beer.user_tasted ?? false);
+        injectListButton(tools, id, lists);
       }
       opts.onRendered?.(card, beer);
     }
   }
+  return rendered;
+}
+
+export async function showSummary(
+  beers: Beer[],
+  signal?: AbortSignal,
+): Promise<void> {
+  const connected = await isConnected();
+  if (signal?.aborted) return;
+  const list = find("productList");
+  if (list) renderSummary(list, beers, connected);
 }

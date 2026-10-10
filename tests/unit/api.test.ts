@@ -37,17 +37,18 @@ describe("getBeers", () => {
     expect(fetchMock).toHaveBeenCalledOnce();
   });
 
-  it("serves repeated ids from cache", async () => {
+  it("does not refetch cached or unknown ids", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ results: [{ vmp_id: 111, rating: 3.5 }] }),
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    await getBeers([111]);
-    await getBeers([111]);
+    await getBeers([111, 999]);
+    const map = await getBeers([111, 999]);
 
     expect(fetchMock).toHaveBeenCalledOnce();
+    expect([...map.keys()]).toEqual(["111"]);
   });
 
   it("persists to session storage and hydrates after a reload", async () => {

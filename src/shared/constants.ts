@@ -1,4 +1,5 @@
-export const API_BASE_URL = "https://api.olmonopolet.app";
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "https://api.olmonopolet.app";
 
 export const APP_ORIGIN = "https://olmonopolet.app";
 
