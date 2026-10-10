@@ -3,7 +3,6 @@ import type {
   Beer,
   BeerListResponse,
   BeerSearchPage,
-  UserList,
 } from "../../shared/types";
 import { authFetch } from "./authFetch";
 
@@ -11,7 +10,7 @@ const DEFAULT_TIMEOUT = 8000;
 const SEARCH_FIELDS =
   "vmp_id,vmp_name,vmp_url,main_category,sub_category,country,price,volume,vmp_abv,product_selection,post_delivery,store_delivery";
 const DEFAULT_LIST_FIELDS =
-  "vmp_id,rating,checkins,badges,value_score,price_per_alcohol_unit,label_hd_url,user_tasted";
+  "vmp_id,style,rating,checkins,badges,value_score,price_per_alcohol_unit,label_hd_url,user_tasted";
 const DEFAULT_BEER_FIELDS =
   "vmp_id,ibu,style,rating,checkins,untpd_updated,badges,value_score,price_per_alcohol_unit,alcohol_units,label_sm_url,label_hd_url,user_tasted,description,brewery_details,first_seen,style_stats,releases";
 
@@ -172,46 +171,4 @@ export async function markTasted(
   }
   persist(keys);
   return true;
-}
-
-let listsCache: UserList[] | null = null;
-
-export async function getLists(force = false): Promise<UserList[]> {
-  if (listsCache && !force) return listsCache;
-  try {
-    const res = await authFetch(`${API_BASE_URL}/lists/`);
-    if (!res.ok) return listsCache ?? [];
-    const data = (await res.json()) as UserList[] | { results?: UserList[] };
-    listsCache = Array.isArray(data) ? data : (data.results ?? []);
-    return listsCache;
-  } catch {
-    return listsCache ?? [];
-  }
-}
-
-export async function addToList(
-  listId: number | string,
-  productId: string,
-): Promise<boolean> {
-  const res = await authFetch(`${API_BASE_URL}/lists/${listId}/items/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ product_id: productId }),
-  });
-  return res.ok;
-}
-
-export async function removeFromList(
-  listId: number | string,
-  productId: string,
-): Promise<boolean> {
-  const res = await authFetch(
-    `${API_BASE_URL}/lists/${listId}/products/${productId}/`,
-    { method: "DELETE" },
-  );
-  return res.ok;
-}
-
-export function clearListsCache(): void {
-  listsCache = null;
 }

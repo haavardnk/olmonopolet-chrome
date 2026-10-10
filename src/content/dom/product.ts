@@ -33,9 +33,13 @@ export function getCategoryText(product: ParentNode): string {
   return parts.join(" ");
 }
 
-export function isBeer(product: ParentNode): boolean {
-  const upper = getCategoryText(product).toUpperCase();
+export function isBeerText(text: string | null | undefined): boolean {
+  const upper = text?.toUpperCase() ?? "";
   return BEER_CATEGORIES.some((cat) => upper.includes(cat));
+}
+
+export function isBeer(product: ParentNode): boolean {
+  return isBeerText(getCategoryText(product));
 }
 
 export function getInfoContainer(product: Element): Element {

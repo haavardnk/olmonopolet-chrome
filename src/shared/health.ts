@@ -1,4 +1,5 @@
 import type { AnchorName } from "./anchorConfig";
+import { localArea } from "./storage";
 
 export const HEALTH_KEY = "olmono:health";
 
@@ -13,7 +14,8 @@ export interface HealthEntry {
 export type HealthState = Partial<Record<HealthPage, HealthEntry>>;
 
 export async function getHealth(): Promise<HealthState> {
-  if (typeof chrome === "undefined" || !chrome.storage?.local) return {};
-  const data = await chrome.storage.local.get(HEALTH_KEY);
+  const area = localArea();
+  if (!area) return {};
+  const data = await area.get(HEALTH_KEY);
   return (data[HEALTH_KEY] as HealthState | undefined) ?? {};
 }

@@ -7,7 +7,7 @@ import {
   renderCardRow,
   renderUnitPrice,
   applyLabelImage,
-} from "../../src/content/core/render";
+} from "../../src/content/ui/render";
 
 describe("renderSkeleton", () => {
   it("renders a busy skeleton row with shimmer bars", () => {

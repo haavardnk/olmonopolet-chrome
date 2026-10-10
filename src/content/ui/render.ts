@@ -1,32 +1,44 @@
-import { productUrl } from "../../shared/constants";
+import { VMP_IMAGE_CACHE, productUrl } from "../../shared/constants";
 import { formatCompact, formatNumber, formatRating } from "../../shared/format";
 import type { Beer, Badge } from "../../shared/types";
 import type { LabelImageMode } from "../../shared/settings";
 import { find } from "../dom/anchors";
 import { ICONS, icon, logo } from "./icons";
 
+export function externalLink(href: string): HTMLAnchorElement {
+  const link = document.createElement("a");
+  link.href = href;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  return link;
+}
+
+export function renderMessage(text: string, large = false): HTMLDivElement {
+  const row = document.createElement("div");
+  row.classList.add("olmono-row");
+  if (large) row.classList.add("olmono-row--lg");
+  const span = document.createElement("span");
+  span.classList.add("olmono-rating");
+  const message = document.createElement("span");
+  message.classList.add("olmono-rating-empty");
+  message.textContent = text;
+  if (large) span.append(logo(20));
+  span.append(message);
+  row.appendChild(span);
+  return row;
+}
+
 export function renderRating(beer: Beer, large = false): HTMLDivElement {
+  if (beer.rating === null || beer.rating === undefined) {
+    return renderMessage("Ingen vurdering", large);
+  }
+
   const row = document.createElement("div");
   row.classList.add("olmono-row");
   if (large) row.classList.add("olmono-row--lg");
 
-  if (beer.rating === null || beer.rating === undefined) {
-    const empty = document.createElement("span");
-    empty.classList.add("olmono-rating");
-    const text = document.createElement("span");
-    text.classList.add("olmono-rating-empty");
-    text.textContent = "Ingen vurdering";
-    if (large) empty.append(logo(20));
-    empty.append(text);
-    row.appendChild(empty);
-    return row;
-  }
-
-  const link = document.createElement("a");
+  const link = externalLink(productUrl(beer.vmp_id));
   link.classList.add("olmono-rating");
-  link.href = productUrl(beer.vmp_id);
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
   link.title = "Åpne på Ølmonopolet";
 
   const star = icon(ICONS.star, large ? 20 : 16);
@@ -143,7 +155,7 @@ function vmpImageMissing(vmpId: number): Promise<boolean> {
     probe.onload = () =>
       resolve(probe.naturalWidth > 150 || probe.naturalHeight > 150);
     probe.onerror = () => resolve(true);
-    probe.src = `https://bilder.vinmonopolet.no/cache/150x150-0/${vmpId}-1.jpg`;
+    probe.src = `${VMP_IMAGE_CACHE}/150x150-0/${vmpId}-1.jpg`;
   });
 }
 

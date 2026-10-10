@@ -1,4 +1,4 @@
-import { addToList, removeFromList } from "../api/client";
+import { addToList, removeFromList } from "../api/lists";
 import type { UserList } from "../../shared/types";
 import { ICONS, icon } from "./icons";
 

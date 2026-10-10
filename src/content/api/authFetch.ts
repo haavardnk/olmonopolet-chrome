@@ -1,5 +1,5 @@
 import { getToken, clearToken } from "../../shared/auth";
-import { notifySessionExpired } from "../core/notice";
+import { notifySessionExpired } from "../ui/notice";
 
 export async function authFetch(
   url: string,

@@ -1,3 +1,5 @@
+import { localArea, onLocalChange } from "./storage";
+
 export type LabelImageMode = "off" | "fill-if-missing" | "override";
 
 export type SortMode =
@@ -30,11 +32,6 @@ export const DEFAULT_SETTINGS: Settings = {
 
 const STORAGE_KEY = "olmono:settings";
 
-function localArea(): chrome.storage.LocalStorageArea | null {
-  if (typeof chrome === "undefined") return null;
-  return chrome.storage?.local ?? null;
-}
-
 export async function getSettings(): Promise<Settings> {
   const area = localArea();
   if (!area) return { ...DEFAULT_SETTINGS };
@@ -53,17 +50,10 @@ export async function setSettings(patch: Partial<Settings>): Promise<Settings> {
 export function onSettingsChange(
   callback: (settings: Settings) => void,
 ): () => void {
-  if (typeof chrome === "undefined" || !chrome.storage?.onChanged)
-    return () => {};
-  const listener = (
-    changes: Record<string, chrome.storage.StorageChange>,
-    area: chrome.storage.AreaName,
-  ): void => {
-    if (area !== "local" || !changes[STORAGE_KEY]) return;
-    const value = changes[STORAGE_KEY].newValue as
-      Partial<Settings> | undefined;
-    callback({ ...DEFAULT_SETTINGS, ...value });
-  };
-  chrome.storage.onChanged.addListener(listener);
-  return () => chrome.storage.onChanged.removeListener(listener);
+  return onLocalChange(STORAGE_KEY, (value) =>
+    callback({
+      ...DEFAULT_SETTINGS,
+      ...(value as Partial<Settings> | undefined),
+    }),
+  );
 }

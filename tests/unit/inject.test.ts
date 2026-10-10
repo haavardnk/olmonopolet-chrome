@@ -5,7 +5,7 @@ import {
   removeSkeleton,
   alreadyInjected,
   sweepStale,
-} from "../../src/content/core/inject";
+} from "../../src/content/dom/inject";
 
 function skeleton(): HTMLElement {
   const el = document.createElement("div");

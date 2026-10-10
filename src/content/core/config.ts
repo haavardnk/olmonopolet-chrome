@@ -5,6 +5,7 @@ import {
   type Strategy,
 } from "../../shared/anchorConfig";
 import { API_BASE_URL, extensionVersion } from "../../shared/constants";
+import { localArea } from "../../shared/storage";
 import { setAnchors } from "../dom/anchors";
 
 const CONFIG_KEY = "olmono:config";
@@ -14,11 +15,6 @@ const MAX_UP = 10;
 interface CachedConfig {
   fetchedAt: number;
   data: unknown;
-}
-
-function localArea(): chrome.storage.LocalStorageArea | null {
-  if (typeof chrome === "undefined") return null;
-  return chrome.storage?.local ?? null;
 }
 
 export function compareVersions(a: string, b: string): number {

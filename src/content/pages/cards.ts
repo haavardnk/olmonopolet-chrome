@@ -1,38 +1,42 @@
 import type { Beer } from "../../shared/types";
 import { getSettings } from "../../shared/settings";
 import { isConnected } from "../../shared/auth";
-import { getBeers, getLists } from "../api/client";
-import { getProductId, getInfoContainer, isBeer } from "../dom/product";
+import { getBeers } from "../api/client";
+import { getLists } from "../api/lists";
+import {
+  appendStyleToCategory,
+  getProductId,
+  getInfoContainer,
+  isBeer,
+} from "../dom/product";
 import { find } from "../dom/anchors";
 import {
   injectRating,
   injectSkeleton,
   removeSkeleton,
   sweepStale,
-} from "../core/inject";
-import { injectTastedButton } from "../core/tasted";
-import { injectListButton } from "../core/lists";
-import { renderSummary } from "../core/summary";
+} from "../dom/inject";
+import { injectTastedButton } from "../ui/tastedButton";
+import { injectListButton } from "../ui/listButton";
+import { renderSummary } from "../ui/summary";
 import {
   renderCardRow,
   renderSkeleton,
   renderUnitPrice,
   applyLabelImage,
-} from "../core/render";
+} from "../ui/render";
 
 export interface ProcessOptions {
-  fields?: string;
-  requireBeer?: boolean;
+  beersOnly?: boolean;
   hideTasted?: boolean;
   signal?: AbortSignal;
-  onRendered?: (card: Element, beer: Beer) => void;
 }
 
 export async function processCards(
   cards: Element[],
   opts: ProcessOptions = {},
 ): Promise<Beer[]> {
-  const relevant = opts.requireBeer ? cards.filter(isBeer) : cards;
+  const relevant = opts.beersOnly ? cards.filter(isBeer) : cards;
 
   const idByCard = new Map<Element, string>();
   for (const card of relevant) {
@@ -54,7 +58,7 @@ export async function processCards(
     injectSkeleton(container, id, renderSkeleton());
   }
 
-  const beers = await getBeers(ids, opts.fields);
+  const beers = await getBeers(ids);
   const settings = await getSettings();
   const connected = await isConnected();
   const lists = connected ? await getLists() : [];
@@ -86,7 +90,9 @@ export async function processCards(
         injectTastedButton(tools, id, beer.user_tasted ?? false);
         injectListButton(tools, id, lists);
       }
-      opts.onRendered?.(card, beer);
+      if (opts.beersOnly && beer.style) {
+        appendStyleToCategory(card, id, beer.style);
+      }
     }
   }
   return rendered;

@@ -6,7 +6,7 @@ import {
   type SortMode,
 } from "../../shared/settings";
 import { logo } from "./icons";
-import { confirmOlmonoSort } from "./notice";
+import { confirmOlmonoSort } from "./sortIntro";
 
 export interface ToolbarState {
   settings: Settings;

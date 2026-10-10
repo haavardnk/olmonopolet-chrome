@@ -1,9 +1,6 @@
-const TOKEN_KEY = "olmono:token";
+import { localArea, onLocalChange } from "./storage";
 
-function localArea(): chrome.storage.LocalStorageArea | null {
-  if (typeof chrome === "undefined") return null;
-  return chrome.storage?.local ?? null;
-}
+const TOKEN_KEY = "olmono:token";
 
 export async function getToken(): Promise<string | null> {
   const area = localArea();
@@ -30,16 +27,7 @@ export async function isConnected(): Promise<boolean> {
 export function onTokenChange(
   callback: (token: string | null) => void,
 ): () => void {
-  if (typeof chrome === "undefined" || !chrome.storage?.onChanged)
-    return () => {};
-  const listener = (
-    changes: Record<string, chrome.storage.StorageChange>,
-    area: chrome.storage.AreaName,
-  ): void => {
-    if (area !== "local" || !changes[TOKEN_KEY]) return;
-    const value = changes[TOKEN_KEY].newValue;
-    callback(typeof value === "string" ? value : null);
-  };
-  chrome.storage.onChanged.addListener(listener);
-  return () => chrome.storage.onChanged.removeListener(listener);
+  return onLocalChange(TOKEN_KEY, (value) =>
+    callback(typeof value === "string" ? value : null),
+  );
 }

@@ -3,12 +3,14 @@ import {
   getBeers,
   getBeer,
   markTasted,
+  clearBeerCache,
+} from "../../src/content/api/client";
+import {
   getLists,
   addToList,
   removeFromList,
-  clearBeerCache,
   clearListsCache,
-} from "../../src/content/api/client";
+} from "../../src/content/api/lists";
 
 beforeEach(() => {
   vi.unstubAllGlobals();

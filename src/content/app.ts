@@ -3,7 +3,7 @@ import type { HealthPage } from "../shared/health";
 import { isSearchPath, detectPage } from "./router";
 import { find, findAll, missing, waitForAnchor } from "./dom/anchors";
 import { checkHealth, recordHealth } from "./core/health";
-import { removeToolbar } from "./core/toolbar";
+import { removeToolbar } from "./ui/toolbar";
 import { handleSearch } from "./pages/search";
 import { handleDetails } from "./pages/details";
 import { handleCart } from "./pages/cart";

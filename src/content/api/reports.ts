@@ -2,6 +2,7 @@ import type { AnchorName } from "../../shared/anchorConfig";
 import { API_BASE_URL, extensionVersion } from "../../shared/constants";
 import type { HealthPage } from "../../shared/health";
 import { getSettings } from "../../shared/settings";
+import { localArea } from "../../shared/storage";
 
 const REPORTED_KEY = "olmono:reported";
 
@@ -9,10 +10,9 @@ export async function sendReport(
   page: HealthPage,
   anchors: AnchorName[],
 ): Promise<void> {
-  if (typeof chrome === "undefined" || !chrome.storage?.local) return;
-  if (!(await getSettings()).reports) return;
+  const area = localArea();
+  if (!area || !(await getSettings()).reports) return;
 
-  const area = chrome.storage.local;
   const today = new Date().toISOString().slice(0, 10);
   const stored = (await area.get(REPORTED_KEY))[REPORTED_KEY] as
     Record<string, string> | undefined;
