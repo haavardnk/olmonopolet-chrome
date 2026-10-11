@@ -76,9 +76,9 @@ jobs:
           CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
           CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
           SERVICE_ACCOUNT_KEY: ${{ secrets.CHROME_SERVICE_ACCOUNT_KEY }}
-          DRY_RUN: ${{ inputs.dry-run && '--dry-run' || '' }}
+          DRY_RUN: ${{ inputs.dry-run == true }}
         run: |
           CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL=$(jq -r .client_email <<< "$SERVICE_ACCOUNT_KEY")
           CHROME_SERVICE_ACCOUNT_PRIVATE_KEY=$(jq -r .private_key <<< "$SERVICE_ACCOUNT_KEY")
           export CHROME_SERVICE_ACCOUNT_CLIENT_EMAIL CHROME_SERVICE_ACCOUNT_PRIVATE_KEY
-          npx wxt submit --chrome-zip ".output/olmonopolet-chrome-$TAG.zip" $DRY_RUN
+          npx wxt submit --chrome-zip ".output/olmonopolet-chrome-$TAG.zip"
