@@ -20,9 +20,14 @@ import { injectListButton } from "../ui/listButton";
 
 const RETRY = { attempts: 20, delay: 300 };
 
+function removePlaced(selector: string): void {
+  for (const el of document.querySelectorAll(selector)) el.remove();
+}
+
 function placePanel(panel: HTMLElement): boolean {
   const hero = find("detailHero");
   if (!hero) return false;
+  removePlaced(".olmono-panel");
   hero.after(panel);
   return true;
 }
@@ -30,6 +35,7 @@ function placePanel(panel: HTMLElement): boolean {
 function placeHeroFacts(hero: HTMLElement): boolean {
   const buy = find("detailBuy");
   if (!buy) return false;
+  removePlaced(".olmono-hero");
   buy.classList.add("olmono-hero-grid");
   hero.style.gridRow = `1 / span ${buy.childElementCount}`;
   buy.appendChild(hero);

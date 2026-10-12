@@ -109,6 +109,18 @@ describe("handleDetails", () => {
     expect(document.body.innerHTML.toLowerCase()).not.toContain("untappd");
   });
 
+  it("keeps one band when the site re-renders the name block", async () => {
+    mockBeer(FULL_BEER);
+
+    await handleDetails();
+    document.querySelector(".olmono-name-rating")?.remove();
+    await handleDetails();
+
+    expect(document.querySelectorAll(".olmono-name-rating")).toHaveLength(1);
+    expect(document.querySelectorAll(".olmono-panel")).toHaveLength(1);
+    expect(document.querySelectorAll(".olmono-hero")).toHaveLength(1);
+  });
+
   it("adds style comparison, releases, first seen and brewery", async () => {
     mockBeer({
       ...FULL_BEER,
