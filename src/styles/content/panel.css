@@ -135,9 +135,18 @@ main:has(.olmono-panel, .olmono-hero) {
   color: var(--color-nevada, #66797c);
 }
 
-.olmono-panel-footer a {
+.olmono-panel-footer a,
+.olmono-panel-report {
   color: var(--color-blue-stone, #006458);
   text-decoration: underline;
+}
+
+.olmono-panel-report {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
 }
 
 @media (min-width: 768px) {

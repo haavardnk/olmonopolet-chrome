@@ -3,6 +3,7 @@ import { formatDate } from "../../shared/format";
 import { productUrl } from "../../shared/constants";
 import { externalLink, renderBadges, renderRating } from "./render";
 import { addFact, addSummaryFacts } from "./facts";
+import { openMatchReport } from "./matchReport";
 
 const CLAMP_LENGTH = 180;
 
@@ -71,7 +72,13 @@ function renderFooter(beer: Beer, id: string): HTMLElement {
   }
   const link = externalLink(productUrl(id));
   link.textContent = "Se på Ølmonopolet";
-  footer.appendChild(link);
+  const matched = beer.rating !== null && beer.rating !== undefined;
+  const report = document.createElement("button");
+  report.type = "button";
+  report.classList.add("olmono-panel-report");
+  report.textContent = matched ? "Feil øl?" : "Foreslå match";
+  report.addEventListener("click", () => openMatchReport(id, matched));
+  footer.append(link, " · ", report);
   return footer;
 }
 
