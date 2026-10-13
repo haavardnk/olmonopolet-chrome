@@ -104,7 +104,7 @@ describe("handleDetails", () => {
     ).toBe("Verdi for pengene: Middels");
     expect(panel?.querySelector(".olmono-badge")?.textContent).toBe("Ny");
     expect(panel?.querySelector(".olmono-panel-footer")?.textContent).toBe(
-      "Oppdatert 14.07.2026 · Se på Ølmonopolet",
+      "Oppdatert 14.07.2026 · Se på Ølmonopolet · Feil øl?",
     );
     expect(document.body.innerHTML.toLowerCase()).not.toContain("untappd");
   });

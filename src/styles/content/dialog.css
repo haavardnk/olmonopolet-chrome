@@ -35,6 +35,31 @@
   margin: 0 0 12px;
 }
 
+.olmono-dialog-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--color-nevada, #66797c);
+  border-radius: 4px;
+  font: inherit;
+  color: inherit;
+}
+
+.olmono-dialog-input:focus-visible {
+  outline: 2px solid var(--color-blue-stone, #006458);
+  outline-offset: 1px;
+}
+
+.olmono-dialog-input[aria-invalid="true"] {
+  border-color: var(--color-red, #b3261e);
+}
+
+.olmono-dialog-error {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--color-red, #b3261e);
+}
+
 .olmono-dialog-actions {
   display: flex;
   justify-content: flex-end;
@@ -55,6 +80,11 @@
 .olmono-dialog-btn-primary {
   background-color: var(--color-blue-stone, #006458);
   color: #fff;
+}
+
+.olmono-dialog-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .olmono-dialog-btn:focus-visible {
